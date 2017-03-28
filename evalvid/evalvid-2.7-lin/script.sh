@@ -46,3 +46,9 @@ rm sample.264
 ./speedometer h4-eth0 t
 #rx
 ./speedometer h4-eth0 r
+
+
+./etmp4 -F -x files/rd01 files/sdh12 files/st01 sample.mp4 h12 && 
+ffmpeg -i h12.mp4 h12.yuv && 
+zip typical-11m.zip h12.mp4 h12.yuv files/* && 
+sudo ./clear.sh
