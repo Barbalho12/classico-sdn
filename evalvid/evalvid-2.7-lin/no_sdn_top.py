@@ -5,21 +5,21 @@ This example shows how to work with WiFi on Mininet.
 """
 
 from mininet.net import Mininet
-from mininet.node import  OVSController, OVSKernelSwitch, RemoteController
+from mininet.node import  OVSController, OVSKernelSwitch
 from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.link import TCLink
 
 def topology():
     "Create a network."
-    net = Mininet( controller=RemoteController, link=TCLink, switch=OVSKernelSwitch )
+    net = Mininet( controller=OVSController, link=TCLink, switch=OVSKernelSwitch )
 	
     _bw=10
     _latency='5ms'
     _max_queue_size=100
     _use_htb=True
-    _ip_remote_control='127.0.0.1'
-    _port_remote_control=6653
+    # _ip_remote_control='127.0.0.1'
+    # _port_remote_control=6653
 
     print "*** Creating nodes"
     h1 = net.addHost( 'h1', mac="00:00:00:00:00:01", ip='10.0.0.1' )
@@ -34,14 +34,10 @@ def topology():
     h10 = net.addHost( 'h10', mac="00:00:00:00:00:10", ip='10.0.0.10' )
     h11 = net.addHost( 'h11', mac="00:00:00:00:00:11", ip='10.0.0.11' )
     h12 = net.addHost( 'h12', mac="00:00:00:00:00:12", ip='10.0.0.12' )
-    h13 = net.addHost( 'h13', mac="00:00:00:00:00:13", ip='10.0.0.13' )
-    h14 = net.addHost( 'h14', mac="00:00:00:00:00:14", ip='10.0.0.14' )
-    h15 = net.addHost( 'h15', mac="00:00:00:00:00:15", ip='10.0.0.15' )
     s1 = net.addSwitch( 's1' )
     s2 = net.addSwitch( 's2' )
     s3 = net.addSwitch( 's3' )
-    #c0 = net.addController('c0', controller=OVSController)
-    c0 = RemoteController( 'c0', ip=_ip_remote_control, port=_port_remote_control )
+    c0 = net.addController('c0', controller=OVSController)
 
     
 
@@ -58,9 +54,6 @@ def topology():
     net.addLink(h10, s3, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
     net.addLink(h11, s3, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
     net.addLink(h12, s3, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(h13, s3, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(h14, s3, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(h15, s3, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
     net.addLink(s1, s2, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
     net.addLink(s1, s3, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
     
