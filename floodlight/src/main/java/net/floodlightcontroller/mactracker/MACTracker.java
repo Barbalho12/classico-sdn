@@ -136,55 +136,26 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 					IPv4 ipv4 = (IPv4) eth.getPayload();
 	
 					if(ipv4.getProtocol() == IpProtocol.UDP) {
-						IOFSwitch iofs = switchService.getSwitch(DatapathId.of("00:00:00:00:00:02"));
-						IOFSwitch iofs3 = switchService.getSwitch(DatapathId.of("00:00:00:00:00:03"));
-						
+
+						//Switch de entrada para nova regra de fluxo
+						IOFSwitch iofs = switchService.getSwitch(DatapathId.of("00:00:00:00:aa:bb:cc:38"));
+
 						if(flag && iofs.equals(sw)){
-							
-							Rule rule1 = new Rule("s2-eth1", "10.0.0.1", "10.0.0.2");
-							ArrayList<OFAction> actionList2 = createListActions(iofs, "s2-eth3", "10.0.0.3", "00:00:00:00:00:03", 12345);
-							ArrayList<OFBucket> buckets = createBuckets(iofs, actionList2, "s2-eth2");
+
+							//Regra de fluxo
+							//ARGS: Interface de entrada - IP fonte - IP Destino
+							Rule rule1 = new Rule("eth1.1", "192.168.2.150", "192.168.2.185");
+
+							//Ação sobre o pacote que será replicado
+							//ARGS: Interface de Saída do pacote- Novo IP destino - Novo MAC destino - Nova Porta destino
+							ArrayList<OFAction> actionList2 = createListActions(iofs, "eth1.4", "192.168.2.100", "10:60:4b:ea:b9:01", 12345);
+							ArrayList<OFBucket> buckets = createBuckets(iofs, actionList2, "eth1.5");
+
+							//Criação do grupo
 							group(iofs, rule1, buckets);
 							System.out.println("Create Group...");
 							flag = false;
-							
-						}
-						if(flag2 && iofs3.equals(sw)){
-//						if(flag2){
-							
-							Rule rule2 = new Rule("s3-eth3", "10.0.0.1", "10.0.0.3");
-							ArrayList<OFAction> actionList3 = createListActions(iofs3, "s3-eth2", "10.0.0.4", "00:00:00:00:00:04", 12345);
-							ArrayList<OFBucket> buckets = createBuckets(iofs3, actionList3, "s3-eth1");
-							
-							/*Expansão para mais dois hosts*/
-							ArrayList<OFAction> actionList4 = createListActions(iofs3, "s3-eth3", "10.0.0.5", "00:00:00:00:00:05", 12345);
-							ArrayList<OFAction> actionList5 = createListActions(iofs3, "s3-eth4", "10.0.0.6", "00:00:00:00:00:06", 12345);
-//							ArrayList<OFAction> actionList6 = createListActions(iofs3, "s3-eth5", "10.0.0.7", "00:00:00:00:00:07", 12345);
-//							ArrayList<OFAction> actionList7 = createListActions(iofs3, "s3-eth6", "10.0.0.8", "00:00:00:00:00:08", 12345);
-//							ArrayList<OFAction> actionList8 = createListActions(iofs3, "s3-eth7", "10.0.0.9", "00:00:00:00:00:09", 12345);
-//							ArrayList<OFAction> actionList9 = createListActions(iofs3, "s3-eth8", "10.0.0.10", "00:00:00:00:00:10", 12345);
-//							ArrayList<OFAction> actionList10 = createListActions(iofs3, "s3-eth9", "10.0.0.11", "00:00:00:00:00:11", 12345);
-							ArrayList<OFAction> actionList11 = createListActions(iofs3, "s3-eth10", "10.0.0.12", "00:00:00:00:00:12", 12345);
-//							ArrayList<OFAction> actionList12 = createListActions(iofs3, "s3-eth10", "10.0.0.13", "00:00:00:00:00:13", 12345);
-//							ArrayList<OFAction> actionList13 = createListActions(iofs3, "s3-eth10", "10.0.0.14", "00:00:00:00:00:14", 12345);
-//							ArrayList<OFAction> actionList14 = createListActions(iofs3, "s3-eth10", "10.0.0.15", "00:00:00:00:00:15", 12345);
-							buckets.add(newBucket(iofs3, actionList4));
-							buckets.add(newBucket(iofs3, actionList5));
-//							buckets.add(newBucket(iofs3, actionList6));
-//							buckets.add(newBucket(iofs3, actionList7));
-//							buckets.add(newBucket(iofs3, actionList8));
-//							buckets.add(newBucket(iofs3, actionList9));
-//							buckets.add(newBucket(iofs3, actionList10));
-							buckets.add(newBucket(iofs3, actionList11));
-//							buckets.add(newBucket(iofs3, actionList12));
-//							buckets.add(newBucket(iofs3, actionList13));
-//							buckets.add(newBucket(iofs3, actionList14));
-							
-							
-							group(iofs3, rule2, buckets);
-							System.out.println("Create Group...");
-							flag2 = false;
-							
+
 						}
 						
 					}
@@ -200,25 +171,25 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 
 	public void group(IOFSwitch mySwitch, Rule rule, ArrayList<OFBucket> buckets){
 		OFFactory myFactory = mySwitch.getOFFactory();
-		
+
 //		ArrayList<OFBucket> buckets = createBuckets(mySwitch, actionList);
-		
+
 		/* Crio o grupo com a lista de buckets (cada bucket com uma lista de ações)*/
 		OFGroupAdd groupAdd = myFactory.buildGroupAdd()
 			    .setGroup(OFGroup.of(1))
 			    .setGroupType(OFGroupType.ALL)
 			    .setBuckets(buckets)
 			    .build();
-		
+
 		/*Escrevo no switch*/
 		mySwitch.write(groupAdd);
-		
+
 		System.out.println("--------------------GroupMod--------------------");
-		
-		
-		
+
+
+
 		/*Crio um fluxo que irá direcionar os pacotes que obedecem as restrições para o grupo criado antes*/
-		
+
 		OFFlowAdd flowAdd = myFactory.buildFlowAdd()
 			    .setHardTimeout(0)
 			    .setIdleTimeout(0)
