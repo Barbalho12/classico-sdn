@@ -23,25 +23,21 @@ def topology():
     _port_remote_control=6653
 
     print "*** Creating Hosts"
-    h1 = net.addHost( 'h1', mac="00:00:00:00:00:01", ip='10.0.0.1' )
-    h2 = net.addHost( 'h2', mac="00:00:00:00:00:02", ip='10.0.0.2' )
-    h3 = net.addHost( 'h3', mac="00:00:00:00:00:03", ip='10.0.0.3' )
-    h4 = net.addHost( 'h4', mac="00:00:00:00:00:04", ip='10.0.0.4' )
-    h5 = net.addHost( 'h5', mac="00:00:00:00:00:05", ip='10.0.0.5' )
-    h6 = net.addHost( 'h6', mac="00:00:00:00:00:06", ip='10.0.0.6' )
-    h7 = net.addHost( 'h7', mac="00:00:00:00:00:07", ip='10.0.0.7' )
-    h8 = net.addHost( 'h8', mac="00:00:00:00:00:08", ip='10.0.0.8' )
+    h1 = net.addHost( 'h1', mac="00:00:00:00:00:01", ip='10.7.227.200' )
+    h2 = net.addHost( 'h2', mac="00:00:00:00:00:02", ip='10.7.227.210' )
+    h3 = net.addHost( 'h3', mac="00:00:00:00:00:03", ip='10.7.227.215' )
+    h4 = net.addHost( 'h4', mac="00:00:00:00:00:04", ip='10.7.227.230' )
+
 
 
     print "*** Creating Switchs"
-    s1 = net.addSwitch( 's1', dpid='00:00:00:00:aa:bb:cc:35' )
-    s2 = net.addSwitch( 's2', dpid='00:00:00:00:aa:bb:cc:15' )
-    s3 = net.addSwitch( 's3', dpid='00:00:00:00:aa:bb:cc:17' )
-    s4 = net.addSwitch( 's4', dpid='00:00:00:00:aa:bb:cc:10' )
-    s5 = net.addSwitch( 's5', dpid='00:00:00:00:aa:bb:cc:14' )
-    s6 = net.addSwitch( 's6', dpid='00:00:00:00:aa:bb:cc:16' )
-    s7 = net.addSwitch( 's7', dpid='00:00:00:00:aa:bb:cc:13' )
-    s8 = net.addSwitch( 's8', dpid='00:00:00:00:aa:bb:cc:36' )
+    s35 = net.addSwitch( 's35', dpid='00:00:00:00:aa:bb:cc:35' )
+    s32 = net.addSwitch( 's32', dpid='00:00:00:00:aa:bb:cc:32' )
+    s15 = net.addSwitch(  's15', dpid='00:00:00:00:aa:bb:cc:15' )
+    s14 = net.addSwitch(  's14', dpid='00:00:00:00:aa:bb:cc:14' )
+    s02 = net.addSwitch(  's02', dpid='00:00:00:00:aa:bb:cc:02' )
+    s17 = net.addSwitch(  's17', dpid='00:00:00:00:aa:bb:cc:17' )
+    s38 = net.addSwitch(  's38', dpid='00:00:00:00:aa:bb:cc:38' )
     
 
     print "*** Creating Controller Openflow"
@@ -50,42 +46,39 @@ def topology():
     
 
     print "*** Creating connection between switches"
-    net.addLink(s1, s2, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s1, s3, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s2, s4, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s2, s5, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s3, s4, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s3, s5, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s4, s6, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s4, s7, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s5, s6, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s5, s7, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s6, s8, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s7, s8, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(s35, s15, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(s35, s14, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(s32, s15, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(s32, s14, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+
+    net.addLink(s15, s17, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(s15, s02, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(s14, s17, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(s14, s02, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+
+    net.addLink(s02, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(s17, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+
 
     print "*** Connecting hosts"
-    net.addLink(h1, s1, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(h2, s2, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(h3, s3, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(h4, s4, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(h5, s5, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(h6, s6, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(h7, s7, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(h8, s8, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(h3, s35, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(h4, s35, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(h1, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(h2, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    
    
 
     
     print "*** Starting network"
     net.build()
     c0.start()
-    s1.start( [c0] )
-    s2.start( [c0] )
-    s3.start( [c0] )
-    s4.start( [c0] )
-    s5.start( [c0] )
-    s6.start( [c0] )
-    s7.start( [c0] )
-    s8.start( [c0] )
+    s35.start( [c0] )
+    s15.start( [c0] )
+    s17.start( [c0] )
+    s14.start( [c0] )
+    s32.start( [c0] )
+    s02.start( [c0] )
+    s38.start( [c0] )
 
     print "*** Running CLI"
     CLI( net )
