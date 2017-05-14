@@ -9,27 +9,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import org.projectfloodlight.openflow.protocol.OFBucket;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFFlowAdd;
-import org.projectfloodlight.openflow.protocol.OFGroupAdd;
-import org.projectfloodlight.openflow.protocol.OFGroupType;
 import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.OFType;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
-import org.projectfloodlight.openflow.protocol.action.OFActionSetField;
-import org.projectfloodlight.openflow.protocol.action.OFActions;
 import org.projectfloodlight.openflow.protocol.match.MatchField;
-import org.projectfloodlight.openflow.protocol.oxm.OFOxms;
 import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.EthType;
 import org.projectfloodlight.openflow.types.IPv4Address;
 import org.projectfloodlight.openflow.types.IpProtocol;
-import org.projectfloodlight.openflow.types.MacAddress;
 import org.projectfloodlight.openflow.types.OFGroup;
-import org.projectfloodlight.openflow.types.OFPort;
-
-import org.projectfloodlight.openflow.types.TransportPort;
 
 
 import net.floodlightcontroller.core.FloodlightContext;
@@ -118,12 +108,12 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 		floodlightProvider.addOFMessageListener(OFType.PACKET_IN, this);
 	}
 
-	Map<String,String> map = new HashMap<String,String>();
+//	Map<String,String> map = new HashMap<String,String>();
 	boolean flag = true;
-	boolean flag2 = true;
+//	boolean flag2 = true;
 	
 	@Override
-	public net.floodlightcontroller.core.IListener.Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
+	public synchronized net.floodlightcontroller.core.IListener.Command receive(IOFSwitch iof_switch, OFMessage msg, FloodlightContext cntx) {
 
 		switch (msg.getType()) {
 		
@@ -137,27 +127,53 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 	
 					if(ipv4.getProtocol() == IpProtocol.UDP) {
 
-						//Switch de entrada para nova regra de fluxo
-						IOFSwitch iofs = switchService.getSwitch(DatapathId.of("00:00:00:00:aa:bb:cc:38"));
 
-						if(flag && iofs.equals(sw)){
+						if(flag){
+							
+							//Switch de entrada para nova regra de fluxo
+							IOFSwitch  iofs = switchService.getSwitch(DatapathId.of("00:00:00:00:aa:bb:cc:35"));
 
-							//Regra de fluxo
-							//ARGS: Interface de entrada - IP fonte - IP Destino
-							Rule rule1 = new Rule("eth1.1", "192.168.2.150", "192.168.2.185");
-
-							//Ação sobre o pacote que será replicado
-							//ARGS: Interface de Saída do pacote- Novo IP destino - Novo MAC destino - Nova Porta destino
-							ArrayList<OFAction> actionList2 = createListActions(iofs, "eth1.4", "192.168.2.100", "10:60:4b:ea:b9:01", 12345);
-							ArrayList<OFBucket> buckets = createBuckets(iofs, actionList2, "eth1.5");
-
-							//Criação do grupo
-							group(iofs, rule1, buckets);
-							System.out.println("Create Group...");
+							GroupMod gmod = new GroupMod(iofs);
+							
+							/*Cria um bucket com fluxo normal (pacote segue caminho original)*/
+							try{
+								gmod.createBucketNormalFlow(iofs, "s35-eth3");
+							}catch (Exception e) {
+								System.err.println("ERROR1");
+							}
+							
+							
+							/*Cria um bucket com fluxo diferente (altera ip, mac e porta do pacote destino)*/
+							try{
+								gmod.createBucket(iofs, "s35-eth4", "10.7.227.230", "00:00:00:00:00:04", 12345);
+							}catch (Exception e) {
+								System.err.println("ERROR2");
+							}
+							
+							
+							/*Grava no switch*/
+							try{
+								gmod.writeGroup();
+							}catch (Exception e) {
+								System.err.println("ERROR3");
+							}
+							
+							
+							/*Regra de fluxo: Interface de entrada - IP fonte - IP Destino*/
+							try{
+								Rule rule1 = new Rule("s35-eth1", "10.7.227.200", "10.7.227.215");
+								Rule rule2 = new Rule("s35-eth2", "10.7.227.200", "10.7.227.215");
+								
+								createFluxo(iofs, rule1, gmod.getGroup());
+								createFluxo(iofs, rule2, gmod.getGroup());
+							}catch (Exception e) {
+								System.err.println("ERROR4");
+							}
+							
+							
+							
 							flag = false;
-
 						}
-						
 					}
 				}else{
 					return Command.CONTINUE;
@@ -169,133 +185,29 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 		return Command.CONTINUE;
 	}
 
-	public void group(IOFSwitch mySwitch, Rule rule, ArrayList<OFBucket> buckets){
-		OFFactory myFactory = mySwitch.getOFFactory();
-
-//		ArrayList<OFBucket> buckets = createBuckets(mySwitch, actionList);
-
-		/* Crio o grupo com a lista de buckets (cada bucket com uma lista de ações)*/
-		OFGroupAdd groupAdd = myFactory.buildGroupAdd()
-			    .setGroup(OFGroup.of(1))
-			    .setGroupType(OFGroupType.ALL)
-			    .setBuckets(buckets)
-			    .build();
-
-		/*Escrevo no switch*/
-		mySwitch.write(groupAdd);
-
-		System.out.println("--------------------GroupMod--------------------");
-
-
+	public void createFluxo(IOFSwitch iof_switch, Rule rule, OFGroup group){
+		OFFactory factory = iof_switch.getOFFactory();
 
 		/*Crio um fluxo que irá direcionar os pacotes que obedecem as restrições para o grupo criado antes*/
-
-		OFFlowAdd flowAdd = myFactory.buildFlowAdd()
+		OFFlowAdd flowAdd = factory.buildFlowAdd()
 			    .setHardTimeout(0)
 			    .setIdleTimeout(0)
 			    .setPriority(FlowModUtils.PRIORITY_MAX)
-			    .setMatch(myFactory.buildMatch()
-			    	.setExact(MatchField.IN_PORT, mySwitch.getPort(rule.getInPort()).getPortNo())
+			    .setMatch(factory.buildMatch()
+			    	.setExact(MatchField.IN_PORT, iof_switch.getPort(rule.getInPort()).getPortNo())
 			        .setExact(MatchField.ETH_TYPE, EthType.IPv4)
 			        .setExact(MatchField.IPV4_SRC, IPv4Address.of(rule.getIpv4Src()))
 			        .setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))
 			        .setExact(MatchField.IP_PROTO, IpProtocol.UDP)
 			        .build())
-			    .setActions(Collections.singletonList((OFAction) myFactory.actions().buildGroup()
-			        .setGroup(OFGroup.of(1))
+			    .setActions(Collections.singletonList((OFAction) factory.actions().buildGroup()
+			    	.setGroup(group)
 			        .build()))
 			    .build();
 	
 		
-		mySwitch.write(flowAdd);
-		
-		System.out.println("--------------------FlowMod--------------------");
+		iof_switch.write(flowAdd);
+		System.out.println("[FLOW_MOD] ...");
 	}
 	
-	private ArrayList<OFBucket> createBuckets(IOFSwitch mySwitch, ArrayList<OFAction> actionList, String normalFlowPort) {
-		OFFactory myFactory = mySwitch.getOFFactory();
-				
-		ArrayList<OFBucket> buckets = new ArrayList<OFBucket>(2);
-		
-		//Primeiro bucket segue o percurso normal
-		buckets.add(mySwitch.getOFFactory().buildBucket()
-			.setWatchPort(OFPort.ANY)
-		    .setWatchGroup(OFGroup.ANY)
-		    .setActions(Collections.singletonList((OFAction) myFactory.actions().buildOutput()
-		        .setMaxLen(0xffFFffFF)
-		        .setPort(mySwitch.getPort(normalFlowPort).getPortNo())
-		        .build()))
-		    .build());
-		/* Adiciona as ações no segundo bucket*/
-		buckets.add(myFactory.buildBucket()
-			.setWatchPort(OFPort.ANY)
-		    .setWatchGroup(OFGroup.ANY)
-		    .setActions(actionList)
-		    .build());
-		
-		return buckets;
-	}
-	
-	private OFBucket newBucket(IOFSwitch mySwitch, ArrayList<OFAction> actionList) {
-		OFFactory myFactory = mySwitch.getOFFactory();
-		
-		OFBucket newBucket = myFactory.buildBucket()
-				.setWatchPort(OFPort.ANY)
-			    .setWatchGroup(OFGroup.ANY)
-			    .setActions(actionList)
-			    .build();
-		
-		return newBucket;
-	}
-
-
-	private ArrayList<OFAction> createListActions(IOFSwitch mySwitch, String switchPortOutName, String ipHost, String macHost, int port) {
-		//Fábrica pra criar os objetos
-		OFFactory myFactory = mySwitch.getOFFactory();
-		
-		//Ações de modificação de pacotes
-		ArrayList<OFAction> actionList = new ArrayList<OFAction>();
-		
-		OFOxms oxms = myFactory.oxms();
-		OFActions actions = myFactory.actions();
-		
-		/* Cria a ação de modificar o destino, e adiciona a lista*/
-		OFActionSetField setIpv4Dst = actions.buildSetField()
-		    .setField(
-		        oxms.buildIpv4Dst()
-		        .setValue(IPv4Address.of(ipHost))
-		        .build()
-		    )
-		    .build();
-		actionList.add(setIpv4Dst);
-		
-		/* Cria a ação de modificar o MAc destino, e adiciona a lista*/
-		OFActionSetField setEthDst = actions.buildSetField()
-		    .setField(
-		        oxms.buildEthDst()
-		        .setValue(MacAddress.of(macHost))
-		        .build()
-		    )
-		    .build();
-		actionList.add(setEthDst);
-		
-		/* Cria a ação de modificar o MAc destino, e adiciona a lista*/
-		OFActionSetField setTcpPortDst = actions.buildSetField()
-		    .setField(
-		        oxms.buildTcpDst()
-		        .setValue(TransportPort.of(port)) 
-		        .build()
-		    )
-		    .build();
-		actionList.add(setTcpPortDst);
-		
-		/* Cria a ação de porta de saída do pacote, e adiciona a lista*/
-		actionList.add(myFactory.actions().buildOutput()
-		        .setMaxLen(0xffFFffFF)
-		        .setPort(mySwitch.getPort(switchPortOutName).getPortNo())
-		        .build());
-		
-		return actionList;
-	}
-
 }
