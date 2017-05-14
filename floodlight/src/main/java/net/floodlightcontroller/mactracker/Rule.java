@@ -13,6 +13,11 @@ public class Rule {
 		this.ipv4Dst = ipv4Dst;
 	}
 	
+	public Rule(String ipv4Src, String ipv4Dst) {
+		this.ipv4Src = ipv4Src;
+		this.ipv4Dst = ipv4Dst;
+	}
+	
 	public String getInPort() {
 		return inPort;
 	}

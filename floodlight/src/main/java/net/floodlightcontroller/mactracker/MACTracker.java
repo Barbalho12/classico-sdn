@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -47,8 +46,7 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 	protected Set<Long> macAddresses;
 	protected static Logger logger;
 	
-
-//	static List<InfoTable> sessions = new ArrayList<InfoTable>();
+	boolean firstTimeFlag = true;
 	
 	@Override
 	public String getName() {
@@ -57,23 +55,12 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 
 	@Override
 	public boolean isCallbackOrderingPrereq(OFType type, String name) {
-		// TODO Auto-generated method stub
-//		if(type.equals(OFType.PACKET_IN) && name.equals("forwarding")){
-//			return true;
-//		}else{
-			return false;
-//		}
-		
-		
+		return false;
 	}
 
 	@Override
 	public boolean isCallbackOrderingPostreq(OFType type, String name) {
-//		if(type.equals(OFType.PACKET_IN) && name.equals("forwarding")){
-			return true;
-//		}else{
-//			return false;
-//		}
+		return true;
 	}
 
 	@Override
@@ -108,13 +95,12 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 		floodlightProvider.addOFMessageListener(OFType.PACKET_IN, this);
 	}
 
-//	Map<String,String> map = new HashMap<String,String>();
-	boolean flag = true;
-//	boolean flag2 = true;
 	
 	@Override
 	public synchronized net.floodlightcontroller.core.IListener.Command receive(IOFSwitch iof_switch, OFMessage msg, FloodlightContext cntx) {
-
+		
+		initGroupSettings();
+		
 		switch (msg.getType()) {
 		
 			case PACKET_IN:
@@ -127,62 +113,51 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 	
 					if(ipv4.getProtocol() == IpProtocol.UDP) {
 
-
-						if(flag){
-							
-							//Switch de entrada para nova regra de fluxo
-							IOFSwitch  iofs = switchService.getSwitch(DatapathId.of("00:00:00:00:aa:bb:cc:35"));
-
-							GroupMod gmod = new GroupMod(iofs);
-							
-							/*Cria um bucket com fluxo normal (pacote segue caminho original)*/
-							try{
-								gmod.createBucketNormalFlow(iofs, "s35-eth3");
-							}catch (Exception e) {
-								System.err.println("ERROR1");
-							}
-							
-							
-							/*Cria um bucket com fluxo diferente (altera ip, mac e porta do pacote destino)*/
-							try{
-								gmod.createBucket(iofs, "s35-eth4", "10.7.227.230", "00:00:00:00:00:04", 12345);
-							}catch (Exception e) {
-								System.err.println("ERROR2");
-							}
-							
-							
-							/*Grava no switch*/
-							try{
-								gmod.writeGroup();
-							}catch (Exception e) {
-								System.err.println("ERROR3");
-							}
-							
-							
-							/*Regra de fluxo: Interface de entrada - IP fonte - IP Destino*/
-							try{
-								Rule rule1 = new Rule("s35-eth1", "10.7.227.200", "10.7.227.215");
-								Rule rule2 = new Rule("s35-eth2", "10.7.227.200", "10.7.227.215");
-								
-								createFluxo(iofs, rule1, gmod.getGroup());
-								createFluxo(iofs, rule2, gmod.getGroup());
-							}catch (Exception e) {
-								System.err.println("ERROR4");
-							}
-							
-							
-							
-							flag = false;
-						}
+						
+	
 					}
-				}else{
-					return Command.CONTINUE;
+					
 				}
+				
 				break;
+				
 			default:
+				
 				break;
 		}
+		
 		return Command.CONTINUE;
+	}
+
+	private void initGroupSettings() {
+		
+		if(firstTimeFlag){
+			try{
+				
+				//Switch de entrada para nova regra de fluxo
+				IOFSwitch  iofs = switchService.getSwitch(DatapathId.of("00:00:00:00:aa:bb:cc:35"));
+				
+				GroupMod gmod = new GroupMod(iofs);
+				
+				/*Cria um bucket com fluxo normal (pacote segue caminho original)*/
+				gmod.createBucketNormalFlow(iofs, "s35-eth3");
+				
+				/*Cria um bucket com fluxo diferente (altera ip, mac e porta do pacote destino)*/
+				gmod.createBucket(iofs, "s35-eth4", "10.7.227.230", "00:00:00:00:00:04", 12345);
+				
+				/*Grava no switch*/
+				gmod.writeGroup();
+				
+				/*Regra de fluxo: IP fonte - IP Destino*/
+				Rule rule1 = new Rule("10.7.227.200", "10.7.227.215");
+				createFluxo(iofs, rule1, gmod.getGroup());
+
+			}catch (Exception e) {
+				System.err.println("ERROR - Init Group Settings");
+			}
+			
+			firstTimeFlag = false;
+		}
 	}
 
 	public void createFluxo(IOFSwitch iof_switch, Rule rule, OFGroup group){
@@ -194,7 +169,7 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 			    .setIdleTimeout(0)
 			    .setPriority(FlowModUtils.PRIORITY_MAX)
 			    .setMatch(factory.buildMatch()
-			    	.setExact(MatchField.IN_PORT, iof_switch.getPort(rule.getInPort()).getPortNo())
+//			    	.setExact(MatchField.IN_PORT, iof_switch.getPort(rule.getInPort()).getPortNo())
 			        .setExact(MatchField.ETH_TYPE, EthType.IPv4)
 			        .setExact(MatchField.IPV4_SRC, IPv4Address.of(rule.getIpv4Src()))
 			        .setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))

@@ -2,6 +2,7 @@ package net.floodlightcontroller.mactracker;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.projectfloodlight.openflow.protocol.OFBucket;
 import org.projectfloodlight.openflow.protocol.OFFactory;
@@ -48,21 +49,23 @@ public class GroupMod {
 	
 
 	public OFBucket createBucketNormalFlow(IOFSwitch iofSwitch, String normalFlowPort) {
-		OFBucket newBucket = factory.buildBucket()
-				.setWatchPort(OFPort.ANY)
-			    .setWatchGroup(OFGroup.ANY)
-			    .setActions(Collections.singletonList((OFAction) factory.actions().buildOutput()
-			        .setMaxLen(0xffFFffFF)
-			        .setPort(iofSwitch.getPort(normalFlowPort).getPortNo())
-			        .build()))
-			    .build();
 		
+		List<OFAction> actions = Collections.singletonList((OFAction) factory.actions().buildOutput()
+		        .setMaxLen(0xffFFffFF)
+		        .setPort(iofSwitch.getPort(normalFlowPort).getPortNo())
+//		        .setPort(OFPort.NORMAL)
+		        .build());
+		
+		OFBucket newBucket = createBucket(actions);
+
 		buckets.add(newBucket);
+		
 		System.out.println("[GROUP] BucketNormalFlow Created");
+		
 		return newBucket;
 	}
 	
-	public OFBucket createBucket(ArrayList<OFAction> actionList) {
+	public OFBucket createBucket(List<OFAction> actionList) {
 		
 		OFBucket newBucket = factory.buildBucket()
 				.setWatchPort(OFPort.ANY)
@@ -127,6 +130,7 @@ public class GroupMod {
 		actionList.add(factory.actions().buildOutput()
 		        .setMaxLen(0xffFFffFF)
 		        .setPort(iofSwitch.getPort(switchOutputPort).getPortNo())
+//		        .setPort(OFPort.NORMAL)
 		        .build());
 		
 		System.out.println("[GROUP] List Actions Created");
