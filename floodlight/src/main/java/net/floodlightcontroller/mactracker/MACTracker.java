@@ -128,28 +128,44 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 		
 		return Command.CONTINUE;
 	}
-
+	
+	private final String NOTEBOOK_PROBOOK_MAC = "00:13:3B:85:05:05";
+	private final String NOTEBOOK_PROBOOK_IP = "192.168.2.105";
+	private final String NOTEBOOK_PROBOOK_INTERFACE = "eth1.5";
+	
+	private final String PC_FELIPE_MAC = "fc:15:b4:d9:51:40";
+	private final String PC_FELIPE_IP = "192.168.2.115";
+	private final String PC_FELIPE_INTERFACE = "eth1.1";
+	
+	private final String NOTEBOOK_FELIPE_MAC = "00:22:19:fd:65:77";
+	private final String NOTEBOOK_FELIPE_IP = "192.168.2.110";
+	private final String NOTEBOOK_FELIPE_INTERFACE = "eth0.3";
+	
+	private final String PC_THALYSON_MAC = "10:60:4b:ea:b9:01";
+	private final String PC_THALYSON_IP = "192.168.2.100";
+	private final String PC_THALYSON_INTERFACE = "eth0.1"; //VERIFICAR
+	
 	private void initGroupSettings() {
 		
 		if(firstTimeFlag){
 			try{
 				
 				//Switch de entrada para nova regra de fluxo
-				IOFSwitch  iofs = switchService.getSwitch(DatapathId.of("00:00:00:00:aa:bb:cc:35"));
+				IOFSwitch  iofs = switchService.getSwitch(DatapathId.of("00:00:00:00:aa:bb:cc:38"));
 				
 				GroupMod gmod = new GroupMod(iofs);
 				
 				/*Cria um bucket com fluxo normal (pacote segue caminho original)*/
-				gmod.createBucketNormalFlow(iofs, "s35-eth3");
+				gmod.createBucketNormalFlow(iofs, NOTEBOOK_PROBOOK_INTERFACE);
 				
 				/*Cria um bucket com fluxo diferente (altera ip, mac e porta do pacote destino)*/
-				gmod.createBucket(iofs, "s35-eth4", "10.7.227.230", "00:00:00:00:00:04", 12345);
+				gmod.createBucket(iofs, PC_FELIPE_INTERFACE, PC_FELIPE_IP, PC_FELIPE_MAC, 12345);
 				
 				/*Grava no switch*/
 				gmod.writeGroup();
 				
 				/*Regra de fluxo: IP fonte - IP Destino*/
-				Rule rule1 = new Rule("10.7.227.200", "10.7.227.215");
+				Rule rule1 = new Rule(NOTEBOOK_FELIPE_IP, NOTEBOOK_PROBOOK_IP);
 				createFluxo(iofs, rule1, gmod.getGroup());
 
 			}catch (Exception e) {
