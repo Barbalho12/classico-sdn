@@ -119,7 +119,7 @@ public class GroupMod {
 		/* Cria a ação de modificar o MAc destino, e adiciona a lista*/
 		OFActionSetField setNewTcpDst = actions.buildSetField()
 		    .setField(
-		        oxms.buildTcpDst()
+		        oxms.buildUdpDst()
 		        .setValue(TransportPort.of(newPortDest)) 
 		        .build()
 		    ).build();

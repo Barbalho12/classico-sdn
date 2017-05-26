@@ -15,7 +15,7 @@ def topology():
     "Create a network."
     net = Mininet( controller=RemoteController, link=TCLink, switch=OVSKernelSwitch )
 	
-    _bw=10
+    _bw=100
     _latency='5ms'
     _max_queue_size=100
     _use_htb=True
@@ -23,10 +23,10 @@ def topology():
     _port_remote_control=6653
 
     print "*** Creating Hosts"
-    h1 = net.addHost( 'h1', mac="00:00:00:00:00:01", ip='10.7.227.200' )
-    h2 = net.addHost( 'h2', mac="00:00:00:00:00:02", ip='10.7.227.210' )
-    h3 = net.addHost( 'h3', mac="00:00:00:00:00:03", ip='10.7.227.215' )
-    h4 = net.addHost( 'h4', mac="00:00:00:00:00:04", ip='10.7.227.230' )
+    h1 = net.addHost( 'h1', mac="10:60:4b:ea:b9:01", ip='192.168.2.100' )
+    h2 = net.addHost( 'h2', mac="00:13:3B:85:05:05", ip='192.168.2.105' )
+    h3 = net.addHost( 'h3', mac="00:22:19:fd:65:77", ip='192.168.2.110' )
+    h4 = net.addHost( 'h4', mac="fc:15:b4:d9:51:40", ip='192.168.2.115' )
 
 
 
@@ -44,27 +44,47 @@ def topology():
     c0 = RemoteController( 'c0', ip=_ip_remote_control, port=_port_remote_control )
 
     
-
     print "*** Creating connection between switches"
-    net.addLink(s35, s15, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s35, s14, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s32, s15, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s32, s14, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(s35, s15, bw=_bw, use_htb=_use_htb)
+    net.addLink(s35, s14, bw=_bw, use_htb=_use_htb)
+    net.addLink(s32, s15, bw=_bw, use_htb=_use_htb)
+    net.addLink(s32, s14, bw=_bw, use_htb=_use_htb)
 
-    net.addLink(s15, s17, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s15, s02, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s14, s17, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s14, s02, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(s15, s17, bw=_bw, use_htb=_use_htb)
+    net.addLink(s15, s02, bw=_bw, use_htb=_use_htb)
+    net.addLink(s14, s17, bw=_bw, use_htb=_use_htb)
+    net.addLink(s14, s02, bw=_bw, use_htb=_use_htb)
 
-    net.addLink(s02, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(s17, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(s02, s38, bw=_bw, use_htb=_use_htb)
+    net.addLink(s17, s38, bw=_bw, use_htb=_use_htb)
 
 
     print "*** Connecting hosts"
-    net.addLink(h3, s35, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(h4, s35, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(h1, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    net.addLink(h2, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    net.addLink(h3, s32, bw=_bw, use_htb=_use_htb)
+    net.addLink(h4, s38, bw=_bw, use_htb=_use_htb)
+    # net.addLink(h1, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    # net.addLink(h2, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+
+    # print "*** Creating connection between switches"
+    # net.addLink(s35, s15, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    # net.addLink(s35, s14, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    # net.addLink(s32, s15, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    # net.addLink(s32, s14, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+
+    # net.addLink(s15, s17, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    # net.addLink(s15, s02, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    # net.addLink(s14, s17, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    # net.addLink(s14, s02, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+
+    # net.addLink(s02, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    # net.addLink(s17, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+
+
+    # print "*** Connecting hosts"
+    # net.addLink(h3, s32, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    # net.addLink(h4, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    # # net.addLink(h1, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    # # net.addLink(h2, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
     
    
 
