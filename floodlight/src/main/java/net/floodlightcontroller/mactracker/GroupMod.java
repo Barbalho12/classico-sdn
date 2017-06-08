@@ -58,9 +58,9 @@ public class GroupMod {
 		
 		OFBucket newBucket = createBucket(actions);
 
-		buckets.add(newBucket);
+		//buckets.add(newBucket);
 		
-		System.out.println("[GROUP] BucketNormalFlow Created");
+//		System.out.println("[GROUP] BucketNormalFlow Created");
 		
 		return newBucket;
 	}

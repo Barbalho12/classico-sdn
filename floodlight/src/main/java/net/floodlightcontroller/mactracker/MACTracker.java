@@ -99,7 +99,7 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 	@Override
 	public synchronized net.floodlightcontroller.core.IListener.Command receive(IOFSwitch iof_switch, OFMessage msg, FloodlightContext cntx) {
 		
-		initGroupSettings();
+		//initGroupSettings();
 		
 		switch (msg.getType()) {
 		
@@ -129,14 +129,16 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 		return Command.CONTINUE;
 	}
 	
-	private final String NOTEBOOK_PROBOOK_MAC = "00:13:3B:85:05:05";
-	private final String NOTEBOOK_PROBOOK_IP = "192.168.2.105";
+	private final String NOTEBOOK_ADPUSB_MAC = "00:13:3B:85:05:05";
+	
+	private final String NOTEBOOK_PROBOOK_MAC = "c8:cb:b8:c3:fc:3e";
+	private final String NOTEBOOK_PROBOOK_IP = "192.168.2.120";
 	private final String NOTEBOOK_PROBOOK_INTERFACE = "eth1.5";
 	
 	
 	private final String PC_FELIPE_MAC = "fc:15:b4:d9:51:40";
 	private final String PC_FELIPE_IP = "192.168.2.115";
-	private final String PC_FELIPE_INTERFACE = "s38-eth3" /*"eth1.1"*/;
+	private final String PC_FELIPE_INTERFACE = /*"s38-eth3"*/ "eth1.1";
 	
 	private final String NOTEBOOK_FELIPE_MAC = "00:22:19:fd:65:77";
 	private final String NOTEBOOK_FELIPE_IP = "192.168.2.110";
@@ -157,20 +159,16 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 				GroupMod gmod = new GroupMod(iofs);
 				
 				/*Cria um bucket com fluxo normal (pacote segue caminho original)*/
-				gmod.createBucketNormalFlow(iofs, PC_FELIPE_INTERFACE);
+				gmod.createBucketNormalFlow(iofs, NOTEBOOK_PROBOOK_INTERFACE);
 				
-				for (int i = 0; i < 100; i++) {
-					gmod.createBucket(iofs, PC_FELIPE_INTERFACE, PC_FELIPE_IP, PC_FELIPE_MAC, 12000 + i);
-					System.out.println(12000 + i);
-				}
-//				/*Cria um bucket com fluxo diferente (altera ip, mac e porta do pacote destino)*/
-//				gmod.createBucket(iofs, PC_FELIPE_INTERFACE, PC_FELIPE_IP, PC_FELIPE_MAC, 12002);
+				/*Cria um bucket com fluxo diferente (altera ip, mac e porta do pacote destino)*/
+				gmod.createBucket(iofs, PC_FELIPE_INTERFACE, PC_FELIPE_IP, PC_FELIPE_MAC, 10000);
 				
 				/*Grava no switch*/
 				gmod.writeGroup();
 				
 				/*Regra de fluxo: IP fonte - IP Destino*/
-				Rule rule1 = new Rule(NOTEBOOK_FELIPE_IP, PC_FELIPE_IP);
+				Rule rule1 = new Rule(NOTEBOOK_FELIPE_IP, NOTEBOOK_PROBOOK_IP);
 				createFluxo(iofs, rule1, gmod.getGroup());
 
 			}catch (Exception e) {
