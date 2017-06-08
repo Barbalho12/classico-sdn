@@ -13,7 +13,7 @@ LOCAL_USER='barbalho'
 LOCAL_DIRECTORY='/home/barbalho/workspace/classico-sdn/evalvid/files'
 
 
-#scp $H3_USER@$H3:$H3_DIRECTORY $LOCAL_DIRECTORY
+scp $H3_USER@$H3:$H3_DIRECTORY $LOCAL_DIRECTORY
 
 
 
