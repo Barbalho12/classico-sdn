@@ -11,6 +11,7 @@ import org.projectfloodlight.openflow.types.TransportPort;
 public class TableSessionMultiuser {
 	
 	private int id;
+	private ServerSession serverSession;
 	private List<SessionMultiUser> listSessions;
 	private Date timeInit; 
 	private Date timeUpdate;
@@ -19,6 +20,12 @@ public class TableSessionMultiuser {
 	public TableSessionMultiuser(){
 		timeInit = new Date();
 		this.listSessions = new ArrayList<>();
+	}
+	
+	public TableSessionMultiuser(ServerSession serverSession){
+		timeInit = new Date();
+		this.listSessions = new ArrayList<>();
+		this.serverSession = serverSession;
 	}
 	
 	public TableSessionMultiuser(int id, List<SessionMultiUser> listSessions) {
@@ -69,6 +76,14 @@ public class TableSessionMultiuser {
 	
 	
 
+	public ServerSession getServerSession() {
+		return serverSession;
+	}
+
+	public void setServerSession(ServerSession serverSession) {
+		this.serverSession = serverSession;
+	}
+
 	public void addClientRequest(IPv4Address srcIp, TransportPort srcPort, IPv4Address dstIp, TransportPort dstPort,
 			String service, DatapathId datapathId) {
 		
@@ -91,8 +106,9 @@ public class TableSessionMultiuser {
 		}
 		
 		SessionMultiUser smu = new SessionMultiUser(listSessions.size(), listSessions.size()+" "+service, sessionCond);
+		smu.addUser(userSession);
 		listSessions.add(smu);
-
+//		System.out.println("Adicionou! " + datapathId);
 	} 
 	
 	@Override
@@ -101,9 +117,9 @@ public class TableSessionMultiuser {
 		for(SessionMultiUser sm : listSessions){
 			texto += sm.getId() + " - ";
 			texto += sm.getDescription()+ " - ";
-			texto += sm.getListUser() + "\n";
+			texto += sm.getListUser().toString() + "\n";
 		}
-		return super.toString();
+		return texto;
 	}
 	
 

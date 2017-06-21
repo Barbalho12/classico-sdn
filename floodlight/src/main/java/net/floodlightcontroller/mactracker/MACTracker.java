@@ -26,6 +26,7 @@ import org.projectfloodlight.openflow.types.IpProtocol;
 import org.projectfloodlight.openflow.types.OFGroup;
 import org.projectfloodlight.openflow.types.OFPort;
 import org.projectfloodlight.openflow.types.TransportPort;
+import org.python.modules.synchronize;
 
 import net.floodlightcontroller.core.FloodlightContext;
 import net.floodlightcontroller.core.IFloodlightProviderService;
@@ -148,10 +149,11 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 
 	boolean flag = true;
 	
-	TableSessionMultiuser tableSessionMultiuser = new TableSessionMultiuser();
+	ServerSession serverSession = new ServerSession("192.168.2.110", 8888);
+	TableSessionMultiuser tableSessionMultiuser = new TableSessionMultiuser(serverSession);
 	
 	@Override
-	public synchronized net.floodlightcontroller.core.IListener.Command receive(IOFSwitch iof_switch, OFMessage msg, FloodlightContext cntx) {
+	public net.floodlightcontroller.core.IListener.Command receive(IOFSwitch iof_switch, OFMessage msg, FloodlightContext cntx) {
 //		initGroupSettings();
 
 //		/*Get Links topology*/
@@ -171,9 +173,9 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 	
 				if (eth.getEtherType() == EthType.IPv4) {	
 					IPv4 ipv4 = (IPv4) eth.getPayload();
-					System.out.println(ipv4.getTotalLength());
+
 					if(ipv4.getProtocol() == IpProtocol.UDP && flag ) {
-						flag = false;
+//						flag = false;
 						verifySession(iof_switch, ipv4);
 					}
 				}
@@ -185,19 +187,31 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 		return Command.CONTINUE;
 	}
 	
-	private void verifySession(IOFSwitch iof_switch, IPv4 ipv4){
+	private synchronized void verifySession(IOFSwitch iof_switch, IPv4 ipv4){
 		UDP udp = (UDP) ipv4.getPayload();
+		
 		TransportPort srcPort = udp.getSourcePort();
 		TransportPort dstPort = udp.getDestinationPort();
+		
 		IPv4Address srcIp = ipv4.getSourceAddress();
 		IPv4Address dstIp = ipv4.getDestinationAddress();
+
+		if((!tableSessionMultiuser.getServerSession().getIp().equals(dstIp.toInetAddress().getHostAddress())) ||
+				tableSessionMultiuser.getServerSession().getPort() != dstPort.getPort()){
+			return;
+		}
+		
+		if(tableSessionMultiuser.getServerSession().getIp().equals(srcIp.toInetAddress().getHostAddress()) ||
+				tableSessionMultiuser.getServerSession().getPort() == srcPort.getPort()){
+			return;
+		}
+
 		byte payload[] = udp.getPayload().serialize();
 		String service = "";
 		for(int i = 0; i < payload.length; i++){
 			service += (char) payload[i];
 		}
-		System.out.println(srcIp.toInetAddress().getHostAddress() +":"+ srcPort.getPort() +" --> " + service);
-		
+
 		tableSessionMultiuser.addClientRequest(
 				srcIp, 
 				srcPort, 
@@ -207,6 +221,7 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 				iof_switch.getId()
 		);
 		System.out.println(tableSessionMultiuser.toString());
+		System.out.println("Switch: "+iof_switch.getId());
 	}
 
 	

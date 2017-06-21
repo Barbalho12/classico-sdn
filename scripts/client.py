@@ -24,8 +24,11 @@ except:
 
 
 s.sendto(videofile, (host, port))
-d = s.recvfrom(1024)
-size_data = int(d[0])
+# d = s.recvfrom(1024)
+# size_data = int(d[0])
+
+size_data = len(open(videofile).read())
+
 
 # FileNameIn = 'Hexdata.mp4'
 

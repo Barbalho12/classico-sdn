@@ -39,18 +39,18 @@ public class UserSession {
 	}
 
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((datapathId == null) ? 0 : datapathId.hashCode());
-		result = prime * result + ((dstIp == null) ? 0 : dstIp.hashCode());
-		result = prime * result + ((dstPort == null) ? 0 : dstPort.hashCode());
-		result = prime * result + idUser;
-		result = prime * result + ((srcIp == null) ? 0 : srcIp.hashCode());
-		result = prime * result + ((srcPort == null) ? 0 : srcPort.hashCode());
-		return result;
-	}
+//	@Override
+//	public int hashCode() {
+//		final int prime = 31;
+//		int result = 1;
+//		result = prime * result + ((datapathId == null) ? 0 : datapathId.hashCode());
+//		result = prime * result + ((dstIp == null) ? 0 : dstIp.hashCode());
+//		result = prime * result + ((dstPort == null) ? 0 : dstPort.hashCode());
+//		result = prime * result + idUser;
+//		result = prime * result + ((srcIp == null) ? 0 : srcIp.hashCode());
+//		result = prime * result + ((srcPort == null) ? 0 : srcPort.hashCode());
+//		return result;
+//	}
 
 
 	@Override
@@ -62,11 +62,11 @@ public class UserSession {
 		if (getClass() != obj.getClass())
 			return false;
 		UserSession other = (UserSession) obj;
-		if (datapathId == null) {
-			if (other.datapathId != null)
-				return false;
-		} else if (!datapathId.equals(other.datapathId))
-			return false;
+//		if (datapathId == null) {
+//			if (other.datapathId != null)
+//				return false;
+//		} else if (!datapathId.equals(other.datapathId))
+//			return false;
 		if (dstIp == null) {
 			if (other.dstIp != null)
 				return false;
@@ -77,18 +77,18 @@ public class UserSession {
 				return false;
 		} else if (!dstPort.equals(other.dstPort))
 			return false;
-		if (idUser != other.idUser)
-			return false;
+//		if (idUser != other.idUser)
+//			return false;
 		if (srcIp == null) {
 			if (other.srcIp != null)
 				return false;
 		} else if (!srcIp.equals(other.srcIp))
 			return false;
-		if (srcPort == null) {
-			if (other.srcPort != null)
-				return false;
-		} else if (!srcPort.equals(other.srcPort))
-			return false;
+//		if (srcPort == null) {
+//			if (other.srcPort != null)
+//				return false;
+//		} else if (!srcPort.equals(other.srcPort))
+//			return false;
 		return true;
 	}
 
@@ -116,8 +116,8 @@ public class UserSession {
 		String texto = idUser+" - ";
 		texto += timeUserInSession.getHours() +"h"+timeUserInSession.getMinutes()+"m"+timeUserInSession.getSeconds()+"s - ";
 		texto += srcIp.toString()+":"+srcPort.getPort()+" - ";
-		texto += "Switch: "+datapathId.toString()+"\n";
-		return super.toString();
+		texto += "Switch: "+datapathId.toString()+" ";
+		return texto;
 	}
 
 	

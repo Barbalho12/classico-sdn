@@ -10,7 +10,7 @@ public class SessionCondition implements ISessionCondition{
 
 	@Override
 	public boolean verify(ISessionCondition sessionCondition) {
-		return sessionCondition.equals(serviceNameChannel);
+		return sessionCondition.equals(this);
 	}
 	
 	@Override
