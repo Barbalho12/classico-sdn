@@ -6,14 +6,11 @@ import java.util.List;
 
 public class SessionMultiUser {
 	private int id; /*ID da sessão*/
-	
 	private Date timeInit; /*Tempo da sessão*/
-	
 	private String description; /*Descrição da sessão*/
-
-	private String fullData; /*Conteúdo comum da sessão (talvez seja necessario 
-	estar em outra estrutura de dados)*/
-
+	private ISessionCondition sessionCondition;
+//	private String fullData; /*Conteúdo comum da sessão (talvez seja necessario 
+//	estar em outra estrutura de dados)*/
 	private List<UserSession> listUser; /*Visão da sessão (Pode ser necessário retirar)*/
 	
 	
@@ -22,12 +19,23 @@ public class SessionMultiUser {
 		this.listUser = new ArrayList<>();
 	}
 
-	public SessionMultiUser(int id, String description) {
+	public SessionMultiUser(int id, String description, ISessionCondition sessionCondition) {
 		timeInit = new Date();
 		this.id = id;
 		this.description = description;
 		this.listUser = new ArrayList<>();
-		
+		this.sessionCondition = sessionCondition;
+	}
+	
+	public SessionMultiUser(String description, ISessionCondition sessionCondition) {
+		timeInit = new Date();
+		this.description = description;
+		this.listUser = new ArrayList<>();
+		this.sessionCondition = sessionCondition;
+	}
+	
+	public boolean userSessionExists(UserSession userSession){
+		return listUser.contains(userSession);
 	}
 	
 	public void addUser(UserSession userSession){
@@ -50,13 +58,13 @@ public class SessionMultiUser {
 		this.description = description;
 	}
 
-	public String getFullData() {
-		return fullData;
-	}
-
-	public void setFullData(String fullData) {
-		this.fullData = fullData;
-	}
+//	public String getFullData() {
+//		return fullData;
+//	}
+//
+//	public void setFullData(String fullData) {
+//		this.fullData = fullData;
+//	}
 
 	public List<UserSession> getListUser() {
 		return listUser;
@@ -72,6 +80,14 @@ public class SessionMultiUser {
 
 	public void setTimeInit(Date timeInit) {
 		this.timeInit = timeInit;
+	}
+
+	public ISessionCondition getSessionCondition() {
+		return sessionCondition;
+	}
+
+	public void setSessionCondition(ISessionCondition sessionCondition) {
+		this.sessionCondition = sessionCondition;
 	}
 	
 	
