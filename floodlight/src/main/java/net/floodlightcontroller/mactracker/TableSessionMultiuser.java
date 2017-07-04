@@ -84,31 +84,50 @@ public class TableSessionMultiuser {
 		this.serverSession = serverSession;
 	}
 
+	/**
+	 * MULTIUSER CLOUD SESSION CONTROL ALGORITHM
+	 * @param srcIp Client Ip
+	 * @param srcPort Source process port
+	 * @param dstIp IP of the registered server (useful for validation)
+	 * @param dstPort Port of the registered server (useful for validation)
+	 * @param service Required service (message body)
+	 * @param datapathId Edge switch that generated packet-in
+	 */
 	public void addClientRequest(IPv4Address srcIp, TransportPort srcPort, IPv4Address dstIp, TransportPort dstPort,
 			String service, DatapathId datapathId) {
 		
+		/*Treats the body of the service message for a type that will define the session*/
 		ISessionCondition sessionCond = new SessionCondition(service);
 		
+		/*Creates a session for the User (not yet available in the table)*/
 		UserSession userSession = new UserSession(srcIp, srcPort, dstIp, dstPort, datapathId);
 		
+		/*Scroll through list of active table sessions*/
 		for(SessionMultiUser sm : listSessions){
-			//Verifica se sessão existe
+			
+			/*Checks the session condition, that is, if the requested service is part of an active session*/
 			if(sm.getSessionCondition().verify(sessionCond)){
-				//verifica se host existe na sessão
+				
+				/*Checks whether the user's host already exists in the session*/				
 				if(sm.userSessionExists(userSession)){
+					//TODO Remove (using for testing)
 					System.out.println("User exists in session!");
 				}else{
+					/*Insert ID in User Session*/
 					userSession.setIdUser(sm.getListUser().size());
+					
+					/*Add User Session in Session MultiUser*/
 					sm.addUser(userSession);
 				}
 				return;
 			}
 		}
 		
+		/*This will only run if the service that creates the session does not yet exist. In this case, a new session will 
+		 * be created for the service, and the User Session will be added to the session.*/
 		SessionMultiUser smu = new SessionMultiUser(listSessions.size(), listSessions.size()+" "+service, sessionCond);
 		smu.addUser(userSession);
 		listSessions.add(smu);
-//		System.out.println("Adicionou! " + datapathId);
 	} 
 	
 	@Override
