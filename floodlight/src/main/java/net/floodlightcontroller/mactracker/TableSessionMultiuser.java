@@ -8,6 +8,8 @@ import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.IPv4Address;
 import org.projectfloodlight.openflow.types.TransportPort;
 
+import net.floodlightcontroller.routing.Path;
+
 public class TableSessionMultiuser {
 	
 	private int id;
@@ -16,27 +18,22 @@ public class TableSessionMultiuser {
 	private Date timeInit; 
 	private Date timeUpdate;
 	
+	List<MultipathSession> multipathSessions = new ArrayList<>();
+	private Monitor monitor;
 	
-	public TableSessionMultiuser(){
-		timeInit = new Date();
-		this.listSessions = new ArrayList<>();
-	}
 	
-	public TableSessionMultiuser(ServerSession serverSession){
+	public TableSessionMultiuser(ServerSession serverSession, Monitor monitor){
 		timeInit = new Date();
 		this.listSessions = new ArrayList<>();
 		this.serverSession = serverSession;
+		this.monitor = monitor;
 	}
 	
-	public TableSessionMultiuser(int id, List<SessionMultiUser> listSessions) {
-		timeInit = new Date();
-		this.id = id;
-		this.listSessions = listSessions;
-	}
-	
-	public void newUserRequest(){
-		
-	}
+//	public TableSessionMultiuser(int id, List<SessionMultiUser> listSessions) {
+//		timeInit = new Date();
+//		this.id = id;
+//		this.listSessions = listSessions;
+//	}
 
 	public int getId() {
 		return id;
@@ -93,7 +90,7 @@ public class TableSessionMultiuser {
 	 * @param service Required service (message body)
 	 * @param datapathId Edge switch that generated packet-in
 	 */
-	public void addClientRequest(IPv4Address srcIp, TransportPort srcPort, IPv4Address dstIp, TransportPort dstPort,
+	public boolean addClientRequest(IPv4Address srcIp, TransportPort srcPort, IPv4Address dstIp, TransportPort dstPort,
 			String service, DatapathId datapathId) {
 		
 		/*Treats the body of the service message for a type that will define the session*/
@@ -112,14 +109,21 @@ public class TableSessionMultiuser {
 				if(sm.userSessionExists(userSession)){
 					//TODO Remove (using for testing)
 					System.out.println("User exists in session!");
+					
+					return false;
+					
 				}else{
 					/*Insert ID in User Session*/
 					userSession.setIdUser(sm.getListUser().size());
 					
 					/*Add User Session in Session MultiUser*/
 					sm.addUser(userSession);
+					
+					List<Path> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId, null);
+					multipathSessions.add(new MultipathSession(paths, userSession, sm));
+					return true;
 				}
-				return;
+				
 			}
 		}
 		
@@ -128,8 +132,30 @@ public class TableSessionMultiuser {
 		SessionMultiUser smu = new SessionMultiUser(listSessions.size(), listSessions.size()+" "+service, sessionCond);
 		smu.addUser(userSession);
 		listSessions.add(smu);
+		
+		List<Path> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId,  null);
+		multipathSessions.add(new MultipathSession(paths, userSession, smu));
+
+		return true;
 	} 
 	
+	
+	public List<MultipathSession> getMultipathSessions() {
+		return multipathSessions;
+	}
+
+	public void setMultipathSessions(List<MultipathSession> multipathSessions) {
+		this.multipathSessions = multipathSessions;
+	}
+
+	public Monitor getMonitor() {
+		return monitor;
+	}
+
+	public void setMonitor(Monitor monitor) {
+		this.monitor = monitor;
+	}
+
 	@Override
 	public String toString() {
 		String texto = "";

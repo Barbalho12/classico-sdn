@@ -7,7 +7,7 @@ import org.projectfloodlight.openflow.types.IPv4Address;
 import org.projectfloodlight.openflow.types.TransportPort;
 
 public class UserSession {
-
+	
 	private int idUser; /*ID do Host*/
 	
 	private IPv4Address srcIp;
@@ -16,16 +16,6 @@ public class UserSession {
 	private TransportPort dstPort;
 	private DatapathId datapathId;
 	
-//	private String ipSource; /*IP do host*/
-//	private String processPortSource; /*Porta do processo do host*/
-//	
-//	private String ipDestination; /*Talvez seja necessário*/
-//	private String processPortDestination; /*Talvez seja necessário*/
-//
-//	private String idEdgeSwitch; /*Switch de Borda*/
-//	private String inPortEdgeSwitch; /*porta de Entrada do switch*/
-//	private String outPortEdgeSwitch; /*porta de Saída do switch*/
-//	
 	private Date timeUserInSession; /*Tempo em que entrou na sessão*/
 	
 	
@@ -37,20 +27,6 @@ public class UserSession {
 		this.dstPort = dstPort;
 		this.datapathId = datapathId;
 	}
-
-
-//	@Override
-//	public int hashCode() {
-//		final int prime = 31;
-//		int result = 1;
-//		result = prime * result + ((datapathId == null) ? 0 : datapathId.hashCode());
-//		result = prime * result + ((dstIp == null) ? 0 : dstIp.hashCode());
-//		result = prime * result + ((dstPort == null) ? 0 : dstPort.hashCode());
-//		result = prime * result + idUser;
-//		result = prime * result + ((srcIp == null) ? 0 : srcIp.hashCode());
-//		result = prime * result + ((srcPort == null) ? 0 : srcPort.hashCode());
-//		return result;
-//	}
 
 
 	@Override
@@ -102,15 +78,7 @@ public class UserSession {
 		this.idUser = idUser;
 	}
 
-//	public UserSession(int idUser, String ipSource, String processPortSource, String idEdgeSwitch,
-//			String inPortEdgeSwitch) {
-//		timeUserInSession = new Date();
-//		this.idUser = idUser;
-//		this.ipSource = ipSource;
-//		this.processPortSource = processPortSource;
-//		this.idEdgeSwitch = idEdgeSwitch;
-//		this.inPortEdgeSwitch = inPortEdgeSwitch;
-//	}
+	@SuppressWarnings("deprecation")
 	@Override
 	public String toString() {
 		String texto = idUser+" - ";
@@ -118,6 +86,65 @@ public class UserSession {
 		texto += srcIp.toString()+":"+srcPort.getPort()+" - ";
 		texto += "Switch: "+datapathId.toString()+" ";
 		return texto;
+	}
+
+	public IPv4Address getSrcIp() {
+		return srcIp;
+	}
+
+
+	public void setSrcIp(IPv4Address srcIp) {
+		this.srcIp = srcIp;
+	}
+
+
+	public TransportPort getSrcPort() {
+		return srcPort;
+	}
+
+
+	public void setSrcPort(TransportPort srcPort) {
+		this.srcPort = srcPort;
+	}
+
+
+	public IPv4Address getDstIp() {
+		return dstIp;
+	}
+
+
+	public void setDstIp(IPv4Address dstIp) {
+		this.dstIp = dstIp;
+	}
+
+
+	public TransportPort getDstPort() {
+		return dstPort;
+	}
+
+
+	public void setDstPort(TransportPort dstPort) {
+		this.dstPort = dstPort;
+	}
+
+
+	public DatapathId getDatapathId() {
+		return datapathId;
+	}
+
+
+	public void setDatapathId(DatapathId datapathId) {
+		this.datapathId = datapathId;
+	}
+
+
+	public Date getTimeUserInSession() {
+		return timeUserInSession;
+	}
+
+
+	public void setTimeUserInSession(Date timeUserInSession) {
+		this.timeUserInSession = timeUserInSession;
 	}
 
 	
