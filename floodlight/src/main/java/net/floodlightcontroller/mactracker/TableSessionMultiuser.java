@@ -119,8 +119,10 @@ public class TableSessionMultiuser {
 					/*Add User Session in Session MultiUser*/
 					sm.addUser(userSession);
 					
-					List<Path> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId, null);
+					List<CandidatePath> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId, null);
+//					monitor.updatePathsInformations(paths);
 					multipathSessions.add(new MultipathSession(paths, userSession, sm));
+					
 					return true;
 				}
 				
@@ -133,7 +135,7 @@ public class TableSessionMultiuser {
 		smu.addUser(userSession);
 		listSessions.add(smu);
 		
-		List<Path> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId,  null);
+		List<CandidatePath> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId,  null);
 		multipathSessions.add(new MultipathSession(paths, userSession, smu));
 
 		return true;

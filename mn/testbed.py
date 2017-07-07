@@ -25,7 +25,7 @@ def topology():
     adp_USB100MB_MAC = "00:13:3B:85:05:05"
 
     print "*** Creating Hosts"
-    # h1 = net.addHost( 'h1', mac="10:60:4b:ea:b9:01", ip='192.168.2.100' )
+    h1 = net.addHost( 'h1', mac="10:60:4b:ea:b9:01", ip='192.168.2.100' )
     
     h2 = net.addHost( 'h2', mac="c8:cb:b8:c3:fc:3e", ip='192.168.2.120' )
     # h3 = net.addHost( 'h3', mac="00:22:19:fd:65:77", ip='192.168.2.110' )
@@ -67,6 +67,7 @@ def topology():
     net.addLink(h3, s32, bw=_bw, use_htb=_use_htb)
     net.addLink(h4, s38, bw=_bw, use_htb=_use_htb)
     net.addLink(h2, s38, bw=_bw, use_htb=_use_htb)
+    net.addLink(h1, s35, bw=_bw, use_htb=_use_htb)
     # net.addLink(h1, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
     # net.addLink(h2, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
 

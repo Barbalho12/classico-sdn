@@ -14,6 +14,16 @@ public class SessionMultiUser {
 	private List<UserSession> listUser; /*Visão da sessão (Pode ser necessário retirar)*/
 	
 	
+	
+	
+	@Override
+	public String toString() {
+		return "SessionMultiUser [ID = " + id + ", "
+				+ "Time Init = "+timeInit.getHours() +"h"+timeInit.getMinutes()+"m"+timeInit.getSeconds()+"s, "
+				+ "Description = " + description + ", "
+				+ "List User = " + listUser.toString() + "]";
+	}
+
 	public SessionMultiUser() {
 		timeInit = new Date();
 		this.listUser = new ArrayList<>();

@@ -81,11 +81,11 @@ public class UserSession {
 	@SuppressWarnings("deprecation")
 	@Override
 	public String toString() {
-		String texto = idUser+" - ";
-		texto += timeUserInSession.getHours() +"h"+timeUserInSession.getMinutes()+"m"+timeUserInSession.getSeconds()+"s - ";
-		texto += srcIp.toString()+":"+srcPort.getPort()+" - ";
-		texto += "Switch: "+datapathId.toString()+" ";
-		return texto;
+		String texto = "ID = "+idUser+", ";
+		texto += "Time Init = "+timeUserInSession.getHours() +"h"+timeUserInSession.getMinutes()+"m"+timeUserInSession.getSeconds()+"s, ";
+		texto += "Address = " + srcIp.toString()+":"+srcPort.getPort()+", ";
+		texto += "Edge switch = "+datapathId.toString()+"]";
+		return "UserSession ["+texto;
 	}
 
 	public IPv4Address getSrcIp() {

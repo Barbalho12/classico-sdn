@@ -6,22 +6,22 @@ import net.floodlightcontroller.routing.Path;
 
 public class MultipathSession {
 	
-	private List<Path> paths;
+	private List<CandidatePath> paths;
 	private ServerSession serverSession;
 	private UserSession userSession;
 	private SessionMultiUser sessionMultiUser;
 	
-	public MultipathSession(List<Path> paths, UserSession userSession, SessionMultiUser sessionMultiUser) {
+	public MultipathSession(List<CandidatePath> paths, UserSession userSession, SessionMultiUser sessionMultiUser) {
 		this.paths = paths;
 		this.userSession = userSession;
 		this.sessionMultiUser = sessionMultiUser;
 
 	}
 	
-	public List<Path> getPaths() {
+	public List<CandidatePath> getPaths() {
 		return paths;
 	}
-	public void setPaths(List<Path> paths) {
+	public void setPaths(List<CandidatePath> paths) {
 		this.paths = paths;
 	}
 	public UserSession getUserSession() {
@@ -45,12 +45,18 @@ public class MultipathSession {
 		this.serverSession = serverSession;
 	}
 
+//	@Override
+//	public String toString() {
+//		return "MultipathSession [paths=" + paths.toString() + ", serverSession=" + userSession.getDstIp() + ", userSession=" + userSession.getSrcIp()
+//				+ ", sessionMultiUser=" + sessionMultiUser.getDescription() + "]";
+//	}
+	
 	@Override
 	public String toString() {
-		return "MultipathSession [paths=" + paths.toString() + ", serverSession=" + userSession.getDstIp() + ", userSession=" + userSession.getSrcIp()
-				+ ", sessionMultiUser=" + sessionMultiUser.getDescription() + "]";
+		return "MultipathSession [Size Candidate Paths = " + paths.size() + ", "
+				+ "Server = " + userSession.getDstIp() + ":"+userSession.getDstPort()+", "
+				+ "User = " + userSession.getSrcIp() + ":"+userSession.getSrcPort()+", "
+				+ "Session Context = " + sessionMultiUser.getDescription() + " ]";
 	}
-	
-	
 
 }
