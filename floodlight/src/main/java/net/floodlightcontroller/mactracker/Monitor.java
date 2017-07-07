@@ -1,28 +1,27 @@
 package net.floodlightcontroller.mactracker;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import org.projectfloodlight.openflow.types.DatapathId;
 
 import net.floodlightcontroller.routing.Path;
-import net.floodlightcontroller.core.types.NodePortTuple;
 import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryService;
 import net.floodlightcontroller.linkdiscovery.Link;
 import net.floodlightcontroller.routing.IRoutingService;
 import net.floodlightcontroller.routing.IRoutingService.PATH_METRIC;
 import net.floodlightcontroller.statistics.IStatisticsService;
 
-public class Monitor {
+public class Monitor extends Thread{
 	
 	private IRoutingService routingService;
 	private ILinkDiscoveryService linkDiscoveryService;
 	private IStatisticsService statisticsService;
+	private TableSessionMultiuser tableSM;
 	
-	public Monitor(IRoutingService routingService, ILinkDiscoveryService linkDiscoveryService, IStatisticsService statisticsService){
+	public Monitor(TableSessionMultiuser tableSM, IRoutingService routingService, ILinkDiscoveryService linkDiscoveryService, IStatisticsService statisticsService){
+		this.tableSM = tableSM;
 		this.routingService = routingService;
 		this.statisticsService = statisticsService;
 		this.linkDiscoveryService = linkDiscoveryService;
@@ -48,7 +47,7 @@ public class Monitor {
 		}
 	}
 	
-	public List<CandidatePath> calculatePaths(DatapathId src,DatapathId dst, PATH_METRIC metric){
+	public synchronized List<CandidatePath> calculatePaths(DatapathId src,DatapathId dst, PATH_METRIC metric){
 		if(routingService != null){
 			if(metric != null){
 				routingService.setPathMetric(metric);
@@ -58,8 +57,6 @@ public class Monitor {
 			
 			
 			List<Path> paths = routingService.getPathsSlow(src, dst, 100);
-//			System.out.println(paths.get(0).getHopCount());
-//			System.out.println(paths.get(0).getLatency());
 			
 			List<CandidatePath> candidatePaths = new ArrayList<>();
 			for (Path path : paths) {
@@ -92,7 +89,36 @@ public class Monitor {
 				}
 			}
 		}
-		System.out.println(candidatePaths.get(0).getLinks().size());
 		return candidatePaths;
+	}
+
+
+	@Override
+	public void run() {
+		while(true){
+			sleepSeconds(10);
+			for (Iterator<MultipathSession> iterator = tableSM.getMultipathSessions().iterator(); iterator.hasNext();) {
+				MultipathSession ms = (MultipathSession) iterator.next();
+				List<CandidatePath> newPaths = calculatePaths(ms.getServerSession().getDatapathId(), 
+						ms.getUserSession().getDatapathId(), null);
+				ms.setPaths(newPaths);
+			}
+			if(tableSM.getMultipathSessions().isEmpty()){
+				System.out.println("------There are no candidate paths to update------");
+			}else{
+				System.out.println("------Update Candidate Paths------");
+				tableSM.show();
+			}
+			
+		}
+	}
+	
+	private void sleepSeconds(long seconds){
+		try {
+			Thread.sleep(seconds*1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

@@ -8,7 +8,10 @@ import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.IPv4Address;
 import org.projectfloodlight.openflow.types.TransportPort;
 
+import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryService;
+import net.floodlightcontroller.routing.IRoutingService;
 import net.floodlightcontroller.routing.Path;
+import net.floodlightcontroller.statistics.IStatisticsService;
 
 public class TableSessionMultiuser {
 	
@@ -22,11 +25,17 @@ public class TableSessionMultiuser {
 	private Monitor monitor;
 	
 	
-	public TableSessionMultiuser(ServerSession serverSession, Monitor monitor){
+//	public TableSessionMultiuser(ServerSession serverSession, Monitor monitor){
+//		timeInit = new Date();
+//		this.listSessions = new ArrayList<>();
+//		this.serverSession = serverSession;
+//		this.monitor = monitor;
+//	}
+	
+	public TableSessionMultiuser(ServerSession serverSession){
 		timeInit = new Date();
 		this.listSessions = new ArrayList<>();
 		this.serverSession = serverSession;
-		this.monitor = monitor;
 	}
 	
 //	public TableSessionMultiuser(int id, List<SessionMultiUser> listSessions) {
@@ -120,8 +129,7 @@ public class TableSessionMultiuser {
 					sm.addUser(userSession);
 					
 					List<CandidatePath> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId, null);
-//					monitor.updatePathsInformations(paths);
-					multipathSessions.add(new MultipathSession(paths, userSession, sm));
+					multipathSessions.add(new MultipathSession(paths, userSession,serverSession, sm));
 					
 					return true;
 				}
@@ -136,7 +144,7 @@ public class TableSessionMultiuser {
 		listSessions.add(smu);
 		
 		List<CandidatePath> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId,  null);
-		multipathSessions.add(new MultipathSession(paths, userSession, smu));
+		multipathSessions.add(new MultipathSession(paths, userSession, serverSession, smu));
 
 		return true;
 	} 
@@ -168,6 +176,40 @@ public class TableSessionMultiuser {
 		}
 		return texto;
 	}
-	
 
+	public void initMonitor(IRoutingService routingService, ILinkDiscoveryService linkDiscoveryService,
+			IStatisticsService statisticsService) {
+		this.monitor = new Monitor(this, routingService, linkDiscoveryService, statisticsService);
+		monitor.start();
+		
+	}
+	
+	public void show(){
+		System.out.println("------------ Table Sessions ----------");
+		for (SessionMultiUser smu : getListSessions()) {
+			System.out.println(smu.toString());
+		}
+		System.out.println("------------ Candidate Paths Table ----------");
+		for (MultipathSession mps : getMultipathSessions()) {
+			System.out.println(mps.toString());
+			
+			for (CandidatePath cp : mps.getPaths()) {
+				String id = cp.getId().getSrc().toString();
+				System.out.print("	"+"Candidate Path: "+id.substring(id.length()-2, id.length())+" -> ");
+				for (int i = 1; i <  cp.getPath().size()-1; i+=2) {
+					id = cp.getPath().get(i).getNodeId().toString();
+					System.out.print(id.substring(id.length()-2, id.length())+" -> ");
+				}
+				id = cp.getId().getDst().toString();
+				System.out.println(id.substring(id.length()-2, id.length()));
+				System.out.println("		Bandwidth Consumption: "+cp.getBandwidthConsumption()+"bps");
+				System.out.println("		Latency: "+cp.getLatency().getValue());
+				System.out.println("		Hop Count: "+cp.getHopCount());
+			}
+			
+		}
+		System.out.println("----------------------------------------------");
+	}
+	
+	
 }

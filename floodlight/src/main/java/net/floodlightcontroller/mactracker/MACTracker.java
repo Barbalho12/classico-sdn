@@ -139,8 +139,8 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 		logger = LoggerFactory.getLogger(MACTracker.class);
 		
 		serverSession = new ServerSession("192.168.2.110", 8888, DatapathId.of("00:00:00:00:aa:bb:cc:32"));
-		tableSessionMultiuser = new TableSessionMultiuser(serverSession, 
-				new Monitor(routingService, linkDiscoveryService, statisticsService));
+		tableSessionMultiuser = new TableSessionMultiuser(serverSession);
+		tableSessionMultiuser.initMonitor(routingService, linkDiscoveryService, statisticsService);
 	}
 
 	@Override
@@ -222,33 +222,7 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 		);
 
 		if(sucess){
-			System.out.println("------------ Table Sessions ----------");
-			for (SessionMultiUser smu : tableSessionMultiuser.getListSessions()) {
-//				System.out.println(smu.getListUser().toString());
-				System.out.println(smu.toString());
-			}
-			System.out.println("------------ Candidate Paths Table ----------");
-//			System.out.println("Size: " + tableSessionMultiuser.getMultipathSessions().size());
-			for (MultipathSession mps :tableSessionMultiuser.getMultipathSessions()) {
-				System.out.println(mps.toString());
-				
-				for (CandidatePath cp : mps.getPaths()) {
-					String id = cp.getId().getSrc().toString();
-					System.out.print("	"+"Candidate Path: "+id.substring(id.length()-2, id.length())+" -> ");
-					for (int i = 1; i <  cp.getPath().size()-1; i+=2) {
-						id = cp.getPath().get(i).getNodeId().toString();
-						System.out.print(id.substring(id.length()-2, id.length())+" -> ");
-					}
-					id = cp.getId().getDst().toString();
-					System.out.println(id.substring(id.length()-2, id.length()));
-					System.out.println("		Bandwidth Consumption: "+cp.getBandwidthConsumption()+"bps");
-					System.out.println("		Latency: "+cp.getLatency().getValue());
-					System.out.println("		Hop Count: "+cp.getHopCount());
-				}
-				
-			}
-			System.out.println("----------------------------------------------");
-			
+			tableSessionMultiuser.show();
 		}
 		
 	}

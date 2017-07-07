@@ -11,11 +11,11 @@ public class MultipathSession {
 	private UserSession userSession;
 	private SessionMultiUser sessionMultiUser;
 	
-	public MultipathSession(List<CandidatePath> paths, UserSession userSession, SessionMultiUser sessionMultiUser) {
+	public MultipathSession(List<CandidatePath> paths, UserSession userSession, ServerSession serverSession, SessionMultiUser sessionMultiUser) {
 		this.paths = paths;
 		this.userSession = userSession;
 		this.sessionMultiUser = sessionMultiUser;
-
+		this.serverSession = serverSession;
 	}
 	
 	public List<CandidatePath> getPaths() {
