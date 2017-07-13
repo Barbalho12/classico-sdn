@@ -238,7 +238,7 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule {
 		
 		mySwitch.write(flowAdd);
 		
-		System.out.println("--------------------FlowMod--------------------");
+//		System.out.println("--------------------FlowMod--------------------");
 	}
 	
 	private ArrayList<OFBucket> createBuckets(IOFSwitch mySwitch, ArrayList<OFAction> actionList, String normalFlowPort) {
