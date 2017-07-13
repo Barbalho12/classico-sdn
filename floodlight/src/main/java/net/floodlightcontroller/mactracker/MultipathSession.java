@@ -2,8 +2,6 @@ package net.floodlightcontroller.mactracker;
 
 import java.util.List;
 
-import net.floodlightcontroller.routing.Path;
-
 public class MultipathSession {
 	
 	private List<CandidatePath> paths;
@@ -57,6 +55,12 @@ public class MultipathSession {
 				+ "Server = " + userSession.getDstIp() + ":"+userSession.getDstPort()+", "
 				+ "User = " + userSession.getSrcIp() + ":"+userSession.getSrcPort()+", "
 				+ "Session Context = " + sessionMultiUser.getDescription() + " ]";
+	}
+	
+	public String getPathIndex(){
+		return serverSession.getDatapathId().toString() +
+		userSession.getDatapathId().toString();
+
 	}
 
 }

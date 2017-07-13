@@ -4,13 +4,13 @@ import java.util.ArrayList;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFFlowAdd;
+import org.projectfloodlight.openflow.protocol.OFFlowDelete;
 import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.OFType;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
@@ -34,7 +34,6 @@ import net.floodlightcontroller.core.module.IFloodlightModule;
 import net.floodlightcontroller.core.module.IFloodlightService;
 import net.floodlightcontroller.core.types.NodePortTuple;
 import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryService;
-import net.floodlightcontroller.linkdiscovery.Link;
 import net.floodlightcontroller.packet.Ethernet;
 import net.floodlightcontroller.packet.IPv4;
 import net.floodlightcontroller.packet.UDP;
@@ -140,15 +139,16 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 		
 		serverSession = new ServerSession("192.168.2.110", 8888, DatapathId.of("00:00:00:00:aa:bb:cc:32"));
 		tableSessionMultiuser = new TableSessionMultiuser(serverSession);
-		tableSessionMultiuser.initMonitor(routingService, linkDiscoveryService, statisticsService);
+		tableSessionMultiuser.initMonitor(routingService, switchService, linkDiscoveryService, statisticsService);
 	}
 
 	@Override
 	public void startUp(FloodlightModuleContext context) throws FloodlightModuleException {
 		floodlightProvider.addOFMessageListener(OFType.PACKET_IN, this);
-//		floodlightProvider.addOFMessageListener(OFType.FLOW_REMOVED, this);
+		floodlightProvider.addOFMessageListener(OFType.FLOW_REMOVED, this);
 	}
 
+	boolean flag = true;
 
 	@Override
 	public net.floodlightcontroller.core.IListener.Command receive(IOFSwitch iof_switch, OFMessage msg, FloodlightContext cntx) {
@@ -172,12 +172,17 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 				if (eth.getEtherType() == EthType.IPv4) {	
 					IPv4 ipv4 = (IPv4) eth.getPayload();
 
-					if(ipv4.getProtocol() == IpProtocol.UDP) {
+					if(ipv4.getProtocol() == IpProtocol.UDP /*&& flag*/) {
 //						flag = false;
+//						IOFSwitch  iofs = switchService.getSwitch(DatapathId.of("00:00:00:00:aa:bb:cc:38"));
+//						createFlow(iofs, new Rule(NOTEBOOK_PROBOOK_IP, NOTEBOOK_FELIPE_IP), OFPort.of(0));
+						
+//						System.out.println("aqui");
 						verifySession(iof_switch, ipv4);
 					}
 				}
 				break;
+
 			default:
 				break;
 		}
@@ -223,6 +228,10 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 
 		if(sucess){
 			tableSessionMultiuser.show();
+			
+//			IOFSwitch  iofs = switchService.getSwitch(DatapathId.of("00:00:00:00:aa:bb:cc:38"));
+//			createFlow(iofs, new Rule(NOTEBOOK_PROBOOK_IP, NOTEBOOK_FELIPE_IP), OFPort.of(0));
+//			
 		}
 		
 	}
@@ -270,7 +279,7 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 			    .setIdleTimeout(0)
 			    .setPriority(FlowModUtils.PRIORITY_MAX)
 			    .setMatch(factory.buildMatch()
-//			    	.setExact(MatchField.IN_PORT, iof_switch.getPort(rule.getInPort()).getPortNo())
+			    	/*.setExact(MatchField.IN_PORT, iof_switch.getPort(rule.getInPort()).getPortNo())*/
 			        .setExact(MatchField.ETH_TYPE, EthType.IPv4)
 			        .setExact(MatchField.IPV4_SRC, IPv4Address.of(rule.getIpv4Src()))
 			        .setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))
@@ -285,6 +294,51 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 		iof_switch.write(flowAdd);
 		System.out.println("[FLOW_MOD] ...");
 	}
+	
+//	public void deleteFlow(IOFSwitch iof_switch, Rule rule, OFPort ofPort){
+//		OFFactory factory = iof_switch.getOFFactory();
+//		OFFlowDelete f = factory.buildFlowDelete()
+//				.setHardTimeout(0)
+//			    .setIdleTimeout(0)
+//			    .setPriority(FlowModUtils.PRIORITY_MAX)
+//			    .setMatch(factory.buildMatch()
+//			    	/*.setExact(MatchField.IN_PORT, iof_switch.getPort(rule.getInPort()).getPortNo())*/
+//			        .setExact(MatchField.ETH_TYPE, EthType.IPv4)
+//			        .setExact(MatchField.IPV4_SRC, IPv4Address.of(rule.getIpv4Src()))
+//			        .setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))
+//			        .setExact(MatchField.IP_PROTO, IpProtocol.TCP)
+//			       
+//			        .build())
+//			    
+//			    .build();
+//		iof_switch.write(f);
+//		
+//		System.out.println("[FLOW_MOD] DELETE");
+//	}
+//	
+//	public void createFlow(IOFSwitch iof_switch, Rule rule, OFPort ofPort){
+//		OFFactory factory = iof_switch.getOFFactory();
+//
+//		
+//		OFFlowAdd flowAdd = factory.buildFlowAdd()
+//			    .setHardTimeout(0)
+//			    .setIdleTimeout(0)
+//			    .setPriority(FlowModUtils.PRIORITY_MAX)
+//			    .setMatch(factory.buildMatch()
+//			    	/*.setExact(MatchField.IN_PORT, iof_switch.getPort(rule.getInPort()).getPortNo())*/
+//			        .setExact(MatchField.ETH_TYPE, EthType.IPv4)
+//			        .setExact(MatchField.IPV4_SRC, IPv4Address.of(rule.getIpv4Src()))
+//			        .setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))
+//			        .setExact(MatchField.IP_PROTO, IpProtocol.UDP)
+//			        .build())
+//			    .setActions(Collections.singletonList(factory.actions().buildOutput()
+//			            .setMaxLen(0xffFFffFF)
+//			            .setPort(ofPort)
+//			            .build()))
+//			    .build();
+//		iof_switch.write(flowAdd);
+//		System.out.println("[FLOW_MOD] ADD");
+//	}
 
 	@Override
 	public SwitchPortBandwidth getBandwidthConsumption(DatapathId dpid, OFPort p) {

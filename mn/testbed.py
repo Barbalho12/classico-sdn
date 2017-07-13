@@ -33,6 +33,8 @@ def topology():
     h4 = net.addHost( 'h4', mac="fc:15:b4:d9:51:40", ip='192.168.2.115' )
 
 
+    
+
 
     print "*** Creating Switchs"
     s35 = net.addSwitch( 's35', dpid='00:00:00:00:aa:bb:cc:35' )
@@ -70,6 +72,14 @@ def topology():
     net.addLink(h1, s35, bw=_bw, use_htb=_use_htb)
     # net.addLink(h1, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
     # net.addLink(h2, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+
+
+    # TESTE ADICIONAL
+    h15 = net.addHost( 'h15', mac="00:00:00:00:00:15", ip='192.168.2.15' )
+    h17 = net.addHost( 'h17', mac="00:00:00:00:00:17", ip='192.168.2.17' )
+    net.addLink(h15, s15, bw=_bw, use_htb=_use_htb)
+    net.addLink(h17, s17, bw=_bw, use_htb=_use_htb)
+    # ---------------
 
     print "*** Creating connection between switches"
     net.addLink(s35, s15, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)

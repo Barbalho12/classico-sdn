@@ -8,9 +8,9 @@ import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.IPv4Address;
 import org.projectfloodlight.openflow.types.TransportPort;
 
+import net.floodlightcontroller.core.internal.IOFSwitchService;
 import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryService;
 import net.floodlightcontroller.routing.IRoutingService;
-import net.floodlightcontroller.routing.Path;
 import net.floodlightcontroller.statistics.IStatisticsService;
 
 public class TableSessionMultiuser {
@@ -89,6 +89,8 @@ public class TableSessionMultiuser {
 	public void setServerSession(ServerSession serverSession) {
 		this.serverSession = serverSession;
 	}
+	
+	private int countUsers = 1;
 
 	/**
 	 * MULTIUSER CLOUD SESSION CONTROL ALGORITHM
@@ -123,7 +125,7 @@ public class TableSessionMultiuser {
 					
 				}else{
 					/*Insert ID in User Session*/
-					userSession.setIdUser(sm.getListUser().size());
+					userSession.setIdUser(countUsers++);
 					
 					/*Add User Session in Session MultiUser*/
 					sm.addUser(userSession);
@@ -140,6 +142,7 @@ public class TableSessionMultiuser {
 		/*This will only run if the service that creates the session does not yet exist. In this case, a new session will 
 		 * be created for the service, and the User Session will be added to the session.*/
 		SessionMultiUser smu = new SessionMultiUser(listSessions.size(), listSessions.size()+" "+service, sessionCond);
+		userSession.setIdUser(countUsers++);
 		smu.addUser(userSession);
 		listSessions.add(smu);
 		
@@ -177,9 +180,9 @@ public class TableSessionMultiuser {
 		return texto;
 	}
 
-	public void initMonitor(IRoutingService routingService, ILinkDiscoveryService linkDiscoveryService,
+	public void initMonitor(IRoutingService routingService, IOFSwitchService switchService, ILinkDiscoveryService linkDiscoveryService,
 			IStatisticsService statisticsService) {
-		this.monitor = new Monitor(this, routingService, linkDiscoveryService, statisticsService);
+		this.monitor = new Monitor(this, routingService, switchService, linkDiscoveryService, statisticsService);
 		monitor.start();
 		
 	}
