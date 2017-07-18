@@ -28,4 +28,4 @@ net.floodlightcontroller.dhcpserver.DHCPServer
 net.floodlightcontroller.learningswitch.LearningSwitch
 net.floodlightcontroller.statistics.StatisticsCollector
 net.floodlightcontroller.routing.RoutingManager
-net.floodlightcontroller.mactracker.MACTracker
+net.floodlightcontroller.classico.CLASSICOModule

@@ -1,10 +1,10 @@
-package net.floodlightcontroller.mactracker;
+package net.floodlightcontroller.classico.sessionmanager;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class SessionMultiUser {
+public class Session {
 	private int id; /*ID da sessão*/
 	private Date timeInit; /*Tempo da sessão*/
 	private String description; /*Descrição da sessão*/
@@ -24,12 +24,12 @@ public class SessionMultiUser {
 				+ "List User = " + listUser.toString() + "]";
 	}
 
-	public SessionMultiUser() {
+	public Session() {
 		timeInit = new Date();
 		this.listUser = new ArrayList<>();
 	}
 
-	public SessionMultiUser(int id, String description, ISessionCondition sessionCondition) {
+	public Session(int id, String description, ISessionCondition sessionCondition) {
 		timeInit = new Date();
 		this.id = id;
 		this.description = description;
@@ -37,7 +37,7 @@ public class SessionMultiUser {
 		this.sessionCondition = sessionCondition;
 	}
 	
-	public SessionMultiUser(String description, ISessionCondition sessionCondition) {
+	public Session(String description, ISessionCondition sessionCondition) {
 		timeInit = new Date();
 		this.description = description;
 		this.listUser = new ArrayList<>();

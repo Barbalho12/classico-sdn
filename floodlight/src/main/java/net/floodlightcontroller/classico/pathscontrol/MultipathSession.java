@@ -1,15 +1,19 @@
-package net.floodlightcontroller.mactracker;
+package net.floodlightcontroller.classico.pathscontrol;
 
 import java.util.List;
+
+import net.floodlightcontroller.classico.sessionmanager.ServerSession;
+import net.floodlightcontroller.classico.sessionmanager.Session;
+import net.floodlightcontroller.classico.sessionmanager.UserSession;
 
 public class MultipathSession {
 	
 	private List<CandidatePath> paths;
 	private ServerSession serverSession;
 	private UserSession userSession;
-	private SessionMultiUser sessionMultiUser;
+	private Session sessionMultiUser;
 	
-	public MultipathSession(List<CandidatePath> paths, UserSession userSession, ServerSession serverSession, SessionMultiUser sessionMultiUser) {
+	public MultipathSession(List<CandidatePath> paths, UserSession userSession, ServerSession serverSession, Session sessionMultiUser) {
 		this.paths = paths;
 		this.userSession = userSession;
 		this.sessionMultiUser = sessionMultiUser;
@@ -28,10 +32,10 @@ public class MultipathSession {
 	public void setUserSession(UserSession userSession) {
 		this.userSession = userSession;
 	}
-	public SessionMultiUser getSessionMultiUser() {
+	public Session getSessionMultiUser() {
 		return sessionMultiUser;
 	}
-	public void setSessionMultiUser(SessionMultiUser sessionMultiUser) {
+	public void setSessionMultiUser(Session sessionMultiUser) {
 		this.sessionMultiUser = sessionMultiUser;
 	}
 
@@ -58,9 +62,13 @@ public class MultipathSession {
 	}
 	
 	public String getPathIndex(){
-		return serverSession.getDatapathId().toString() +
+		return serverSession.getDatapathId().toString() +"#"+
+		userSession.getDatapathId().toString() +"#"+ userSession.getIdUser();
+	}
+	
+	public String getSimplePathIndex(){
+		return serverSession.getDatapathId().toString() +"#"+
 		userSession.getDatapathId().toString();
-
 	}
 
 }

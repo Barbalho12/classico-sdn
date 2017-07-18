@@ -1,4 +1,4 @@
-package net.floodlightcontroller.mactracker;
+package net.floodlightcontroller.classico.sessionmanager;
 
 public class Rule {
 	private String inPort;

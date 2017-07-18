@@ -1,28 +1,31 @@
-package net.floodlightcontroller.mactracker;
+package net.floodlightcontroller.classico;
 
 import java.util.ArrayList;
 
 import java.util.Collection;
-import java.util.Collections;
+
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import org.projectfloodlight.openflow.protocol.OFFactory;
-import org.projectfloodlight.openflow.protocol.OFFlowAdd;
-import org.projectfloodlight.openflow.protocol.OFFlowDelete;
 import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.OFType;
-import org.projectfloodlight.openflow.protocol.action.OFAction;
-import org.projectfloodlight.openflow.protocol.match.MatchField;
 import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.EthType;
 import org.projectfloodlight.openflow.types.IPv4Address;
 import org.projectfloodlight.openflow.types.IpProtocol;
-import org.projectfloodlight.openflow.types.OFGroup;
 import org.projectfloodlight.openflow.types.OFPort;
 import org.projectfloodlight.openflow.types.TransportPort;
 
+import net.floodlightcontroller.classico.pathscontrol.CandidatePath;
+import net.floodlightcontroller.classico.pathscontrol.ExecutorPathFlowSDN;
+import net.floodlightcontroller.classico.pathscontrol.Monitor;
+import net.floodlightcontroller.classico.pathscontrol.MulticriteriaPathSelection;
+import net.floodlightcontroller.classico.pathscontrol.MultipathSession;
+import net.floodlightcontroller.classico.sessionmanager.ServerSession;
+import net.floodlightcontroller.classico.sessionmanager.MultiuserSessionControl;
 import net.floodlightcontroller.core.FloodlightContext;
 import net.floodlightcontroller.core.IFloodlightProviderService;
 import net.floodlightcontroller.core.IOFMessageListener;
@@ -41,12 +44,11 @@ import net.floodlightcontroller.routing.IRoutingService;
 import net.floodlightcontroller.statistics.IStatisticsService;
 import net.floodlightcontroller.statistics.SwitchPortBandwidth;
 import net.floodlightcontroller.topology.ITopologyService;
-import net.floodlightcontroller.util.FlowModUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MACTracker implements IOFMessageListener, IFloodlightModule, IStatisticsService {
+public class CLASSICOModule implements IOFMessageListener, IFloodlightModule, IStatisticsService {
 
 	protected IOFSwitchService switchService;
 	protected IFloodlightProviderService floodlightProvider;
@@ -60,29 +62,33 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 	protected IRoutingService routingService;
 	protected ITopologyService topologyService;
 	
-	ServerSession serverSession;
-	TableSessionMultiuser tableSessionMultiuser;
+	private ServerSession serverSession;
+	private MultiuserSessionControl tableSessionMultiuser;
+	
+	private ExecutorPathFlowSDN executorSDN;
+	private Monitor monitor;
+	private MulticriteriaPathSelection multicriteriaPathSelection;
 	
 	/*H3 NO MOMENTO*/
 //	private final String ADPUSB_MAC = "00:13:3B:85:05:05";
 	
 	/*H3*/
 //	private final String NOTEBOOK_FELIPE_MAC = "00:22:19:fd:65:77";
-	private final String NOTEBOOK_FELIPE_IP = "192.168.2.110";
+//	private final String NOTEBOOK_FELIPE_IP = "192.168.2.110";
 //	private final String NOTEBOOK_FELIPE_INTERFACE = "eth0.3";
 //	private final String NOTEBOOK_FELIPE_INTERFACE = "s32-eth3";
 	
 	/*H2*/
 //	private final String NOTEBOOK_PROBOOK_MAC = "c8:cb:b8:c3:fc:3e";
-	private final String NOTEBOOK_PROBOOK_IP = "192.168.2.120";
+//	private final String NOTEBOOK_PROBOOK_IP = "192.168.2.120";
 //	private final String NOTEBOOK_PROBOOK_INTERFACE = "eth1.5";
-	private final String NOTEBOOK_PROBOOK_INTERFACE = "s38-eth4";
+//	private final String NOTEBOOK_PROBOOK_INTERFACE = "s38-eth4";
 	
 	/*H4*/
-	private final String PC_FELIPE_MAC = "fc:15:b4:d9:51:40";
-	private final String PC_FELIPE_IP = "192.168.2.115";
+//	private final String PC_FELIPE_MAC = "fc:15:b4:d9:51:40";
+//	private final String PC_FELIPE_IP = "192.168.2.115";
 //	private final String PC_FELIPE_INTERFACE = "eth1.1";
-	private final String PC_FELIPE_INTERFACE = "s38-eth3";
+//	private final String PC_FELIPE_INTERFACE = "s38-eth3";
 	
 	
 	
@@ -92,7 +98,7 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 	
 	@Override
 	public String getName() {
-		return MACTracker.class.getSimpleName();
+		return CLASSICOModule.class.getSimpleName();
 	}
 
 	@Override
@@ -135,11 +141,20 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 		topologyService = context.getServiceImpl(ITopologyService .class);
 		
 		macAddresses = new ConcurrentSkipListSet<Long>();
-		logger = LoggerFactory.getLogger(MACTracker.class);
+		logger = LoggerFactory.getLogger(CLASSICOModule.class);
 		
 		serverSession = new ServerSession("192.168.2.110", 8888, DatapathId.of("00:00:00:00:aa:bb:cc:32"));
-		tableSessionMultiuser = new TableSessionMultiuser(serverSession);
-		tableSessionMultiuser.initMonitor(routingService, switchService, linkDiscoveryService, statisticsService);
+		tableSessionMultiuser = new MultiuserSessionControl(serverSession);
+//		tableSessionMultiuser.initMonitor(routingService, switchService, linkDiscoveryService, statisticsService);
+		
+		
+		executorSDN = new ExecutorPathFlowSDN(switchService);
+		
+		monitor = new Monitor(this, tableSessionMultiuser, routingService, switchService, linkDiscoveryService, statisticsService);
+		monitor.start();
+		
+		tableSessionMultiuser.setMonitor(monitor);
+		multicriteriaPathSelection = new MulticriteriaPathSelection();
 	}
 
 	@Override
@@ -155,12 +170,6 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 		
 		/*initGroupSettings();*/
 
-//		for (Iterator<Link> iterator = linkDiscoveryService.getLinks().keySet().iterator(); iterator.hasNext();) {
-//			Link link = (Link) iterator.next();
-//			if(statisticsService.getBandwidthConsumption(link.getSrc(), link.getSrcPort()) != null){
-//				System.out.println(statisticsService.getBandwidthConsumption(link.getSrc(), link.getSrcPort()).getBitsPerSecondRx().getValue());
-//			}
-//		}
 
 
 		switch (msg.getType()) {
@@ -228,98 +237,60 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 
 		if(sucess){
 			tableSessionMultiuser.show();
-			
-//			IOFSwitch  iofs = switchService.getSwitch(DatapathId.of("00:00:00:00:aa:bb:cc:38"));
-//			createFlow(iofs, new Rule(NOTEBOOK_PROBOOK_IP, NOTEBOOK_FELIPE_IP), OFPort.of(0));
-//			
 		}
 		
 	}
-
 	
-	@SuppressWarnings("unused")
-	private void initGroupSettings() {
-		
-		if(firstTimeFlag){
-			try{
-				
-				//Switch de entrada para nova regra de fluxo
-				IOFSwitch  iofs = switchService.getSwitch(DatapathId.of("00:00:00:00:aa:bb:cc:38"));
-				
-				GroupMod gmod = new GroupMod(iofs);
-				
-				/*Cria um bucket com fluxo normal (pacote segue caminho original)*/
-				gmod.createBucketNormalFlow(iofs, NOTEBOOK_PROBOOK_INTERFACE);
-				
-				/*Cria um bucket com fluxo diferente (altera ip, mac e porta do pacote destino)*/
-				gmod.createBucket(iofs, PC_FELIPE_INTERFACE, PC_FELIPE_IP, PC_FELIPE_MAC, 10000);
-				
-				/*Grava no switch*/
-				gmod.writeGroup();
-				
-				/*Regra de fluxo: IP fonte - IP Destino*/
-				Rule rule1 = new Rule(NOTEBOOK_FELIPE_IP, NOTEBOOK_PROBOOK_IP);
-				createFluxo(iofs, rule1, gmod.getGroup());
+	
+	
+	
+	public void notifyUpdates(List<MultipathSession> multipathSessions){
 
-			}catch (Exception e) {
-				e.printStackTrace();
-				System.err.println("ERROR - Init Group Settings");
-			}
-			
-			firstTimeFlag = false;
-		}
+		HashMap<String, CandidatePath> bestPaths = multicriteriaPathSelection.calculateBestPaths(multipathSessions);
+		//TODO Entra Branch Points
+		//TODO Adiciona BranchPints como parâmetro de updateFlowPaths
+		executorSDN.updateFlowPaths(tableSessionMultiuser.getMultipathSessions(), bestPaths);
+		
 	}
 
-	public void createFluxo(IOFSwitch iof_switch, Rule rule, OFGroup group){
-		OFFactory factory = iof_switch.getOFFactory();
-
-		/*Crio um fluxo que irá direcionar os pacotes que obedecem as restrições para o grupo criado antes*/
-		OFFlowAdd flowAdd = factory.buildFlowAdd()
-			    .setHardTimeout(0)
-			    .setIdleTimeout(0)
-			    .setPriority(FlowModUtils.PRIORITY_MAX)
-			    .setMatch(factory.buildMatch()
-			    	/*.setExact(MatchField.IN_PORT, iof_switch.getPort(rule.getInPort()).getPortNo())*/
-			        .setExact(MatchField.ETH_TYPE, EthType.IPv4)
-			        .setExact(MatchField.IPV4_SRC, IPv4Address.of(rule.getIpv4Src()))
-			        .setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))
-			        .setExact(MatchField.IP_PROTO, IpProtocol.UDP)
-			        .build())
-			    .setActions(Collections.singletonList((OFAction) factory.actions().buildGroup()
-			    	.setGroup(group)
-			        .build()))
-			    .build();
 	
-		
-		iof_switch.write(flowAdd);
-		System.out.println("[FLOW_MOD] ...");
-	}
-	
-//	public void deleteFlow(IOFSwitch iof_switch, Rule rule, OFPort ofPort){
-//		OFFactory factory = iof_switch.getOFFactory();
-//		OFFlowDelete f = factory.buildFlowDelete()
-//				.setHardTimeout(0)
-//			    .setIdleTimeout(0)
-//			    .setPriority(FlowModUtils.PRIORITY_MAX)
-//			    .setMatch(factory.buildMatch()
-//			    	/*.setExact(MatchField.IN_PORT, iof_switch.getPort(rule.getInPort()).getPortNo())*/
-//			        .setExact(MatchField.ETH_TYPE, EthType.IPv4)
-//			        .setExact(MatchField.IPV4_SRC, IPv4Address.of(rule.getIpv4Src()))
-//			        .setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))
-//			        .setExact(MatchField.IP_PROTO, IpProtocol.TCP)
-//			       
-//			        .build())
-//			    
-//			    .build();
-//		iof_switch.write(f);
+//	@SuppressWarnings("unused")
+//	private void initGroupSettings() {
 //		
-//		System.out.println("[FLOW_MOD] DELETE");
+//		if(firstTimeFlag){
+//			try{
+//				
+//				//Switch de entrada para nova regra de fluxo
+//				IOFSwitch  iofs = switchService.getSwitch(DatapathId.of("00:00:00:00:aa:bb:cc:38"));
+//				
+//				GroupMod gmod = new GroupMod(iofs);
+//				
+//				/*Cria um bucket com fluxo normal (pacote segue caminho original)*/
+//				gmod.createBucketNormalFlow(iofs, NOTEBOOK_PROBOOK_INTERFACE);
+//				
+//				/*Cria um bucket com fluxo diferente (altera ip, mac e porta do pacote destino)*/
+//				gmod.createBucket(iofs, PC_FELIPE_INTERFACE, PC_FELIPE_IP, PC_FELIPE_MAC, 10000);
+//				
+//				/*Grava no switch*/
+//				gmod.writeGroup();
+//				
+//				/*Regra de fluxo: IP fonte - IP Destino*/
+//				Rule rule1 = new Rule(NOTEBOOK_FELIPE_IP, NOTEBOOK_PROBOOK_IP);
+//				createFluxo(iofs, rule1, gmod.getGroup());
+//
+//			}catch (Exception e) {
+//				e.printStackTrace();
+//				System.err.println("ERROR - Init Group Settings");
+//			}
+//			
+//			firstTimeFlag = false;
+//		}
 //	}
-//	
-//	public void createFlow(IOFSwitch iof_switch, Rule rule, OFPort ofPort){
+
+//	public void createFluxo(IOFSwitch iof_switch, Rule rule, OFGroup group){
 //		OFFactory factory = iof_switch.getOFFactory();
 //
-//		
+//		/*Crio um fluxo que irá direcionar os pacotes que obedecem as restrições para o grupo criado antes*/
 //		OFFlowAdd flowAdd = factory.buildFlowAdd()
 //			    .setHardTimeout(0)
 //			    .setIdleTimeout(0)
@@ -331,15 +302,16 @@ public class MACTracker implements IOFMessageListener, IFloodlightModule, IStati
 //			        .setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))
 //			        .setExact(MatchField.IP_PROTO, IpProtocol.UDP)
 //			        .build())
-//			    .setActions(Collections.singletonList(factory.actions().buildOutput()
-//			            .setMaxLen(0xffFFffFF)
-//			            .setPort(ofPort)
-//			            .build()))
+//			    .setActions(Collections.singletonList((OFAction) factory.actions().buildGroup()
+//			    	.setGroup(group)
+//			        .build()))
 //			    .build();
+//	
+//		
 //		iof_switch.write(flowAdd);
-//		System.out.println("[FLOW_MOD] ADD");
+//		System.out.println("[FLOW_MOD] ...");
 //	}
-
+	
 	@Override
 	public SwitchPortBandwidth getBandwidthConsumption(DatapathId dpid, OFPort p) {
 		// TODO Auto-generated method stub
