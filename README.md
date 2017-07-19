@@ -36,73 +36,73 @@ Para testar o módulo, foi criado dois programas em 'scripts':
 ### Exemplo
 
 1. Inicie o módulo CLASSICO:
-
-    ant && java -jar target/floodlight.jar
+      
+         ant && java -jar target/floodlight.jar
 
 2. Inicie o Mininet:
 
-    sudo python mn/testbed.py
+         sudo python mn/testbed.py
 
 3. No mininet, teste se os Hosts criados estão se comunicando:
     
-    mininet> pingall
+         mininet> pingall
 
 4. Abra dois terminais externos para h3 e h2 no mininet:
    
-    mininet> xterm h3 h2
+         mininet> xterm h3 h2
 
 5. Execute o Server em h3:
 
-    python server.py
+         python server.py
 
 6. Execute o Client em h2:
 
-    python client.py 192.168.2.110 8888 sample.mp4
+         python client.py 192.168.2.110 8888 sample.mp4
 
-7.LOG **simplificado** da execução do exemplo:
+7. LOG **simplificado** da execução do exemplo:
 
-[MONITOR] There are no candidate paths to update
-[ExecutorPathFlowSDN] No changes in Flows
-(...)
-[MONITOR] There are no candidate paths to update
-[ExecutorPathFlowSDN] No changes in Flows
-(...)
-[MONITOR] There are no candidate paths to update
-[ExecutorPathFlowSDN] No changes in Flows
-(...)
------------- Table Sessions ----------
+         [MONITOR] There are no candidate paths to update
+         [ExecutorPathFlowSDN] No changes in Flows
+         (...)
+         [MONITOR] There are no candidate paths to update
+         [ExecutorPathFlowSDN] No changes in Flows
+         (...)
+         [MONITOR] There are no candidate paths to update
+         [ExecutorPathFlowSDN] No changes in Flows
+         (...)
+         ------------ Table Sessions ----------
 
-[ID = 0, Description=sample.mp4, 
-    List User=[UserSession [ID = 1, Address = 192.168.2.100:55099, Edge switch = aa:bb:cc:35]]]
+         [ID = 0, Description=sample.mp4, 
+             List User=[UserSession [ID = 1, Address = 192.168.2.100:55099, Edge switch = aa:bb:cc:35]]]
 
------------- Candidate Paths Table ----------
+         ------------ Candidate Paths Table ----------
 
-[Candidate Paths=10, Server=192.168.2.110:8888, User=192.168.2.100:55099, Session=sample2.mp4 ]
+         [Candidate Paths=10, Server=192.168.2.110:8888, User=192.168.2.100:55099, Session=sample2.mp4 ]
 
-    Candidate Path: 32 -> 14 -> 35
-        Bw Consumption: 60bps
-        Latency: 17
-        Hop Count: 2
-    Candidate Path: 32 -> 15 -> 35
-        Bandwidth Consumption: 60bps
-        Latency: 0
-        Hop Count: 2
-    Candidate Path: 32 -> 14 -> 02 -> 15 -> 35
-        Bandwidth Consumption: 60bps
-        Latency: 5
-        Hop Count: 4
+             Candidate Path: 32 -> 14 -> 35
+                 Bw Consumption: 60bps
+                 Latency: 17
+                 Hop Count: 2
+             Candidate Path: 32 -> 15 -> 35
+                 Bandwidth Consumption: 60bps
+                 Latency: 0
+                 Hop Count: 2
+             Candidate Path: 32 -> 14 -> 02 -> 15 -> 35
+                 Bandwidth Consumption: 60bps
+                 Latency: 5
+                 Hop Count: 4
 
-        (...)
+                 (...)
 
-----------------------------------------------
-(...)
-[MONITOR] Update Candidate Paths
-[ExecutorPathFlowSDN] FLOW_MOD ADD: Switch: aa:bb:cc:32, Port:3, Reference: 192.168.2.110 -> 192.168.2.100
-[ExecutorPathFlowSDN] FLOW_MOD ADD: Switch: aa:bb:cc:14, Port:1, Reference: 192.168.2.110 -> 192.168.2.100
-[ExecutorPathFlowSDN] Update Flows
-(...)
-[MONITOR] Update Candidate Paths
-[ExecutorPathFlowSDN] No changes in Flows
+         ----------------------------------------------
+         (...)
+         [MONITOR] Update Candidate Paths
+         [ExecutorPathFlowSDN] FLOW_MOD ADD: Switch: aa:bb:cc:32, Port:3, Reference: 192.168.2.110 -> 192.168.2.100
+         [ExecutorPathFlowSDN] FLOW_MOD ADD: Switch: aa:bb:cc:14, Port:1, Reference: 192.168.2.110 -> 192.168.2.100
+         [ExecutorPathFlowSDN] Update Flows
+         (...)
+         [MONITOR] Update Candidate Paths
+         [ExecutorPathFlowSDN] No changes in Flows
 
 
 #### Explicação 
