@@ -18,8 +18,12 @@ O [Mininet] é uma aplicação reponsável pela virtualização dos componentes 
  * Latency = 5ms;
  * IP Controller = 127.0.0.1
  * Port Controller = 6653
-    
-<p align="center"><img src ="prints/testbed.png" width="350px" /></p>
+
+
+<kbd>
+    <p align="center"><img src ="prints/testbed.png" width="100%" /></p>
+</kbd>
+
 
 Para iniciar o Mininet execute o script:
 
