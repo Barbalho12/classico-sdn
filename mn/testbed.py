@@ -1,9 +1,5 @@
 #!/usr/bin/python
 
-"""
-This example shows how to work with WiFi on Mininet.
-"""
-
 from mininet.net import Mininet
 from mininet.node import  OVSController, OVSKernelSwitch, RemoteController
 from mininet.cli import CLI
@@ -26,7 +22,6 @@ def topology():
 
     print "*** Creating Hosts"
     h1 = net.addHost( 'h1', mac="10:60:4b:ea:b9:01", ip='192.168.2.100' )
-    
     h2 = net.addHost( 'h2', mac="c8:cb:b8:c3:fc:3e", ip='192.168.2.120' )
     # h3 = net.addHost( 'h3', mac="00:22:19:fd:65:77", ip='192.168.2.110' )
     h3 = net.addHost( 'h3', mac=adp_USB100MB_MAC, ip='192.168.2.110' )
@@ -45,34 +40,15 @@ def topology():
     s17 = net.addSwitch(  's17', dpid='00:00:00:00:aa:bb:cc:17' )
     s38 = net.addSwitch(  's38', dpid='00:00:00:00:aa:bb:cc:38' )
     
-
     print "*** Creating Controller Openflow"
     c0 = RemoteController( 'c0', ip=_ip_remote_control, port=_port_remote_control )
 
-    
-    # print "*** Creating connection between switches"
-    # net.addLink(s35, s15, bw=_bw, use_htb=_use_htb)
-    # net.addLink(s35, s14, bw=_bw, use_htb=_use_htb)
-    # net.addLink(s32, s15, bw=_bw, use_htb=_use_htb)
-    # net.addLink(s32, s14, bw=_bw, use_htb=_use_htb)
-
-    # net.addLink(s15, s17, bw=_bw, use_htb=_use_htb)
-    # net.addLink(s15, s02, bw=_bw, use_htb=_use_htb)
-    # net.addLink(s14, s17, bw=_bw, use_htb=_use_htb)
-    # net.addLink(s14, s02, bw=_bw, use_htb=_use_htb)
-
-    # net.addLink(s02, s38, bw=_bw, use_htb=_use_htb)
-    # net.addLink(s17, s38, bw=_bw, use_htb=_use_htb)
-
-
-    # print "*** Connecting hosts"
+    print "*** Connecting hosts"
+    net.addLink(h1, s35, bw=_bw, use_htb=_use_htb)
+    net.addLink(h2, s38, bw=_bw, use_htb=_use_htb)
     net.addLink(h3, s32, bw=_bw, use_htb=_use_htb)
     net.addLink(h4, s38, bw=_bw, use_htb=_use_htb)
-    net.addLink(h2, s38, bw=_bw, use_htb=_use_htb)
-    net.addLink(h1, s35, bw=_bw, use_htb=_use_htb)
     # net.addLink(h1, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    # net.addLink(h2, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-
 
     # TESTE ADICIONAL
     h15 = net.addHost( 'h15', mac="00:00:00:00:00:15", ip='192.168.2.15' )
@@ -94,15 +70,6 @@ def topology():
 
     net.addLink(s02, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
     net.addLink(s17, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-
-
-    # print "*** Connecting hosts"
-    # net.addLink(h3, s32, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    # net.addLink(h4, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    # # net.addLink(h1, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    # # net.addLink(h2, s38, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
-    
-   
 
     
     print "*** Starting network"
