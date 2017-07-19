@@ -4,20 +4,22 @@
 
 ## Módulo Floodlight
 
-As classes do módulo CLASSICO estão no pacote net.floodlightcontroller.classico, e possui CLASSICOModule.java como Classe principal. O módulo é subdividido em dois outros pacotes:
+Extendendo o [Floodlight], as classes do módulo do [CLASSICO] estão no pacote `net.floodlightcontroller.classico`, e possui `CLASSICOModule.java` como Classe principal. O módulo é subdividido em dois outros pacotes:
 
-*  sessionmanager: Controla as classes do modelo de sessão, mantendo a tabela de sessões atualizada
-*  pathscontrol: Contém as classes de controle de Fluxo e Grupos, além de coletar as estatísticas da Rede de contínua.
+*  `sessionmanager`: Controla as classes do modelo de sessão, mantendo a tabela de sessões atualizada
+*  `pathscontrol`: Contém as classes de controle de Fluxo e Grupos, além de coletar as estatísticas da Rede de contínua.
 
 
 ## Mininet
 
-    * Bandwidth = 100Mbit/s;
-    * Latency = 5ms;
-    * IP Controller = 127.0.0.1
-    * Port Controller = 6653
+O [Mininet] é uma aplicação reponsável pela virtualização dos componentes de Rede, e utilizamos para compor uma simulação do Testbed, a fim de facilitar o desenvolvimento.
+
+ * Bandwidth = 100Mbit/s;
+ * Latency = 5ms;
+ * IP Controller = 127.0.0.1
+ * Port Controller = 6653
     
-![F1](prints/testbed.png?raw=true "topology")
+<p align="center"><img src ="prints/testbed.png" width="350px /></p>
 
 Para iniciar o Mininet execute o script:
 
@@ -108,3 +110,13 @@ Para testar o módulo, foi criado dois programas em 'scripts':
 #### Explicação 
 
 [MONITOR] é uma thread que busca estatisticas da rede, e a cada unidade de tempo invoca [ExecutorPathFlowSDN], que como ainda não tem sessões na Tabela de sessões, exibe uma mensagem de que não há alterações. Em seguida, um cliente se registra em uma nova sessão e é impresso "Candidate Paths Table", com suas informaçães. Depois os caminhos candidatos entre o Switch de borda do servidor e do cliente são calculados e é exibido "Candidate Paths Table". Por fim [ExecutorPathFlowSDN] modifica a rede, adicionndo fluxos em cada switch dos melhores caminhos.
+
+
+
+
+   [Floodlight]: <https://github.com/floodlight/floodlight>
+   [Mininet]: <http://mininet.org/>
+   [CLASSICO]: <https://github.com/Barbalho12/classico-sdn/tree/master/floodlight/src/main/java/net/floodlightcontroller/classico>
+   
+
+
