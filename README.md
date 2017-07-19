@@ -19,7 +19,7 @@ O [Mininet] é uma aplicação reponsável pela virtualização dos componentes 
  * IP Controller = 127.0.0.1
  * Port Controller = 6653
     
-<p align="center"><img src ="prints/testbed.png" width="350px /></p>
+<p align="center"><img src ="prints/testbed.png" width="350px" /></p>
 
 Para iniciar o Mininet execute o script:
 
