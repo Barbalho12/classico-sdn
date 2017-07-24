@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.IPv4Address;
+import org.projectfloodlight.openflow.types.MacAddress;
 import org.projectfloodlight.openflow.types.TransportPort;
 
 import net.floodlightcontroller.classico.pathscontrol.CandidatePath;
@@ -38,17 +39,18 @@ public class MultiuserSessionControl {
 	 * @param srcPort Source process port
 	 * @param dstIp IP of the registered server (useful for validation)
 	 * @param dstPort Port of the registered server (useful for validation)
+	 * @param macAddress 
 	 * @param service Required service (message body)
 	 * @param datapathId Edge switch that generated packet-in
 	 */
 	public boolean addClientRequest(IPv4Address srcIp, TransportPort srcPort, IPv4Address dstIp, TransportPort dstPort,
-			String service, DatapathId datapathId) {
+			MacAddress macAddress, String service, DatapathId datapathId) {
 		
 		/*Treats the body of the service message for a type that will define the session*/
 		ISessionCondition sessionCond = new SessionCondition(service);
 		
 		/*Creates a session for the User (not yet available in the table)*/
-		UserSession userSession = new UserSession(srcIp, srcPort, dstIp, dstPort, datapathId);
+		UserSession userSession = new UserSession(srcIp, srcPort, dstIp, dstPort, datapathId, macAddress);
 		
 		/*Scroll through list of active table sessions*/
 		for(Session sm : listSessions){

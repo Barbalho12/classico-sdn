@@ -22,7 +22,8 @@ import net.floodlightcontroller.core.IOFSwitch;
 
 public class GroupMod {
 	
-	private static int GROUP_NUMBER = 1;
+//	private static int GROUP_NUMBER = 1;
+	private int id;
 	private OFFactory factory;
 	private OFGroupAdd groupAdd;
 	private IOFSwitch iof_switch;
@@ -35,10 +36,18 @@ public class GroupMod {
 		buckets = new ArrayList<>();
 	}
 	
+	public GroupMod(IOFSwitch iofs, int id) {
+		this.setIof_switch(iofs);
+		this.factory = iofs.getOFFactory();
+		this.setId(id);
+		buckets = new ArrayList<>();
+	}
+
 	public void writeGroup(){
 		groupAdd = factory.buildGroupAdd()
 //				.setGroup(OFGroup.of(1))
-			    .setGroup(OFGroup.of(GROUP_NUMBER++))
+				.setGroup(OFGroup.of(getId()))
+//			    .setGroup(OFGroup.of(GROUP_NUMBER++))
 			    .setGroupType(OFGroupType.ALL)
 			    .setBuckets(buckets)
 			    .build();
@@ -137,6 +146,55 @@ public class GroupMod {
 		
 		return actionList;
 	}
+	
+	public ArrayList<OFAction> createListActions(IOFSwitch iofSwitch, OFPort switchOutputPort, IPv4Address newIPHostDest, TransportPort newPortDest, MacAddress newMacHostDest) {
+
+		OFOxms oxms = factory.oxms();
+		OFActions actions = factory.actions();
+		
+		//Ações de modificação de pacotes
+		ArrayList<OFAction> actionList = new ArrayList<OFAction>();
+		
+		/* Cria a ação de modificar o destino, e adiciona a lista*/
+		OFActionSetField setNewIpv4Dst = actions.buildSetField()
+		    .setField(
+		        oxms.buildIpv4Dst()
+		        .setValue(newIPHostDest)
+		        .build()
+		    )
+		    .build();
+		actionList.add(setNewIpv4Dst);
+		
+		/* Cria a ação de modificar o MAc destino, e adiciona a lista*/
+		OFActionSetField setNewEthDst = actions.buildSetField()
+		    .setField(
+		        oxms.buildEthDst()
+		        .setValue(newMacHostDest)
+		        .build()
+		    ).build();
+		actionList.add(setNewEthDst);
+		
+		/* Cria a ação de modificar o MAc destino, e adiciona a lista*/
+		OFActionSetField setNewTcpDst = actions.buildSetField()
+		    .setField(
+		        oxms.buildUdpDst()
+		        .setValue(newPortDest) 
+		        .build()
+		    ).build();
+		
+		actionList.add(setNewTcpDst);
+		
+		/* Cria a ação de porta de saída do pacote, e adiciona a lista*/
+		actionList.add(factory.actions().buildOutput()
+		        .setMaxLen(0xffFFffFF)
+		        .setPort(switchOutputPort)
+//		        .setPort(OFPort.NORMAL)
+		        .build());
+		
+		System.out.println("[GROUP] List Actions Created");
+		
+		return actionList;
+	}
 
 	public IOFSwitch getIof_switch() {
 		return iof_switch;
@@ -148,6 +206,22 @@ public class GroupMod {
 	
 	public OFGroup getGroup() {
 		return groupAdd.getGroup();
+	}
+
+	public void createBucket(IOFSwitch iofs, OFPort switchOutputPort, IPv4Address srcIp, TransportPort srcPort,
+			MacAddress maCadreess) {
+		ArrayList<OFAction> actionList = createListActions(iofs, switchOutputPort, srcIp, srcPort, maCadreess );
+
+		OFBucket newBucket = createBucket(actionList);
+		
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 

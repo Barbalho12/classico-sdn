@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.IPv4Address;
+import org.projectfloodlight.openflow.types.MacAddress;
 import org.projectfloodlight.openflow.types.TransportPort;
 
 public class UserSession {
@@ -15,17 +16,19 @@ public class UserSession {
 	private IPv4Address dstIp;
 	private TransportPort dstPort;
 	private DatapathId datapathId;
+	private MacAddress MACadreess;
 	
 	private Date timeUserInSession; /*Tempo em que entrou na sessão*/
 	
 	
-	public UserSession(IPv4Address srcIp, TransportPort srcPort, IPv4Address dstIp, TransportPort dstPort, DatapathId datapathId) {
+	public UserSession(IPv4Address srcIp, TransportPort srcPort, IPv4Address dstIp, TransportPort dstPort, DatapathId datapathId, MacAddress macAddress) {
 		timeUserInSession = new Date();
 		this.srcIp = srcIp;
 		this.srcPort = srcPort;
 		this.dstIp = dstIp;
 		this.dstPort = dstPort;
 		this.datapathId = datapathId;
+		this.MACadreess = macAddress;
 	}
 
 
@@ -145,6 +148,16 @@ public class UserSession {
 
 	public void setTimeUserInSession(Date timeUserInSession) {
 		this.timeUserInSession = timeUserInSession;
+	}
+
+
+	public MacAddress getMACadreess() {
+		return MACadreess;
+	}
+
+
+	public void setMACadreess(MacAddress mACadreess) {
+		MACadreess = mACadreess;
 	}
 
 	

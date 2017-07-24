@@ -16,6 +16,7 @@ import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.EthType;
 import org.projectfloodlight.openflow.types.IPv4Address;
 import org.projectfloodlight.openflow.types.IpProtocol;
+import org.projectfloodlight.openflow.types.MacAddress;
 import org.projectfloodlight.openflow.types.OFPort;
 import org.projectfloodlight.openflow.types.TransportPort;
 
@@ -169,15 +170,15 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule, IS
 	public net.floodlightcontroller.core.IListener.Command receive(IOFSwitch iof_switch, OFMessage msg, FloodlightContext cntx) {
 		
 		/*initGroupSettings();*/
-
-
+		
+		
 
 		switch (msg.getType()) {
 		
 			case PACKET_IN:
 				
 				Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
-	
+				
 				if (eth.getEtherType() == EthType.IPv4) {	
 					IPv4 ipv4 = (IPv4) eth.getPayload();
 
@@ -187,7 +188,7 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule, IS
 //						createFlow(iofs, new Rule(NOTEBOOK_PROBOOK_IP, NOTEBOOK_FELIPE_IP), OFPort.of(0));
 						
 //						System.out.println("aqui");
-						verifySession(iof_switch, ipv4);
+						verifySession(iof_switch, ipv4, eth.getSourceMACAddress());
 					}
 				}
 				break;
@@ -199,7 +200,7 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule, IS
 		return Command.CONTINUE;
 	}
 	
-	private synchronized void verifySession(IOFSwitch iof_switch, IPv4 ipv4){
+	private synchronized void verifySession(IOFSwitch iof_switch, IPv4 ipv4, MacAddress macAddress){
 		UDP udp = (UDP) ipv4.getPayload();
 		
 		TransportPort srcPort = udp.getSourcePort();
@@ -207,7 +208,7 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule, IS
 		
 		IPv4Address srcIp = ipv4.getSourceAddress();
 		IPv4Address dstIp = ipv4.getDestinationAddress();
-		
+
 //		System.out.println(srcIp+":"+srcPort +" --> "+dstIp+":"+dstPort);
 
 		if((!tableSessionMultiuser.getServerSession().getIp().equals(dstIp.toInetAddress().getHostAddress())) ||
@@ -231,6 +232,7 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule, IS
 				srcPort, 
 				dstIp, 
 				dstPort,
+				macAddress,
 				service,
 				iof_switch.getId()
 		);
