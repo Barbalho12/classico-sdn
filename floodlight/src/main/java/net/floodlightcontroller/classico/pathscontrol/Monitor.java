@@ -18,6 +18,8 @@ import net.floodlightcontroller.statistics.IStatisticsService;
 
 public class Monitor extends Thread{
 	
+	private final int REFRESH_INTERVAL_SECONDS = 15;
+	
 	private IRoutingService routingService;
 	private ILinkDiscoveryService linkDiscoveryService;
 	private IStatisticsService statisticsService;
@@ -121,7 +123,8 @@ public class Monitor extends Thread{
 	@Override
 	public void run() {
 		while(true){
-			sleepSeconds(50);
+
+			sleepSeconds(REFRESH_INTERVAL_SECONDS);
 			update(tableSM.getMultipathSessions());
 			if(tableSM.getMultipathSessions() != null){
 				classicoModuleREF.notifyUpdates(tableSM.getMultipathSessions());

@@ -14,7 +14,7 @@ public class NodePath {
 	private DatapathId dataPathId;
 //	private boolean isBranch;
 	private List<EdgeMap> conections;
-	Rule rule;
+	private Rule rule;
 	
 	public NodePath(int idSession) {
 		conections = new ArrayList<>();
@@ -113,6 +113,47 @@ public class NodePath {
 		}
 		return null;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((conections == null) ? 0 : conections.hashCode());
+		result = prime * result + ((dataPathId == null) ? 0 : dataPathId.hashCode());
+		result = prime * result + idSession;
+		result = prime * result + ((rule == null) ? 0 : rule.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		NodePath other = (NodePath) obj;
+		if (conections == null) {
+			if (other.conections != null)
+				return false;
+		} else if (!conections.equals(other.conections))
+			return false;
+		if (dataPathId == null) {
+			if (other.dataPathId != null)
+				return false;
+		} else if (!dataPathId.equals(other.dataPathId))
+			return false;
+		if (idSession != other.idSession)
+			return false;
+		if (rule == null) {
+			if (other.rule != null)
+				return false;
+		} else if (!rule.equals(other.rule))
+			return false;
+		return true;
+	}
+	
 	
 	
 
