@@ -12,7 +12,7 @@ Extendendo o [Floodlight], as classes do módulo do [CLASSICO] estão no pacote 
 
 ## Mininet
 
-O [Mininet] é uma aplicação reponsável pela virtualização dos componentes de Rede, e utilizamos para compor uma simulação do Testbed, a fim de facilitar o desenvolvimento.
+O [Mininet] é uma aplicação responsável pela virtualização dos componentes de Rede, e utilizamos para compor uma simulação do Testbed, a fim de facilitar o desenvolvimento.
 
  * Bandwidth = 100Mbit/s;
  * Latency = 5ms;
@@ -113,7 +113,7 @@ Para testar o módulo, foi criado dois programas em 'scripts':
 
 #### Explicação 
 
-[MONITOR] é uma thread que busca estatisticas da rede, e a cada unidade de tempo invoca [ExecutorPathFlowSDN], que como ainda não tem sessões na Tabela de sessões, exibe uma mensagem de que não há alterações. Em seguida, um cliente se registra em uma nova sessão e é impresso "Candidate Paths Table", com suas informaçães. Depois os caminhos candidatos entre o Switch de borda do servidor e do cliente são calculados e é exibido "Candidate Paths Table". Por fim [ExecutorPathFlowSDN] modifica a rede, adicionndo fluxos em cada switch dos melhores caminhos.
+[MONITOR] é uma thread que busca estatísticas da rede, e a cada unidade de tempo invoca [ExecutorPathFlowSDN], que como ainda não tem sessões na Tabela de sessões, exibe uma mensagem de que não há alterações. Em seguida, um cliente se registra em uma nova sessão e é impresso "Candidate Paths Table", com suas informações. Depois os caminhos candidatos entre o Switch de borda do servidor e do cliente são calculados e é exibido "Candidate Paths Table". Por fim [ExecutorPathFlowSDN] modifica a rede, adicionando fluxos em cada switch dos melhores caminhos.
 
 
 
