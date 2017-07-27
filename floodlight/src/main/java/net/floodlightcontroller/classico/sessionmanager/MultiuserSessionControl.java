@@ -7,6 +7,7 @@ import java.util.List;
 import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.IPv4Address;
 import org.projectfloodlight.openflow.types.MacAddress;
+import org.projectfloodlight.openflow.types.OFPort;
 import org.projectfloodlight.openflow.types.TransportPort;
 
 import net.floodlightcontroller.classico.pathscontrol.CandidatePath;
@@ -44,13 +45,13 @@ public class MultiuserSessionControl {
 	 * @param datapathId Edge switch that generated packet-in
 	 */
 	public boolean addClientRequest(IPv4Address srcIp, TransportPort srcPort, IPv4Address dstIp, TransportPort dstPort,
-			MacAddress macAddress, String service, DatapathId datapathId) {
+			MacAddress macAddress, String service, DatapathId datapathId, OFPort switchInPort) {
 		
 		/*Treats the body of the service message for a type that will define the session*/
 		ISessionCondition sessionCond = new SessionCondition(service);
 		
 		/*Creates a session for the User (not yet available in the table)*/
-		UserSession userSession = new UserSession(srcIp, srcPort, dstIp, dstPort, datapathId, macAddress);
+		UserSession userSession = new UserSession(srcIp, srcPort, dstIp, dstPort, macAddress, datapathId, switchInPort);
 		
 		/*Scroll through list of active table sessions*/
 		for(Session sm : listSessions){
@@ -63,7 +64,7 @@ public class MultiuserSessionControl {
 					//TODO Remove (using for testing)
 //					System.out.println("User exists in session!");
 					
-					return false;
+					return true;
 					
 				}else{
 					/*Insert ID in User Session*/
@@ -74,10 +75,9 @@ public class MultiuserSessionControl {
 					
 					List<CandidatePath> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId, null);
 					multipathSessions.add(new MultipathSession(paths, userSession, serverSession, sm));
-					
-					return true;
+					show();
+					return false;
 				}
-				
 			}
 		}
 		
@@ -90,7 +90,7 @@ public class MultiuserSessionControl {
 		
 		List<CandidatePath> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId,  null);
 		multipathSessions.add(new MultipathSession(paths, userSession, serverSession, smu));
-
+		show();
 		return true;
 	} 
 	

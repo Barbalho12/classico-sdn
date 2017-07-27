@@ -12,7 +12,7 @@ public class NodePath {
 	
 	private int idSession;
 	private DatapathId dataPathId;
-	private boolean isBranch;
+//	private boolean isBranch;
 	private List<EdgeMap> conections;
 	Rule rule;
 	
@@ -44,9 +44,9 @@ public class NodePath {
 		if(getConections().size() > 1) return true;
 		return false;
 	}
-	public void setBranch(boolean isBranch) {
-		this.isBranch = isBranch;
-	}
+//	public void setBranch(boolean isBranch) {
+//		this.isBranch = isBranch;
+//	}
 	public List<EdgeMap> getConections() {
 		return conections;
 	}
@@ -105,6 +105,13 @@ public class NodePath {
 			return true;
 		}
 		return false;
+	}
+
+	public EdgeMap getFirstConnection() {
+		if(!conections.isEmpty()){
+			return conections.get(0);
+		}
+		return null;
 	}
 	
 	

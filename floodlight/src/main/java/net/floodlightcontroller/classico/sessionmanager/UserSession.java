@@ -5,30 +5,33 @@ import java.util.Date;
 import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.IPv4Address;
 import org.projectfloodlight.openflow.types.MacAddress;
+import org.projectfloodlight.openflow.types.OFPort;
 import org.projectfloodlight.openflow.types.TransportPort;
 
 public class UserSession {
 	
 	private int idUser; /*ID do Host*/
 	
-	private IPv4Address srcIp;
-	private TransportPort srcPort;
+	private IPv4Address ip;
+	private TransportPort port;
 	private IPv4Address dstIp;
 	private TransportPort dstPort;
 	private DatapathId datapathId;
 	private MacAddress MACadreess;
+	private OFPort switchInPort;
 	
 	private Date timeUserInSession; /*Tempo em que entrou na sessão*/
 	
 	
-	public UserSession(IPv4Address srcIp, TransportPort srcPort, IPv4Address dstIp, TransportPort dstPort, DatapathId datapathId, MacAddress macAddress) {
+	public UserSession(IPv4Address ip, TransportPort port, IPv4Address dstIp, TransportPort dstPort, MacAddress macAddress, DatapathId datapathId,OFPort switchInPort) {
 		timeUserInSession = new Date();
-		this.srcIp = srcIp;
-		this.srcPort = srcPort;
+		this.ip = ip;
+		this.port = port;
 		this.dstIp = dstIp;
 		this.dstPort = dstPort;
 		this.datapathId = datapathId;
 		this.MACadreess = macAddress;
+		this.setSwitchInPort(switchInPort);
 	}
 
 
@@ -58,15 +61,15 @@ public class UserSession {
 			return false;
 //		if (idUser != other.idUser)
 //			return false;
-		if (srcIp == null) {
-			if (other.srcIp != null)
+		if (ip == null) {
+			if (other.ip != null)
 				return false;
-		} else if (!srcIp.equals(other.srcIp))
+		} else if (!ip.equals(other.ip))
 			return false;
-//		if (srcPort == null) {
-//			if (other.srcPort != null)
+//		if (port == null) {
+//			if (other.port != null)
 //				return false;
-//		} else if (!srcPort.equals(other.srcPort))
+//		} else if (!port.equals(other.port))
 //			return false;
 		return true;
 	}
@@ -86,28 +89,28 @@ public class UserSession {
 	public String toString() {
 		String texto = "ID = "+idUser+", ";
 		texto += "Time Init = "+timeUserInSession.getHours() +"h"+timeUserInSession.getMinutes()+"m"+timeUserInSession.getSeconds()+"s, ";
-		texto += "Address = " + srcIp.toString()+":"+srcPort.getPort()+", ";
+		texto += "Address = " + ip.toString()+":"+port.getPort()+", ";
 		texto += "Edge switch = "+datapathId.toString()+"]";
 		return "UserSession ["+texto;
 	}
 
-	public IPv4Address getSrcIp() {
-		return srcIp;
+	public IPv4Address getIp() {
+		return ip;
 	}
 
 
-	public void setSrcIp(IPv4Address srcIp) {
-		this.srcIp = srcIp;
+	public void setIp(IPv4Address ip) {
+		this.ip = ip;
 	}
 
 
-	public TransportPort getSrcPort() {
-		return srcPort;
+	public TransportPort getPort() {
+		return port;
 	}
 
 
-	public void setSrcPort(TransportPort srcPort) {
-		this.srcPort = srcPort;
+	public void setPort(TransportPort port) {
+		this.port = port;
 	}
 
 
@@ -158,6 +161,16 @@ public class UserSession {
 
 	public void setMACadreess(MacAddress mACadreess) {
 		MACadreess = mACadreess;
+	}
+
+
+	public OFPort getSwitchInPort() {
+		return switchInPort;
+	}
+
+
+	public void setSwitchInPort(OFPort switchInPort) {
+		this.switchInPort = switchInPort;
 	}
 
 	

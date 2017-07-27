@@ -57,7 +57,7 @@ public class MultipathSession {
 	public String toString() {
 		return "MultipathSession [Size Candidate Paths = " + paths.size() + ", "
 				+ "Server = " + userSession.getDstIp() + ":"+userSession.getDstPort()+", "
-				+ "User = " + userSession.getSrcIp() + ":"+userSession.getSrcPort()+", "
+				+ "User = " + userSession.getIp() + ":"+userSession.getPort()+", "
 				+ "Session Context = " + sessionMultiUser.getDescription() + " ]";
 	}
 	

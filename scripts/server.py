@@ -43,9 +43,11 @@ print 'Socket bind complete'
 def clientRequest(nameFile, ipAddr, portAddr):
     bytesFile = open(nameFile).read()
     # s.sendto(str(len(bytesFile)), (ipAddr, portAddr))
+    print(ipAddr, ":", portAddr, "/",nameFile)
     time.sleep(1)
     INIT = 0
     END = 1024
+
     while(True):
         s.sendto(bytesFile[INIT:END] , (ipAddr, portAddr))
         

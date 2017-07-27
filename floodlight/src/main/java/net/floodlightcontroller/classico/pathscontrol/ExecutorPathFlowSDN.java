@@ -1,11 +1,9 @@
 package net.floodlightcontroller.classico.pathscontrol;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TreeMap;
 
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFFlowAdd;
@@ -17,8 +15,6 @@ import org.projectfloodlight.openflow.types.IPv4Address;
 import org.projectfloodlight.openflow.types.IpProtocol;
 import org.projectfloodlight.openflow.types.OFGroup;
 import org.projectfloodlight.openflow.types.OFPort;
-import org.python.antlr.PythonParser.continue_stmt_return;
-import org.python.antlr.runtime.tree.Tree;
 
 import net.floodlightcontroller.classico.sessionmanager.GroupMod;
 import net.floodlightcontroller.classico.sessionmanager.Rule;
@@ -27,7 +23,6 @@ import net.floodlightcontroller.classico.sessionmanager.UserSession;
 import net.floodlightcontroller.core.IOFSwitch;
 import net.floodlightcontroller.core.internal.IOFSwitchService;
 import net.floodlightcontroller.core.types.NodePortTuple;
-import net.floodlightcontroller.linkdiscovery.Link;
 import net.floodlightcontroller.util.FlowModUtils;
 
 public class ExecutorPathFlowSDN {
@@ -35,7 +30,6 @@ public class ExecutorPathFlowSDN {
 	protected IOFSwitchService switchService;
 	
 	private HashMap<String, CandidatePath> oldBestPaths;
-	
 	
 	public ExecutorPathFlowSDN(IOFSwitchService switchService){
 		oldBestPaths = new HashMap<>();
@@ -90,7 +84,6 @@ public class ExecutorPathFlowSDN {
 			        .build()))
 			    .build();
 		iofs.write(flowAdd);
-//		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD ADD");
 		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD ADD: Switch: " + datapathid.toString() + 
 				", Port: " + group.getGroupNumber() +", Reference: "+rule.getIpv4Src()+" -> "+rule.getIpv4Dst());
 	}
@@ -117,63 +110,76 @@ public class ExecutorPathFlowSDN {
 			            .build()))
 			    .build();
 		iofs.write(flowAdd);
-//		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD ADD");
 		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD ADD: Switch: " + datapathid.toString() + 
 				", Port: " + ofPort.getPortNumber() +", Reference: "+rule.getIpv4Src()+" -> "+rule.getIpv4Dst());
 	}
 	
 	public void execute(NodePath nodePath){
 		
+		//Caso base quando o nó é nulo
 		if(nodePath == null){
-			System.out.println(2);
+
 			return;
 			
-		}else if(nodePath.isBranch()){
-			System.out.println(nodePath.getDataPathId()+" "+3);
+		}else if(nodePath.isBranch()){ //Condição para criar um grupo
+			
 			
 			IOFSwitch iofs = switchService.getSwitch(nodePath.getDataPathId());
-			System.out.println(iofs);
+
 			GroupMod gmod = new GroupMod(iofs, nodePath.getIdSession());
+
+			//Para cada conexão do switch
 			for (EdgeMap edgeMap : nodePath.getConections()) {
-				System.out.println(nodePath.getDataPathId()+" "+4);
 				UserSession client = edgeMap.getClients().get(0);
+				//Se está conectado a outro switch
 				if(edgeMap.getNextNodePath() != null){
-					gmod.createBucket(iofs, edgeMap.getOfPort(), client.getSrcIp(), client.getSrcPort(), client.getMACadreess());
+					gmod.createBucket(iofs, edgeMap.getOfPort(), client.getIp(), client.getPort(), client.getMACadreess());
+				
+				//Caso contrário, se está conectado a um host
 				}else{
-					gmod.createBucket(iofs, null, client.getSrcIp(), client.getSrcPort(), client.getMACadreess());
+					gmod.createBucket(iofs, client.getSwitchInPort(), client.getIp(), client.getPort(), client.getMACadreess());
 				}
-				execute(edgeMap.getNextNodePath());
 			}
 			
-			EdgeMap edgeMap = nodePath.getLastConnection();
+			
+			//Pega a primeira conexão do switch, e cria uma regra
+			EdgeMap edgeMap = nodePath.getFirstConnection();
+//			EdgeMap edgeMap = nodePath.getLastConnection();
 			UserSession client = edgeMap.getClients().get(0);
-			Rule rule = new Rule( client.getDstIp().toString(),client.getSrcIp().toString());
+			Rule rule = new Rule(client.getDstIp().toString(), client.getIp().toString());
 			
-			
+			//Cria-se o grupo
 			gmod.writeGroup();
+			
+			//Adiciona a regra de fluxo para o grupo
 			createFlow(nodePath.getDataPathId(), rule, gmod.getGroup());
+			
+			for (EdgeMap edgMap : nodePath.getConections()) {
+				
+				//Executa o procedimento para o próximo switch 
+				execute(edgMap.getNextNodePath());
+			}
+
 
 		}else if(nodePath.isBridge()){
-			System.out.println(nodePath.getDataPathId()+" "+5);
-			EdgeMap edgeMap = nodePath.getLastConnection();
+			EdgeMap edgeMap = nodePath.getFirstConnection();
+//			EdgeMap edgeMap = nodePath.getLastConnection();
 			UserSession client = edgeMap.getClients().get(0);
-			Rule rule = new Rule( client.getDstIp().toString(),client.getSrcIp().toString());
+			Rule rule = new Rule( client.getDstIp().toString(),client.getIp().toString());
 			createFlow(nodePath.getDataPathId(), rule, edgeMap.getOfPort());	
 			execute(edgeMap.getNextNodePath());
-		}else{
-			System.out.println(nodePath.getDataPathId()+" "+6);
 		}
 	
 	}
 	
 	public void write(HashMap<Integer, TreePath> treesMap){
-		System.out.println(0);
+
 		for (Iterator<Integer> iterator = treesMap.keySet().iterator(); iterator.hasNext();) {
 			Integer sessionID = (Integer) iterator.next();
 			
 			TreePath treePath = treesMap.get(sessionID);
 			execute(treePath.getNodePaths().get(0));
-			System.out.println(1);
+			System.out.println("--- "+treesMap);
 		}
 	}
 	
@@ -190,7 +196,7 @@ public class ExecutorPathFlowSDN {
 			CandidatePath bp = bestPaths.get(ms.getPathIndex());
 
 			
-			System.out.println(bp.getLinks());
+//			System.out.println(bp.getLinks());
 			
 			TreePath treePath;
 			
@@ -206,31 +212,39 @@ public class ExecutorPathFlowSDN {
 				
 				if(i%2!=0 && i != bp.getPath().size()-1) continue;
 				
+				OFPort ofPort;
 				NodePortTuple npt = bp.getPath().get(i);
-//				System.out.println(treePath+ " "+session.getId());
+				
+				if(i == bp.getPath().size()-1){
+					//Se for o switch de borda, pega a interface do host
+					ofPort = ms.getUserSession().getSwitchInPort();
+				}else{ 
+					//Caso contrário pega a interface dos links
+					ofPort = npt.getPortId();
+				}
+	
 				if(treePath.containsNode(npt)){
 					
 					nodePath = treePath.getNodePathByRef(npt.getNodeId());
 					
-					if(nodePath.containsConnection(npt.getPortId())){
-						EdgeMap edgeMap = nodePath.getConnection(npt.getPortId());
+					if(nodePath.containsConnection(ofPort)){
+						EdgeMap edgeMap = nodePath.getConnection(ofPort);
 						edgeMap.addClientIfNotExists(ms.getUserSession());
 					}else{
 						EdgeMap edgeMap = new EdgeMap();
-						edgeMap.setOfPort(npt.getPortId());
+						edgeMap.setOfPort(ofPort);
 						edgeMap.addClient(ms.getUserSession());
 						nodePath.addConnectionIfNotExists(edgeMap);
 						if(nodePathprev != null){
 							nodePathprev.getLastConnection().setNextNodePath(nodePath);
 						}
 					}
-//					System.out.println(nodePath.getConections().size());
 				}else{
 					
 					nodePath = new NodePath(npt.getNodeId(), session.getId());
 					
 					EdgeMap edgeMap = new EdgeMap();
-					edgeMap.setOfPort(npt.getPortId());
+					edgeMap.setOfPort(ofPort);
 					edgeMap.addClient(ms.getUserSession());
 					nodePath.addConnectionIfNotExists(edgeMap);
 					if(nodePathprev != null){
@@ -253,111 +267,7 @@ public class ExecutorPathFlowSDN {
 	
 	
 	
-	public void  updateFlowPathsTest(List<MultipathSession> multipathSessions, HashMap<String, CandidatePath> bestPaths){
-		
-		HashMap<Session, HashMap<DatapathId, List<UserSession>>> branchsModel = new HashMap<>();
-		
-		for (Iterator<MultipathSession> iterator1 = multipathSessions.iterator(); iterator1.hasNext();) {
-			MultipathSession ms1 = (MultipathSession) iterator1.next();
-			Session session = ms1.getSessionMultiUser();
-			CandidatePath bp1 = bestPaths.get(ms1.getPathIndex());
-			
-			
-			for (Iterator<MultipathSession> iterator2 = multipathSessions.iterator(); iterator2.hasNext();) {
-				MultipathSession ms2 = (MultipathSession) iterator2.next();
-				
-				//Se ambos forem iguais vai para próxima iteração
-				if(ms1.equals(ms2)) continue;
-				CandidatePath bp2 = bestPaths.get(ms2.getPathIndex());
-				
-				//Se estão na mesma sessão
-				if(session.equals(ms2.getSessionMultiUser())){
-					
-					
-					HashMap<DatapathId, List<UserSession>> branch;
 
-					//Se ainda não existe a sessão no modelo
-					if(!branchsModel.containsKey(session)){
-						
-						branch = new HashMap<>();
-						
-					}else{
-						
-						branch = branchsModel.get(session);
-						
-					}
-					
-					//Pega o último nos dois grupos de caminhos
-					for (int i = bp2.getSwitchesRefs().size()-1; i >= 0; i--) {
-						
-						//Pega cada switch de trás pra frente do caminho-candidato-2
-						DatapathId dataPathId = bp2.getSwitchesRefs().get(i);
-						
-						//Se o switch tiver no caminho-candidato-1
-						if(bp1.getSwitchesRefs().contains(dataPathId)){
-							
-							//E ainda não tiver cadastrado como chave
-							if(!branchsModel.containsKey(session) || !branchsModel.get(session).containsKey(dataPathId)){
-								
-//								System.out.println(1);
-								
-								//Adiciona os dois usuários na lista
-								List<UserSession> users = new ArrayList<>();
-								users.add(ms1.getUserSession());
-								users.add(ms2.getUserSession());
-								//E adiciona em um branch, onde o switch apontará para os dois usuários
-								branch.put(dataPathId, users);
-								
-//								if(!branchsModel.containsKey(session)){
-								branchsModel.put(session, branch);
-//								}else{
-//									branchsModel.get(session).;
-//								}
-								
-								
-							}else if(branchsModel.get(session).containsKey(dataPathId)){
-//								System.out.println(2);
-								//Se ainda não tiver o usuário cadastrado
-								if(!branchsModel.get(session).get(dataPathId).contains(ms2.getUserSession())){
-									branchsModel.get(session).get(dataPathId).add(ms2.getUserSession());
-									
-								}		
-							}
-							
-							break;
-						}
-					}
-				}
-				
-				
-				
-				
-				//pegaUltimoSwitch em que pb1 e bp2 se interceptam
-				//o switch resultado é salvo num hashmap como chave para os dois
-				//se a chave já existe bp2 é adicionado a lista (caso ele não esteja) e adicionado a uma lista de não titular
-				
-				//38 -> h1 e h2
-				//32 -> h1 e h3 e h4
-				//14 -> h3 e h4
-				
-				
-//				HashMap<DatapathId, List<UserSession>> branchsModel;
-				
-				//cada sessão está associada a um mapeamento de (
-					//cada switche mapeia uma lista de usuários
-				
-				//)
-				//< Sessão-1, <Switch-s1 , 192.168.2.100, 192.168.2.110>>
-				//o ID da sessão determinará  o ID do grupo
-//				HashMap<Session, HashMap<DatapathId, List<UserSession>>> branchsModel;
-				// o numero de seesões determianrá o numero máximo de fluxos concorrentes
-				
-				//<Switch> <Cliente Titular, Lista de Demais>
-			}
-			
-		}
-//		System.out.println(branchsModel.toString());
-	}
 	
 	
 	public void  updateFlowPaths(List<MultipathSession> multipathSessions, HashMap<String, CandidatePath> bestPaths){
@@ -449,5 +359,112 @@ public class ExecutorPathFlowSDN {
 //		}
 
 	}
+	
+	
+//	public void  updateFlowPathsTest(List<MultipathSession> multipathSessions, HashMap<String, CandidatePath> bestPaths){
+//	
+//	HashMap<Session, HashMap<DatapathId, List<UserSession>>> branchsModel = new HashMap<>();
+//	
+//	for (Iterator<MultipathSession> iterator1 = multipathSessions.iterator(); iterator1.hasNext();) {
+//		MultipathSession ms1 = (MultipathSession) iterator1.next();
+//		Session session = ms1.getSessionMultiUser();
+//		CandidatePath bp1 = bestPaths.get(ms1.getPathIndex());
+//		
+//		
+//		for (Iterator<MultipathSession> iterator2 = multipathSessions.iterator(); iterator2.hasNext();) {
+//			MultipathSession ms2 = (MultipathSession) iterator2.next();
+//			
+//			//Se ambos forem iguais vai para próxima iteração
+//			if(ms1.equals(ms2)) continue;
+//			CandidatePath bp2 = bestPaths.get(ms2.getPathIndex());
+//			
+//			//Se estão na mesma sessão
+//			if(session.equals(ms2.getSessionMultiUser())){
+//				
+//				
+//				HashMap<DatapathId, List<UserSession>> branch;
+//
+//				//Se ainda não existe a sessão no modelo
+//				if(!branchsModel.containsKey(session)){
+//					
+//					branch = new HashMap<>();
+//					
+//				}else{
+//					
+//					branch = branchsModel.get(session);
+//					
+//				}
+//				
+//				//Pega o último nos dois grupos de caminhos
+//				for (int i = bp2.getSwitchesRefs().size()-1; i >= 0; i--) {
+//					
+//					//Pega cada switch de trás pra frente do caminho-candidato-2
+//					DatapathId dataPathId = bp2.getSwitchesRefs().get(i);
+//					
+//					//Se o switch tiver no caminho-candidato-1
+//					if(bp1.getSwitchesRefs().contains(dataPathId)){
+//						
+//						//E ainda não tiver cadastrado como chave
+//						if(!branchsModel.containsKey(session) || !branchsModel.get(session).containsKey(dataPathId)){
+//							
+////							System.out.println(1);
+//							
+//							//Adiciona os dois usuários na lista
+//							List<UserSession> users = new ArrayList<>();
+//							users.add(ms1.getUserSession());
+//							users.add(ms2.getUserSession());
+//							//E adiciona em um branch, onde o switch apontará para os dois usuários
+//							branch.put(dataPathId, users);
+//							
+////							if(!branchsModel.containsKey(session)){
+//							branchsModel.put(session, branch);
+////							}else{
+////								branchsModel.get(session).;
+////							}
+//							
+//							
+//						}else if(branchsModel.get(session).containsKey(dataPathId)){
+////							System.out.println(2);
+//							//Se ainda não tiver o usuário cadastrado
+//							if(!branchsModel.get(session).get(dataPathId).contains(ms2.getUserSession())){
+//								branchsModel.get(session).get(dataPathId).add(ms2.getUserSession());
+//								
+//							}		
+//						}
+//						
+//						break;
+//					}
+//				}
+//			}
+//			
+//			
+//			
+//			
+//			//pegaUltimoSwitch em que pb1 e bp2 se interceptam
+//			//o switch resultado é salvo num hashmap como chave para os dois
+//			//se a chave já existe bp2 é adicionado a lista (caso ele não esteja) e adicionado a uma lista de não titular
+//			
+//			//38 -> h1 e h2
+//			//32 -> h1 e h3 e h4
+//			//14 -> h3 e h4
+//			
+//			
+////			HashMap<DatapathId, List<UserSession>> branchsModel;
+//			
+//			//cada sessão está associada a um mapeamento de (
+//				//cada switche mapeia uma lista de usuários
+//			
+//			//)
+//			//< Sessão-1, <Switch-s1 , 192.168.2.100, 192.168.2.110>>
+//			//o ID da sessão determinará  o ID do grupo
+////			HashMap<Session, HashMap<DatapathId, List<UserSession>>> branchsModel;
+//			// o numero de seesões determianrá o numero máximo de fluxos concorrentes
+//			
+//			//<Switch> <Cliente Titular, Lista de Demais>
+//		}
+//		
+//	}
+////	System.out.println(branchsModel.toString());
+//}
 
 }

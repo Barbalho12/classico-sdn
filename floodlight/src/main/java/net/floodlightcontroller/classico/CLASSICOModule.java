@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.projectfloodlight.openflow.protocol.OFMessage;
+import org.projectfloodlight.openflow.protocol.OFPacketIn;
 import org.projectfloodlight.openflow.protocol.OFType;
 import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.EthType;
@@ -36,39 +37,23 @@ import net.floodlightcontroller.core.module.FloodlightModuleContext;
 import net.floodlightcontroller.core.module.FloodlightModuleException;
 import net.floodlightcontroller.core.module.IFloodlightModule;
 import net.floodlightcontroller.core.module.IFloodlightService;
-import net.floodlightcontroller.core.types.NodePortTuple;
 import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryService;
 import net.floodlightcontroller.packet.Ethernet;
 import net.floodlightcontroller.packet.IPv4;
 import net.floodlightcontroller.packet.UDP;
 import net.floodlightcontroller.routing.IRoutingService;
 import net.floodlightcontroller.statistics.IStatisticsService;
-import net.floodlightcontroller.statistics.SwitchPortBandwidth;
 import net.floodlightcontroller.topology.ITopologyService;
+import net.floodlightcontroller.util.OFMessageUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CLASSICOModule implements IOFMessageListener, IFloodlightModule, IStatisticsService {
-
-	protected IOFSwitchService switchService;
-	protected IFloodlightProviderService floodlightProvider;
-	protected Set<Long> macAddresses;
-	protected static Logger logger;
+public class CLASSICOModule implements IOFMessageListener, IFloodlightModule/*, IStatisticsService*/ {
 	
-	protected ILinkDiscoveryService linkDiscoveryService;
-	protected IStatisticsService statisticsService;
-	boolean firstTimeFlag = true;
-	
-	protected IRoutingService routingService;
-	protected ITopologyService topologyService;
-	
-	private ServerSession serverSession;
-	private MultiuserSessionControl tableSessionMultiuser;
-	
-	private ExecutorPathFlowSDN executorSDN;
-	private Monitor monitor;
-	private MulticriteriaPathSelection multicriteriaPathSelection;
+	private static final String SERVER_IP = "192.168.2.110";
+	private static final int SERVER_PORT = 8888;
+	private static final String SERVER_EDGE_SWITCH_ID = "00:00:00:00:aa:bb:cc:32";
 	
 	/*H3 NO MOMENTO*/
 //	private final String ADPUSB_MAC = "00:13:3B:85:05:05";
@@ -91,11 +76,28 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule, IS
 //	private final String PC_FELIPE_INTERFACE = "eth1.1";
 //	private final String PC_FELIPE_INTERFACE = "s38-eth3";
 	
-	
-	
 //	private final String PC_THALYSON_MAC = "10:60:4b:ea:b9:01";
 //	private final String PC_THALYSON_IP = "192.168.2.100";
-//	private final String PC_THALYSON_INTERFACE = "eth0.1"; //VERIFICAR
+//	private final String PC_THALYSON_INTERFACE = "eth0.1";
+
+	protected IOFSwitchService switchService;
+	protected IFloodlightProviderService floodlightProvider;
+	protected Set<Long> macAddresses;
+	protected static Logger logger;
+	
+	protected ILinkDiscoveryService linkDiscoveryService;
+	protected IStatisticsService statisticsService;
+	
+	protected IRoutingService routingService;
+	protected ITopologyService topologyService;
+	
+	private ServerSession serverSession;
+	private MultiuserSessionControl tableSessionMultiuser;
+	
+	private ExecutorPathFlowSDN executorSDN;
+	private Monitor monitor;
+	private MulticriteriaPathSelection multicriteriaPathSelection;
+	
 	
 	@Override
 	public String getName() {
@@ -144,11 +146,9 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule, IS
 		macAddresses = new ConcurrentSkipListSet<Long>();
 		logger = LoggerFactory.getLogger(CLASSICOModule.class);
 		
-		serverSession = new ServerSession("192.168.2.110", 8888, DatapathId.of("00:00:00:00:aa:bb:cc:32"));
+		serverSession = new ServerSession(SERVER_IP, SERVER_PORT, DatapathId.of(SERVER_EDGE_SWITCH_ID));
 		tableSessionMultiuser = new MultiuserSessionControl(serverSession);
-//		tableSessionMultiuser.initMonitor(routingService, switchService, linkDiscoveryService, statisticsService);
-		
-		
+
 		executorSDN = new ExecutorPathFlowSDN(switchService);
 		
 		monitor = new Monitor(this, tableSessionMultiuser, routingService, switchService, linkDiscoveryService, statisticsService);
@@ -161,98 +161,93 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule, IS
 	@Override
 	public void startUp(FloodlightModuleContext context) throws FloodlightModuleException {
 		floodlightProvider.addOFMessageListener(OFType.PACKET_IN, this);
-		floodlightProvider.addOFMessageListener(OFType.FLOW_REMOVED, this);
+		/*floodlightProvider.addOFMessageListener(OFType.FLOW_REMOVED, this);
+		floodlightProvider.addOFMessageListener(OFType.FLOW_MOD, this);
+		floodlightProvider.addOFMessageListener(OFType.GROUP_MOD, this);
+		floodlightProvider.addOFMessageListener(OFType.TABLE_STATUS, this);*/
 	}
-
-	boolean flag = true;
 
 	@Override
 	public net.floodlightcontroller.core.IListener.Command receive(IOFSwitch iof_switch, OFMessage msg, FloodlightContext cntx) {
-		
-		/*initGroupSettings();*/
-		
-		
 
 		switch (msg.getType()) {
 		
 			case PACKET_IN:
-				
+
 				Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
 				
 				if (eth.getEtherType() == EthType.IPv4) {	
 					IPv4 ipv4 = (IPv4) eth.getPayload();
 
-					if(ipv4.getProtocol() == IpProtocol.UDP /*&& flag*/) {
-//						flag = false;
-//						IOFSwitch  iofs = switchService.getSwitch(DatapathId.of("00:00:00:00:aa:bb:cc:38"));
-//						createFlow(iofs, new Rule(NOTEBOOK_PROBOOK_IP, NOTEBOOK_FELIPE_IP), OFPort.of(0));
-						
-//						System.out.println("aqui");
-						verifySession(iof_switch, ipv4, eth.getSourceMACAddress());
+					if(ipv4.getProtocol() == IpProtocol.UDP) {
+
+						OFPort packetInPort = OFMessageUtils.getInPort((OFPacketIn) msg);
+						boolean newUserSaved = verifySession(iof_switch, packetInPort, ipv4, eth.getSourceMACAddress());
+						if(!newUserSaved){
+							return Command.STOP;
+						}
 					}
 				}
+				
 				break;
 
 			default:
+				System.out.println(msg.getType());
 				break;
 		}
 		
 		return Command.CONTINUE;
 	}
 	
-	private synchronized void verifySession(IOFSwitch iof_switch, IPv4 ipv4, MacAddress macAddress){
+	private synchronized boolean verifySession(IOFSwitch iof_switch, OFPort packetInPort, IPv4 ipv4, MacAddress macAddress){
 		UDP udp = (UDP) ipv4.getPayload();
 		
+		/*Endereço do Host Fonte*/
+		IPv4Address srcIp = ipv4.getSourceAddress();
 		TransportPort srcPort = udp.getSourcePort();
+		
+		/*Endereço do Host Destino*/
+		IPv4Address dstIp = ipv4.getDestinationAddress();
 		TransportPort dstPort = udp.getDestinationPort();
 		
-		IPv4Address srcIp = ipv4.getSourceAddress();
-		IPv4Address dstIp = ipv4.getDestinationAddress();
-
-//		System.out.println(srcIp+":"+srcPort +" --> "+dstIp+":"+dstPort);
-
+		/*Verifica se Host destino não é o servidor cadastrado, se sim é retornado*/
 		if((!tableSessionMultiuser.getServerSession().getIp().equals(dstIp.toInetAddress().getHostAddress())) ||
 					tableSessionMultiuser.getServerSession().getPort() != dstPort.getPort()){
-			return;
+			return true;
 		}
 		
+		/*Verifica se Host Fonte é o servidor cadastrado, se sim é retornado*/
 		if(tableSessionMultiuser.getServerSession().getIp().equals(srcIp.toInetAddress().getHostAddress()) ||
 				tableSessionMultiuser.getServerSession().getPort() == srcPort.getPort()){
-			return;
+			return true;
 		}
 
+		//Pega o conteudo da mensagem
 		byte payload[] = udp.getPayload().serialize();
 		String service = "";
 		for(int i = 0; i < payload.length; i++){
 			service += (char) payload[i];
 		}
 
-		boolean sucess = tableSessionMultiuser.addClientRequest(
+		/*Tenta criar o usuário/sessão com o conteúdo passado. O retorno será falso se for adicionado um usuário a uma sessão já existente.
+		Se o usuário já existia em sessão ou se ele foi o primeiro de uma nova sessão, o retorno é verdadeiro*/
+		boolean newUserSaved = tableSessionMultiuser.addClientRequest(
 				srcIp, 
 				srcPort, 
 				dstIp, 
 				dstPort,
 				macAddress,
 				service,
-				iof_switch.getId()
+				iof_switch.getId(),
+				packetInPort
 		);
 
-		if(sucess){
-			tableSessionMultiuser.show();
-		}
-		
+		return newUserSaved;
 	}
 	
-	
-	
-	
 	public void notifyUpdates(List<MultipathSession> multipathSessions){
-
 		HashMap<String, CandidatePath> bestPaths = multicriteriaPathSelection.calculateBestPaths(multipathSessions);
-		//TODO Entra Branch Points
-		//TODO Adiciona BranchPints como parâmetro de updateFlowPaths
 		executorSDN.updateFlowPaths(tableSessionMultiuser.getMultipathSessions(), bestPaths);
-		
 	}
 
 	
@@ -314,22 +309,22 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule, IS
 //		System.out.println("[FLOW_MOD] ...");
 //	}
 	
-	@Override
-	public SwitchPortBandwidth getBandwidthConsumption(DatapathId dpid, OFPort p) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public SwitchPortBandwidth getBandwidthConsumption(DatapathId dpid, OFPort p) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
-	@Override
-	public Map<NodePortTuple, SwitchPortBandwidth> getBandwidthConsumption() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void collectStatistics(boolean collect) {
-		// TODO Auto-generated method stub
-		
-	}
+//	@Override
+//	public Map<NodePortTuple, SwitchPortBandwidth> getBandwidthConsumption() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public void collectStatistics(boolean collect) {
+//		// TODO Auto-generated method stub
+//		
+//	}
 	
 }

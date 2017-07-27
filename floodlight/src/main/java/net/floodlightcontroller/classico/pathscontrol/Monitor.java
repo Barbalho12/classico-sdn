@@ -121,7 +121,7 @@ public class Monitor extends Thread{
 	@Override
 	public void run() {
 		while(true){
-			sleepSeconds(20);
+			sleepSeconds(50);
 			update(tableSM.getMultipathSessions());
 			if(tableSM.getMultipathSessions() != null){
 				classicoModuleREF.notifyUpdates(tableSM.getMultipathSessions());
