@@ -118,24 +118,36 @@ public class Monitor extends Thread{
 		}else{
 			System.out.println("[MONITOR] Update Candidate Paths");
 		}
+		
+	}
+	
+	public void alertUpdate(){
+		this.interrupt();
 	}
 
 	@Override
 	public void run() {
+		long startTime,duration;
 		while(true){
 
 			sleepSeconds(REFRESH_INTERVAL_SECONDS);
+			startTime = System.currentTimeMillis();
 			update(tableSM.getMultipathSessions());
 			if(tableSM.getMultipathSessions() != null){
 				classicoModuleREF.notifyUpdates(tableSM.getMultipathSessions());
 			}
+			duration = System.currentTimeMillis() - startTime; 
+			System.out.println("[MONITOR] Duration time: "+duration+"ms");
 		}
 	}
 	
 	private void sleepSeconds(long seconds){
 		try {
 			Thread.sleep(seconds*1000);
+			
 		} catch (InterruptedException e) {
+//			e.printStackTrace();
+		} catch (Exception e){
 			e.printStackTrace();
 		}
 	}

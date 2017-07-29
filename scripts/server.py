@@ -40,28 +40,37 @@ print 'Socket bind complete'
 #Envia para o cliente o tamanho do arquivo
 #s.sendto(str(len(bytes)), (addr[0], addr[1]))
 
+
+
 def clientRequest(nameFile, ipAddr, portAddr):
-    bytesFile = open(nameFile).read()
+    # bytesFile = open(nameFile).read()
     # s.sendto(str(len(bytesFile)), (ipAddr, portAddr))
-    print(ipAddr, ":", portAddr, "/",nameFile)
+    print(str(ipAddr)+":"+str(portAddr)+"/"+str(nameFile)+" INIT")
     time.sleep(1)
-    INIT = 0
-    END = 1024
+    # INIT = 0
+    # END = 1024
+
+    cont = 100
 
     while(True):
-        s.sendto(bytesFile[INIT:END] , (ipAddr, portAddr))
-        
-        INIT += END - INIT
+        # s.sendto(bytesFile[INIT:END] , (ipAddr, portAddr))
+        s.sendto(str(cont), (ipAddr, portAddr))
+        # INIT += END - INIT
 
-        if(len(bytesFile)-INIT > 1024):
-            END += 1024
-        else:
-            END += len(bytesFile)-INIT
-        print(INIT, END, len(bytesFile))
+        # if(len(bytesFile)-INIT > 1024):
+        #     END += 1024
+        # else:
+        #     END += len(bytesFile)-INIT
+        # print(INIT, END, len(bytesFile))
 
-        if(INIT == END):
+        # if(INIT == END):
+        #     break
+        if(cont == 0):
+            print(str(ipAddr)+":"+str(portAddr)+"/"+str(nameFile)+" CLOSE")
             break
-        time.sleep(0.01)
+        # time.sleep(0.01)
+        cont -= 1
+        time.sleep(0.8)
     
 
 

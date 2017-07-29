@@ -75,7 +75,11 @@ public class MultiuserSessionControl {
 					
 					List<CandidatePath> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId, null);
 					multipathSessions.add(new MultipathSession(paths, userSession, serverSession, sm));
-					show();
+					monitor.alertUpdate();
+					//show();
+					System.out.println("[MultiuserSessionControl] User Session Created e added to Session "+
+							+sm.getId()+": "+
+							+userSession.getIdUser()+", "+userSession.getIp()+":"+userSession.getPort());
 					return false;
 				}
 			}
@@ -87,10 +91,15 @@ public class MultiuserSessionControl {
 		userSession.setIdUser(countUsers++);
 		smu.addUser(userSession);
 		listSessions.add(smu);
+		System.out.println("[MultiuserSessionControl] Session Created: "
+				+smu.getId()+", "+smu.getDescription());
 		
 		List<CandidatePath> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId,  null);
 		multipathSessions.add(new MultipathSession(paths, userSession, serverSession, smu));
-		show();
+//		show();
+		monitor.alertUpdate();
+		System.out.println("[MultiuserSessionControl] User Session Created: "
+				+userSession.getIdUser()+", "+userSession.getIp()+":"+userSession.getPort());
 		return true;
 	} 
 	

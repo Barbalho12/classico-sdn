@@ -27,7 +27,7 @@ s.sendto(videofile, (host, port))
 # d = s.recvfrom(1024)
 # size_data = int(d[0])
 
-size_data = len(open(videofile).read())
+# size_data = len(open(videofile).read())
 
 
 # FileNameIn = 'Hexdata.mp4'
@@ -35,15 +35,36 @@ size_data = len(open(videofile).read())
 # # create a file object: open it with "write" mode
 # HexFile = open(FileNameIn,"w")
 
-while(size_data > 0) :
+# while(size_data > 0) :
+
+#     try :
+#         d = s.recvfrom(1024)
+
+#         data = d[0]
+#         addr = d[1]
+#         size_data -= len(data);
+#         print(size_data,len(data))
+
+
+#         # HexFile.write(data)
+#     except socket.error, msg:
+#         print 'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+#         # HexFile.close()
+#         sys.exit()
+
+# HexFile.close()
+
+data = 100
+
+while(data > 0) :
 
     try :
         d = s.recvfrom(1024)
 
-        data = d[0]
+        data = int(d[0])
         addr = d[1]
-        size_data -= len(data);
-        print(size_data,len(data))
+        # size_data -= len(data);
+        print(data)
 
 
         # HexFile.write(data)
@@ -51,5 +72,3 @@ while(size_data > 0) :
         print 'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
         # HexFile.close()
         sys.exit()
-
-# HexFile.close()

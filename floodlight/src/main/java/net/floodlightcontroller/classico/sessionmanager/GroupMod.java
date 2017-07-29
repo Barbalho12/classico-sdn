@@ -8,6 +8,7 @@ import org.projectfloodlight.openflow.protocol.OFBucket;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFGroupAdd;
 import org.projectfloodlight.openflow.protocol.OFGroupDelete;
+import org.projectfloodlight.openflow.protocol.OFGroupModify;
 import org.projectfloodlight.openflow.protocol.OFGroupType;
 import org.projectfloodlight.openflow.protocol.action.OFAction;
 import org.projectfloodlight.openflow.protocol.action.OFActionSetField;
@@ -26,7 +27,7 @@ public class GroupMod {
 //	private static int GROUP_NUMBER = 1;
 	private int id;
 	private OFFactory factory;
-	private OFGroupAdd groupAdd;
+//	private OFGroupAdd groupAdd;
 	private IOFSwitch iof_switch;
 	ArrayList<OFBucket> buckets;
 	
@@ -45,7 +46,7 @@ public class GroupMod {
 	}
 
 	public void writeGroup(){
-		groupAdd = factory.buildGroupAdd()
+		OFGroupAdd groupAdd = factory.buildGroupAdd()
 				.setGroup(OFGroup.of(getId()))
 			    .setGroupType(OFGroupType.ALL)
 			    .setBuckets(buckets)
@@ -55,10 +56,10 @@ public class GroupMod {
 		System.out.println("[GROUP] Group "+id+" Created in "+iof_switch.getId());
 	}
 	
-	public void deleteGroup(int id){
+	public void deleteGroup(){
 		OFGroupDelete deleteGroup = factory.buildGroupDelete()
-			    .setGroup(OFGroup.of(3))
-			    .setGroupType(OFGroupType.INDIRECT)
+			    .setGroup(OFGroup.of(id))
+			    .setGroupType(OFGroupType.ALL)
 			    .build();
 		
 		iof_switch.write(deleteGroup);
@@ -226,7 +227,7 @@ public class GroupMod {
 	}
 	
 	public OFGroup getGroup() {
-		return groupAdd.getGroup();
+		return OFGroup.of(id);
 	}
 
 	public void createBucket(IOFSwitch iofs, OFPort switchOutputPort, IPv4Address srcIp, TransportPort srcPort,
@@ -245,6 +246,24 @@ public class GroupMod {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public void modifyGroup() {
+//		groupAdd = factory.buildGroupAdd()
+//				.setGroup(OFGroup.of(getId()))
+//			    .setGroupType(OFGroupType.ALL)
+//			    .setBuckets(buckets)
+//			    .build();
+//		
+		OFGroupModify modifyGroup = factory.buildGroupModify()
+				.setGroup(OFGroup.of(getId()))
+			    .setGroupType(OFGroupType.ALL)
+			    .setBuckets(buckets) /* Will replace the OFBucket list defined in the existing OFGroup. */
+			    .build();
+		
+		iof_switch.write(modifyGroup);
+		System.out.println("[GROUP] Group "+id+" Created in "+iof_switch.getId());
+		
 	}
 
 
