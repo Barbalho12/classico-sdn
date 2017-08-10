@@ -5,6 +5,7 @@ import subprocess
 import os
 
 multicast_group = '224.3.29.71'
+os.system("route add -host 224.3.29.71 "+sys.argv[1]+"-eth0")
 server_address = ('', 10000)
 
 # Create the socket
@@ -23,19 +24,14 @@ sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
 # Receive/respond loop
 # while True:
+try:
+	script = "cd ../evalvid &&"
+	script += "rm -rf files/sd"+sys.argv[1]+" &&"
+	script += "ufw enable &&"
+	script += "tcpdump -n -tt -v udp port 10000 >  files/sd"+sys.argv[1]
+	os.system(script)
 
-
-    # print >>sys.stderr, '\nwaiting to receive message'
-script = "cd ../evalvid &&"
-script += "rm -rf files/sd"+sys.argv[1]+" &&"
-script += "ufw enable &&"
-script += "tcpdump -n -tt -v udp port 10000 >  files/sd"+sys.argv[1]
-os.system(script)
-# os.system("cd ../evalvid &&")
-# os.system("rm -rf files/sd"+sys.argv[1]+"")
-# os.system("ufw enable"+"")
-# os.system("tcpdump -n -tt -v udp port 10000 >  files/sd"+sys.argv[1])
-    # os.system("cd ../evalvid && ./mp4trace -f -s 224.3.29.71 10000 sample.mp4 > files/st01")
+   
     # data, address = sock.recvfrom(1024)
     
     # print >>sys.stderr, 'received %s bytes from %s' % (len(data), address)
@@ -43,3 +39,7 @@ os.system(script)
 
     # print >>sys.stderr, 'sending acknowledgement to', address
     # sock.sendto('ack', address)
+
+finally:
+    print >> sys.stderr, 'closing socket'
+    sock.close()

@@ -7,7 +7,7 @@ import os
 
 message = 'very important data'
 multicast_group = ('224.3.29.71', 10000)
-
+os.system("route add -host 224.3.29.71 "+sys.argv[1]+"-eth0")
 # Create the datagram socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -21,14 +21,13 @@ sock.settimeout(0.2)
 ttl = struct.pack('b', 1)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
 
-
 try:
-
+	
     # Send data to the multicast group
-    print >>sys.stderr, 'sending "%s"' % message
-    sent = sock.sendto(message, multicast_group)
-    # subprocess.call(['cd ../evalvid && ./mp4trace -f -s 224.3.29.71 10000 sample.mp4 > files/st01'])
-    # subprocess.call(shlex.split('cd ../evalvid && ls'))
+    # print >>sys.stderr, 'sending "%s"' % message
+    # sent = sock.sendto(message, multicast_group)
+    # sent = sock.sendto("", multicast_group)
+
     os.system("cd ../evalvid && ./mp4trace -f -s 224.3.29.71 10000 sample.mp4 > files/st01")
 
     # Look for responses from all recipients
@@ -43,5 +42,5 @@ try:
     #         print >>sys.stderr, 'received "%s" from %s' % (data, server)
 
 finally:
-    print >>sys.stderr, 'closing socket'
+    print >> sys.stderr, 'closing socket'
     sock.close()
