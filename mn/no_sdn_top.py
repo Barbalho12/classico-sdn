@@ -44,6 +44,9 @@ def topology():
     print "*** Associating Stations"
     net.addLink(h1, s2, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
     net.addLink(h2, s2, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
+    # net.addLink(h3, s2, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)#apagar depois
+    # net.addLink(h4, s2, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)#apagar depois
+    # net.addLink(h5, s2, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)#apagar depois
     net.addLink(h3, s3, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
     net.addLink(h4, s3, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
     net.addLink(h5, s3, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)

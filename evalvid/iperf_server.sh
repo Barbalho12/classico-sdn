@@ -1,5 +1,5 @@
 #!/bin/bash
 
-iperf -c $1 -b 1m -t 1000
+iperf -c $1 -b 10m -t 1000
 
 
