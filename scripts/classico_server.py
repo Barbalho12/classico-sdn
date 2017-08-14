@@ -15,6 +15,7 @@ PORT = 10000 # Arbitrary non-privileged port
 # Datagram (udp) socket
 try :
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     print 'Socket created'
 except socket.error, msg :
     print 'Failed to create socket. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
@@ -37,12 +38,13 @@ try:
     addr = newRequest[1] #Endereco do cliente
     ipAddr = addr[0]
     portAddr = addr[1]
+    s.close()
 except socket.error , msg:
     print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
     sys.exit()
      
 
-s.close()
+
 
 def startClient():
     os.system("cd ../evalvid && ./client.sh")
