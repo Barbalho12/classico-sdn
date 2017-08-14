@@ -8,7 +8,7 @@ except socket.error:
     print 'Failed to create socket'
     sys.exit()
  
-host = 'localhost';
+host = 'localhost'
 port = 8888;
 videofile = "sample.mp4"
 
