@@ -16,7 +16,7 @@ import net.floodlightcontroller.routing.IRoutingService;
 import net.floodlightcontroller.routing.IRoutingService.PATH_METRIC;
 import net.floodlightcontroller.statistics.IStatisticsService;
 
-public class Monitor extends Thread{
+public class Monitor /*extends Thread*/{
 	
 	private final int REFRESH_INTERVAL_SECONDS = 15;
 	
@@ -122,24 +122,32 @@ public class Monitor extends Thread{
 	}
 	
 	public void alertUpdate(){
-		this.interrupt();
-	}
-
-	@Override
-	public void run() {
+//		this.interrupt();
 		long startTime,duration;
-		while(true){
-
-			sleepSeconds(REFRESH_INTERVAL_SECONDS);
-			startTime = System.currentTimeMillis();
-			update(tableSM.getMultipathSessions());
-			if(tableSM.getMultipathSessions() != null){
-				classicoModuleREF.notifyUpdates(tableSM.getMultipathSessions());
-			}
-			duration = System.currentTimeMillis() - startTime; 
-			System.out.println("[MONITOR] Duration time: "+duration+"ms");
+		startTime = System.currentTimeMillis();
+		update(tableSM.getMultipathSessions());
+		if(tableSM.getMultipathSessions() != null){
+			classicoModuleREF.notifyUpdates(tableSM.getMultipathSessions());
 		}
+		duration = System.currentTimeMillis() - startTime; 
+		System.out.println("[MONITOR] Duration time: "+duration+"ms");
 	}
+//
+//	@Override
+//	public void run() {
+//		long startTime,duration;
+//		while(true){
+//
+//			sleepSeconds(REFRESH_INTERVAL_SECONDS);
+//			startTime = System.currentTimeMillis();
+//			update(tableSM.getMultipathSessions());
+//			if(tableSM.getMultipathSessions() != null){
+//				classicoModuleREF.notifyUpdates(tableSM.getMultipathSessions());
+//			}
+//			duration = System.currentTimeMillis() - startTime; 
+//			System.out.println("[MONITOR] Duration time: "+duration+"ms");
+//		}
+//	}
 	
 	private void sleepSeconds(long seconds){
 		try {

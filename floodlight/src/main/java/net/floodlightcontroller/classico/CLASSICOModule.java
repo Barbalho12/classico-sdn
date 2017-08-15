@@ -51,8 +51,8 @@ import org.slf4j.LoggerFactory;
 
 public class CLASSICOModule implements IOFMessageListener, IFloodlightModule/*, IStatisticsService*/ {
 	
-	private static final String SERVER_IP = "192.168.2.110";
-	private static final int SERVER_PORT = 8888;
+	private static final String SERVER_IP = "192.168.2.1";
+	private static final int SERVER_PORT = 10000;
 	private static final String SERVER_EDGE_SWITCH_ID = "00:00:00:00:aa:bb:cc:32";
 	
 	/*H3 NO MOMENTO*/
@@ -152,7 +152,7 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule/*, 
 		executorSDN = new ExecutorPathFlowSDN(switchService);
 		
 		monitor = new Monitor(this, tableSessionMultiuser, routingService, switchService, linkDiscoveryService, statisticsService);
-		monitor.start();
+//		monitor.start();
 		
 		tableSessionMultiuser.setMonitor(monitor);
 		multicriteriaPathSelection = new MulticriteriaPathSelection();
@@ -169,7 +169,7 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule/*, 
 
 	@Override
 	public net.floodlightcontroller.core.IListener.Command receive(IOFSwitch iof_switch, OFMessage msg, FloodlightContext cntx) {
-
+		
 		switch (msg.getType()) {
 		
 			case PACKET_IN:
@@ -211,13 +211,13 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule/*, 
 		TransportPort dstPort = udp.getDestinationPort();
 		
 		/*Verifica se Host destino não é o servidor cadastrado, se sim é retornado*/
-		if((!tableSessionMultiuser.getServerSession().getIp().equals(dstIp.toInetAddress().getHostAddress())) ||
+		if((!tableSessionMultiuser.getServerSession().getIp().equals(dstIp.toInetAddress().getHostAddress())) &&
 					tableSessionMultiuser.getServerSession().getPort() != dstPort.getPort()){
 			return true;
 		}
 		
 		/*Verifica se Host Fonte é o servidor cadastrado, se sim é retornado*/
-		if(tableSessionMultiuser.getServerSession().getIp().equals(srcIp.toInetAddress().getHostAddress()) ||
+		if(tableSessionMultiuser.getServerSession().getIp().equals(srcIp.toInetAddress().getHostAddress()) &&
 				tableSessionMultiuser.getServerSession().getPort() == srcPort.getPort()){
 			return true;
 		}
