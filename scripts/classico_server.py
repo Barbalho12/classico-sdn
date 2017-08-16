@@ -27,9 +27,15 @@ finally:
     print >> sys.stderr, 'closing socket'
     s.close()
 
+
+def timeAlert():
+    time.sleep(10)
+    print '10 seconds'
+
 raw_input("Press Enter to continue...")
 os.system("cd ../evalvid && ./client.sh &")
 time.sleep(1)
+thread.start_new_thread(timeAlert, ())
 os.system("cd ../evalvid && ./mp4trace -f -s "+ipAddr+" 10000 sample.mp4 > files/st01")
 time.sleep(1)
 os.system("sudo kill -1 $(ps -C 'tcpdump' -o pid=)")

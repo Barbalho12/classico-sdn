@@ -23,15 +23,20 @@ sock.settimeout(0.2)
 ttl = struct.pack('b', 1)
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
 
-def startClient():
-    os.system("cd ../evalvid && ./client.sh")
-    # time.sleep(1)
-    
+# def startClient():
+#     os.system("cd ../evalvid && ./client.sh")
+
+
+def timeAlert():
+    time.sleep(10)
+    print '10 seconds'
 
 try:
 	
-    thread.start_new_thread(startClient, ())
+    # thread.start_new_thread(startClient, ())
+    os.system("cd ../evalvid && ./client.sh &")
     time.sleep(1)
+    thread.start_new_thread(timeAlert, ())
     os.system("cd ../evalvid && ./mp4trace -f -s 224.3.29.71 10000 sample.mp4 > files/st01")
     time.sleep(1)
     os.system("sudo kill -2 $(ps -C 'tcpdump' -o pid=)")
