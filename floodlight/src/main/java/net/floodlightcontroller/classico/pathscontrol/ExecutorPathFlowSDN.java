@@ -37,10 +37,15 @@ public class ExecutorPathFlowSDN {
 
 	private HashMap<String, CandidatePath> oldBestPaths;
 	private List<NodePath> oldNodePaths;
+	
+	
+	//Armazena os grupos criados, para não tentar criar novamente
+	private HashMap<Integer, IOFSwitch> oldGroupsCreated;
 
 	public ExecutorPathFlowSDN(IOFSwitchService switchService) {
 		this.oldBestPaths = new HashMap<>();
 		this.oldNodePaths = new ArrayList<>();
+		this.oldGroupsCreated = new HashMap<>();
 		this.switchService = switchService;
 	}
 
@@ -377,6 +382,7 @@ public class ExecutorPathFlowSDN {
 			IOFSwitch iofs = switchService.getSwitch(nodePath.getDataPathId());
 
 			GroupMod gmod = new GroupMod(iofs, nodePath.getIdSession());
+			
 
 			// Para cada conexão do switch
 			for (EdgeMap edgeMap : nodePath.getConections()) {
@@ -400,7 +406,17 @@ public class ExecutorPathFlowSDN {
 			Rule rule = new Rule(client.getDstIp().toString(), client.getIp().toString());
 
 
-			gmod.writeGroup();
+			//Verifica se grupo já existe
+			IOFSwitch iofswitch = oldGroupsCreated.get(nodePath.getIdSession());
+//			System.out.println(iofswitch);
+			if(iofswitch != null && iofs.getId().equals(iofswitch.getId())){
+				gmod.modifyGroup();
+			}else{
+				gmod.writeGroup();
+				oldGroupsCreated.put(nodePath.getIdSession(), iofs);
+//				System.out.println(oldGroupsCreated.toString());
+			}
+			
 
 			if (!consultIfExistsFlow(nodePath.getIdSession(), nodePath.getDataPathId(), rule)) {
 				createFlow(nodePath.getDataPathId(), rule, gmod.getGroup());

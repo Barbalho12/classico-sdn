@@ -262,7 +262,7 @@ public class GroupMod {
 			    .build();
 		
 		iof_switch.write(modifyGroup);
-		System.out.println("[GROUP] Group "+id+" Created in "+iof_switch.getId());
+		System.out.println("[GROUP] Group "+id+" Modifyed in "+iof_switch.getId());
 		
 	}
 

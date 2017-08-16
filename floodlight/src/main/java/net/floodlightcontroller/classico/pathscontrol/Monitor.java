@@ -18,7 +18,7 @@ import net.floodlightcontroller.statistics.IStatisticsService;
 
 public class Monitor /*extends Thread*/{
 	
-	private final int REFRESH_INTERVAL_SECONDS = 15;
+//	private final int REFRESH_INTERVAL_SECONDS = 15;
 	
 	private IRoutingService routingService;
 	private ILinkDiscoveryService linkDiscoveryService;
