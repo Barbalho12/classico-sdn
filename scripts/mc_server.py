@@ -28,8 +28,12 @@ sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
 
 
 def timeAlert():
-    time.sleep(10)
-    print '10 seconds'
+    passos = 60
+    while(passos > 0):
+        time.sleep(10)
+	passos -= 10
+        print passos,'seconds'
+	
 
 try:
 	
