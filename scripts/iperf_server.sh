@@ -1,1 +1,1 @@
-iperf -s -u
+iperf -s -u -i 5

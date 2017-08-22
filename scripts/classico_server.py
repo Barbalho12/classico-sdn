@@ -27,10 +27,12 @@ finally:
     print >> sys.stderr, 'closing socket'
     s.close()
 
-
 def timeAlert():
-    time.sleep(10)
-    print '10 seconds'
+    passos = 60
+    while(passos > 0):
+        time.sleep(10)
+        passos -= 10
+        print passos,'seconds'
 
 raw_input("Press Enter to continue...")
 os.system("cd ../evalvid && ./client.sh &")

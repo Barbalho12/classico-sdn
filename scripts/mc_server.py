@@ -31,7 +31,7 @@ def timeAlert():
     passos = 60
     while(passos > 0):
         time.sleep(10)
-	passos -= 10
+        passos -= 10
         print passos,'seconds'
 	
 
