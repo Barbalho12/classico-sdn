@@ -152,7 +152,7 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule/*, 
 		executorSDN = new ExecutorPathFlowSDN(switchService);
 		
 		monitor = new Monitor(this, tableSessionMultiuser, routingService, switchService, linkDiscoveryService, statisticsService);
-//		monitor.start();
+		monitor.start();
 		
 		tableSessionMultiuser.setMonitor(monitor);
 		multicriteriaPathSelection = new MulticriteriaPathSelection();
@@ -217,8 +217,8 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule/*, 
 		}
 		
 		/*Verifica se Host Fonte é o servidor cadastrado, se sim é retornado*/
-		if(tableSessionMultiuser.getServerSession().getIp().equals(srcIp.toInetAddress().getHostAddress()) &&
-				tableSessionMultiuser.getServerSession().getPort() == srcPort.getPort()){
+		if(tableSessionMultiuser.getServerSession().getIp().equals(srcIp.toInetAddress().getHostAddress())){
+//				&& tableSessionMultiuser.getServerSession().getPort() == srcPort.getPort()){
 			return true;
 		}
 

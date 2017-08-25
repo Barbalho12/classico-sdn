@@ -16,9 +16,9 @@ import net.floodlightcontroller.routing.IRoutingService;
 import net.floodlightcontroller.routing.IRoutingService.PATH_METRIC;
 import net.floodlightcontroller.statistics.IStatisticsService;
 
-public class Monitor /*extends Thread*/{
+public class Monitor extends Thread{
 	
-//	private final int REFRESH_INTERVAL_SECONDS = 15;
+	private final int REFRESH_INTERVAL_SECONDS = 5;
 	
 	private IRoutingService routingService;
 	private ILinkDiscoveryService linkDiscoveryService;
@@ -48,14 +48,17 @@ public class Monitor /*extends Thread*/{
 			for (Iterator<Link> iterator = path.getLinks().iterator(); iterator.hasNext();) {
 				Link link = (Link) iterator.next();
 				if(statisticsService.getBandwidthConsumption(link.getSrc(), link.getSrcPort()) != null){
-					long bwc = statisticsService.getBandwidthConsumption(link.getSrc(), link.getSrcPort()).getBitsPerSecondRx().getValue();
+					long bwc = statisticsService.getBandwidthConsumption(link.getDst(), link.getDstPort()).getBitsPerSecondRx().getValue();
+//					System.out.println(link.getDst()+", "+link.getSrc()+" -> "+bwc);
 					if(higherBWC < bwc){
 						higherBWC = bwc;
 					}
 				}
 			}
+//			System.out.println("----------------");
 			path.setBandwidthConsumption(higherBWC);
 		}
+//		System.out.println("===" +higherBWC);
 	}
 	
 	public synchronized List<CandidatePath> calculatePaths(DatapathId src,DatapathId dst, PATH_METRIC metric){
@@ -122,32 +125,32 @@ public class Monitor /*extends Thread*/{
 	}
 	
 	public void alertUpdate(){
-//		this.interrupt();
-		long startTime,duration;
-		startTime = System.currentTimeMillis();
-		update(tableSM.getMultipathSessions());
-		if(tableSM.getMultipathSessions() != null){
-			classicoModuleREF.notifyUpdates(tableSM.getMultipathSessions());
-		}
-		duration = System.currentTimeMillis() - startTime; 
-		System.out.println("[MONITOR] Duration time: "+duration+"ms");
+		this.interrupt();
+//		long startTime,duration;
+//		startTime = System.currentTimeMillis();
+//		update(tableSM.getMultipathSessions());
+//		if(tableSM.getMultipathSessions() != null){
+//			classicoModuleREF.notifyUpdates(tableSM.getMultipathSessions());
+//		}
+//		duration = System.currentTimeMillis() - startTime; 
+//		System.out.println("[MONITOR] Duration time: "+duration+"ms");
 	}
 //
-//	@Override
-//	public void run() {
-//		long startTime,duration;
-//		while(true){
-//
-//			sleepSeconds(REFRESH_INTERVAL_SECONDS);
-//			startTime = System.currentTimeMillis();
-//			update(tableSM.getMultipathSessions());
-//			if(tableSM.getMultipathSessions() != null){
-//				classicoModuleREF.notifyUpdates(tableSM.getMultipathSessions());
-//			}
-//			duration = System.currentTimeMillis() - startTime; 
-//			System.out.println("[MONITOR] Duration time: "+duration+"ms");
-//		}
-//	}
+	@Override
+	public void run() {
+		long startTime,duration;
+		while(true){
+
+			sleepSeconds(REFRESH_INTERVAL_SECONDS);
+			startTime = System.currentTimeMillis();
+			update(tableSM.getMultipathSessions());
+			if(tableSM.getMultipathSessions() != null){
+				classicoModuleREF.notifyUpdates(tableSM.getMultipathSessions());
+			}
+			duration = System.currentTimeMillis() - startTime; 
+			System.out.println("[MONITOR] Duration time: "+duration+"ms");
+		}
+	}
 	
 	private void sleepSeconds(long seconds){
 		try {

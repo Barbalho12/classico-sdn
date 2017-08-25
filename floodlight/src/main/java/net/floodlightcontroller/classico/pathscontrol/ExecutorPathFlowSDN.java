@@ -442,6 +442,16 @@ public class ExecutorPathFlowSDN {
 			}
 			
 			execute(edgeMap.getNextNodePath());
+		}else {
+			EdgeMap edgeMap = nodePath.getFirstConnection();
+			UserSession client = edgeMap.getClients().get(0);
+			Rule rule = new Rule(client.getDstIp().toString(), client.getIp().toString());
+			
+			if (!consultIfExistsFlow(nodePath.getIdSession(), nodePath.getDataPathId(), rule)) {
+				createFlow(nodePath.getDataPathId(), rule, client.getSwitchInPort());
+				previousRecordingFlows
+						.add(new PreviousRecordingFlow(nodePath.getDataPathId(), nodePath.getIdSession(), rule));
+			}
 		}
 	}
 

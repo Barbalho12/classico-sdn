@@ -13,6 +13,7 @@ import org.projectfloodlight.openflow.types.TransportPort;
 import net.floodlightcontroller.classico.pathscontrol.CandidatePath;
 import net.floodlightcontroller.classico.pathscontrol.Monitor;
 import net.floodlightcontroller.classico.pathscontrol.MultipathSession;
+import net.floodlightcontroller.routing.IRoutingService.PATH_METRIC;
 
 public class MultiuserSessionControl {
 	
@@ -73,7 +74,7 @@ public class MultiuserSessionControl {
 					/*Add User Session in Session MultiUser*/
 					sm.addUser(userSession);
 					
-					List<CandidatePath> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId, null);
+					List<CandidatePath> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId, PATH_METRIC.UTILIZATION);
 					multipathSessions.add(new MultipathSession(paths, userSession, serverSession, sm));
 					monitor.alertUpdate();
 					//show();
