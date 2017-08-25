@@ -5,4 +5,9 @@ evalvid/*.mp4
 evalvid/*.yuv
 scripts/*.mp4
 evalvid/*.zip
-evalvid/experimentos/*
+evalvid/experimentos/*.txt
+evalvid/experimentos/*.png
+evalvid/experimentos/*.zip
+evalvid/experimentos/Outros/
+evalvid/experimentos/classico_automatic/
+evalvid/experimentos/mc_automatic/
