@@ -22,7 +22,11 @@ def topology():
 
     print "*** Creating Hosts"
     h1 = net.addHost( 'h1', mac="00:00:00:00:00:01", ip='192.168.2.1' )
-    h2 = net.addHost( 'h2', mac="00:00:00:00:00:02", ip='192.168.2.2' )
+    # h20 = net.addHost( 'h20', mac="00:00:00:00:00:20", ip='192.168.2.20' )
+    # h21 = net.addHost( 'h21', mac="00:00:00:00:00:21", ip='192.168.2.21' )
+    # h22 = net.addHost( 'h22', mac="00:00:00:00:00:22", ip='192.168.2.22' )
+    h23 = net.addHost( 'h23', mac="00:00:00:00:00:23", ip='192.168.2.23' )
+    h24 = net.addHost( 'h24', mac="00:00:00:00:00:24", ip='192.168.2.24' )
     h3 = net.addHost( 'h3', mac="00:00:00:00:00:03", ip='192.168.2.3' )
     h4 = net.addHost( 'h4', mac="00:00:00:00:00:04", ip='192.168.2.4' )
     h5 = net.addHost( 'h5', mac="00:00:00:00:00:05", ip='192.168.2.5' )
@@ -47,7 +51,13 @@ def topology():
 
     print "*** Connecting hosts"
     net.addLink(h1, s32, bw=_bw, use_htb=_use_htb)
-    net.addLink(h2, s35, bw=_bw, use_htb=_use_htb)
+
+    # net.addLink(h20, s35, bw=_bw, use_htb=_use_htb)
+    # net.addLink(h21, s14, bw=_bw, use_htb=_use_htb)
+    # net.addLink(h22, s15, bw=_bw, use_htb=_use_htb)
+    net.addLink(h23, s02, bw=_bw, use_htb=_use_htb)
+    net.addLink(h24, s17, bw=_bw, use_htb=_use_htb)
+
     net.addLink(h3, s38, bw=_bw, use_htb=_use_htb)
     net.addLink(h4, s38, bw=_bw, use_htb=_use_htb)
     net.addLink(h5, s38, bw=_bw, use_htb=_use_htb)
