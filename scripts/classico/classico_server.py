@@ -73,8 +73,8 @@ def timeAlert():
 
 raw_input("Press Enter to continue...")
 os.system("cd ../../evalvid && ./client.sh &")
-time.sleep(1)
-thread.start_new_thread(timeAlert, ())
+# time.sleep(1)
+# thread.start_new_thread(timeAlert, ())
 time.sleep(1)
 os.system("cd ../../evalvid && ./mp4trace -f -s "+ipAddr+" 10000 sample.mp4 > files/st01")
 time.sleep(1)

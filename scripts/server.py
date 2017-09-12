@@ -5,7 +5,7 @@ import threading
 import thread
  
 HOST = ''   # Symbolic name meaning all available interfaces
-PORT = 8888 # Arbitrary non-privileged port
+PORT = 10000 # Arbitrary non-privileged port
  
 # Datagram (udp) socket
 try :

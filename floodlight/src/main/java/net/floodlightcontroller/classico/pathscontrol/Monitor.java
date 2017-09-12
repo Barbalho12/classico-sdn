@@ -117,9 +117,9 @@ public class Monitor extends Thread{
 		}
 		
 		if(multipathSessions.isEmpty()){
-			System.out.println("[MONITOR] There are no candidate paths to update");
+//			System.out.println("[MONITOR] There are no candidate paths to update");
 		}else{
-			System.out.println("[MONITOR] Update Candidate Paths");
+//			System.out.println("[MONITOR] Update Candidate Paths");
 		}
 		
 	}

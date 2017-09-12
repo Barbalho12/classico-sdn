@@ -8,7 +8,7 @@ set xrange [0:60]
 #set yrange [0.0:0.2] 
 set yrange [0.0:200]
 
-plot 	'out_jitter.txt' using ($1/24):(abs($2)*1000) t 'Multicast' with linespoints lw 2 pt 7 ps 2 lc rgb '#0060ad' 
+plot 	'out_jitter.txt' using ($1/24):(abs($2)*1000) t 'Multicast SDN' with linespoints lw 2 pt 7 ps 2 lc rgb '#0060ad' 
 rep 	'out_jitter.txt' using ($1/24):(abs($3)*1000) t 'CLASSICO'  with linespoints lw 1 pt 5 ps 1.5 lc rgb '#cd1000'
 
 set terminal png font arial 28 size 1600,1200
@@ -25,7 +25,7 @@ set xrange [0:60]
 # set yrange [0.0:0.2]
 set yrange [0.0:200]
 
-plot 	'out_delay.txt' 	using ($1/24):($2*1000) t 'Multicast' with linespoints lw 1 pt 7 ps 2 lc rgb '#0060ad' 
+plot 	'out_delay.txt' 	using ($1/24):($2*1000) t 'Multicast SDN' with linespoints lw 1 pt 7 ps 2 lc rgb '#0060ad' 
 rep 	'out_delay.txt' 	using ($1/24):($3*1000) t 'CLASSICO' 	with linespoints lw 1 pt 5 ps 1.5 lc rgb '#cd1000'
 
 set terminal png font arial 28 size 1600,1200 # set terminal eps 
@@ -36,14 +36,14 @@ replot
 
 
 ##############################################################################
-set key box width 0.5 height .05 opaque bottom left
+set key box width 0.5 height .05 opaque bottom right
 set xlabel 'Experimental Time (seconds)' 
 set ylabel 'SSIM' 
 
 set xrange [0:60]
 set yrange [0.85:1.0]
 
-plot 	'out_ssim.txt' 	using ($1/24):3 t 'Multicast' with linespoints lw 1 pt 7 ps 2 lc rgb '#0060ad' 
+plot 	'out_ssim.txt' 	using ($1/24):3 t 'Multicast SDN' with linespoints lw 1 pt 7 ps 2 lc rgb '#0060ad' 
 rep 	'out_ssim.txt' 	using ($1/24):4 t 'CLASSICO' with linespoints lw 1 pt 5 ps 1.5 lc rgb '#cd1000'
 
 
@@ -60,7 +60,7 @@ set ylabel 'VQM'
 set xrange [0:60]
 set yrange [0:15]
 
-plot 	'out_vqm.txt' 	using ($1/24):3 t 'Multicast' with linespoints lw 1 pt 7 ps 2 lc rgb '#0060ad' 
+plot 	'out_vqm.txt' 	using ($1/24):3 t 'Multicast SDN' with linespoints lw 1 pt 7 ps 2 lc rgb '#0060ad' 
 rep 	'out_vqm.txt' 	using ($1/24):4 t 'CLASSICO' with linespoints lw 1 pt 5 ps 1.5 lc rgb '#cd1000'
 
 set terminal png font arial 28 size 1600,1200 # set terminal eps 
@@ -78,7 +78,7 @@ set ylabel 'Throughput (Mbps)'
 set xrange [0:60]
 set yrange [0.0:3]
 
-plot 'out_throughput.txt' using 1:(($2*8)/(1024*1024)) t 'Multicast' with linespoints lw 1 pt 7 ps 2 lc rgb '#0060ad' 
+plot 'out_throughput.txt' using 1:(($2*8)/(1024*1024)) t 'Multicast SDN' with linespoints lw 1 pt 7 ps 2 lc rgb '#0060ad' 
 rep 'out_throughput.txt' using 1:(($3*8)/(1024*1024)) t 'CLASSICO' with linespoints lw 1 pt 5 ps 1.5 lc rgb '#cd1000'
 rep 'out_throughput.txt' using 1:(($4*8)/(1024*1024)) t 'Submitted video' with points lw 2 pt 10 ps 2 lc "green"
 

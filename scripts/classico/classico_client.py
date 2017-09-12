@@ -11,12 +11,13 @@ videofile = "sample.mp4"
 # os.system("ufw enable")
 
 if len(sys.argv) > 2:
-	try:   
-		s1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		s1.bind(('', 10001))
-		data, addr = s1.recvfrom(1024)
-	finally:
-	    s1.close()
+	videofile = sys.argv[2]
+	# try:   
+	# 	s1 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	# 	s1.bind(('', 10001))
+	# 	videofile, addr = s1.recvfrom(1024)
+	# finally:
+	#     s1.close()
     
 
 try:
@@ -31,8 +32,8 @@ s.close()
 
 script = "cd ../../evalvid &&"
 script += "rm -rf files/sd"+sys.argv[1]+" &&"
-if len(sys.argv) <= 2:
-	script += "ufw enable &&"
+# if len(sys.argv) <= 2:
+script += "ufw enable &&"
 script += "tcpdump -n -tt -v udp port 10000 >  files/sd"+sys.argv[1]
 os.system(script)
 
