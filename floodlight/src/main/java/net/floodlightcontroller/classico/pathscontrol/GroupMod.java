@@ -6,6 +6,7 @@ import java.util.List;
 import org.projectfloodlight.openflow.protocol.OFBucket;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFGroupAdd;
+import org.projectfloodlight.openflow.protocol.OFGroupBucketProp;
 import org.projectfloodlight.openflow.protocol.OFGroupDelete;
 import org.projectfloodlight.openflow.protocol.OFGroupModify;
 import org.projectfloodlight.openflow.protocol.OFGroupType;
@@ -28,6 +29,9 @@ public class GroupMod {
 	private IOFSwitch iof_switch;
 	private ArrayList<OFBucket> buckets;
 	private boolean marked;
+	private boolean activeLog = true;
+	private boolean newGroup = true;
+	
 	
 	public GroupMod(IOFSwitch iof_switch) {
 		this.setIof_switch(iof_switch);
@@ -42,6 +46,14 @@ public class GroupMod {
 		this.setId(id);
 		buckets = new ArrayList<>();
 	}
+	
+	public GroupMod(IOFSwitch iofs, int id, boolean activeLog) {
+		this.setIof_switch(iofs);
+		this.factory = iofs.getOFFactory();
+		this.setId(id);
+		buckets = new ArrayList<>();
+		this.activeLog = activeLog;
+	}
 
 	public void writeGroup(){
 		OFGroupAdd groupAdd = factory.buildGroupAdd()
@@ -51,6 +63,7 @@ public class GroupMod {
 			    .build();
 		
 		iof_switch.write(groupAdd);
+		if(activeLog)
 		System.out.println("[GROUP] Group "+id+" Created in "+iof_switch.getId());
 	}
 	
@@ -61,6 +74,7 @@ public class GroupMod {
 			    .build();
 		
 		iof_switch.write(deleteGroup);
+		if(activeLog)
 		System.out.println("[GROUP] Group "+id+" Removed in "+iof_switch.getId());
 	}
 
@@ -145,6 +159,7 @@ public class GroupMod {
 
 		createBucket(actionList);
 		
+		if(activeLog)
 		System.out.println("[GROUP] Bucket Created in "+iofs.getId()+", "+switchOutputPort.getPortNumber()
 				+" -> "+srcIp.toString()+":"+srcPort.getPort()+", "+maCadreess.toString());
 	}
@@ -158,6 +173,7 @@ public class GroupMod {
 	}
 
 	public void modifyGroup() {
+
 		OFGroupModify modifyGroup = factory.buildGroupModify()
 				.setGroup(OFGroup.of(getId()))
 			    .setGroupType(OFGroupType.ALL)
@@ -165,6 +181,8 @@ public class GroupMod {
 			    .build();
 		
 		iof_switch.write(modifyGroup);
+		
+		if(activeLog)
 		System.out.println("[GROUP] Group "+id+" Modifyed in "+iof_switch.getId());
 		
 	}
@@ -185,17 +203,6 @@ public class GroupMod {
 		this.marked = marked;
 	}
 
-//	@Override
-//	public int hashCode() {
-//		final int prime = 31;
-//		int result = 1;
-////		result = prime * result + ((buckets == null) ? 0 : buckets.hashCode());
-//		result = prime * result + id;
-//		result = prime * result + ((iof_switch.getId() == null) ? 0 : iof_switch.getId().hashCode());
-////		result = prime * result + (marked ? 1231 : 1237);
-////		return result;
-//	}
-
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -205,11 +212,6 @@ public class GroupMod {
 		if (getClass() != obj.getClass())
 			return false;
 		GroupMod other = (GroupMod) obj;
-//		if (buckets == null) {
-//			if (other.buckets != null)
-//				return false;
-//		} else if (!buckets.equals(other.buckets))
-//			return false;
 		if (id != other.id)
 			return false;
 		if (iof_switch == null) {
@@ -218,6 +220,14 @@ public class GroupMod {
 		} else if (!iof_switch.getId().equals(other.getIof_switch().getId()))
 			return false;
 		return true;
+	}
+
+	public boolean isNewGroup() {
+		return newGroup;
+	}
+
+	public void setNewGroup(boolean newGroup) {
+		this.newGroup = newGroup;
 	}
 
 }

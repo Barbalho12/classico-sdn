@@ -60,9 +60,23 @@ public class GroupHistory {
 			
 		}
 	}
+	
+	public void execute(){
+		for (Iterator iterator = groupHistory.iterator(); iterator.hasNext();) {
+			GroupMod gm = (GroupMod) iterator.next();
+			if(!gm.isMarked()){
+				gm.deleteGroup();
+				iterator.remove();
+			}
+		}
+	}
 
 	public GroupMod getGroupMod(GroupMod gmod) {
 		return groupHistory.get(groupHistory.indexOf(gmod));
+	}
+
+	public void setGroupMod(GroupMod gmod) {
+		groupHistory.set(groupHistory.indexOf(gmod), gmod);
 	}
 
 }

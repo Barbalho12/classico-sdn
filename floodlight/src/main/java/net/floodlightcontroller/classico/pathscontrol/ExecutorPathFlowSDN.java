@@ -22,6 +22,7 @@ public class ExecutorPathFlowSDN {
 	private HashMap<String, CandidatePath> oldBestPaths;
 	private List<NodePath> oldNodePaths;
 	
+	//Controla os grupos e fluxos criados
 	private GroupHistory groupHistory;
 	private FlowHistory flowModHistory;
 
@@ -44,7 +45,10 @@ public class ExecutorPathFlowSDN {
 		
 		IOFSwitch iofs = switchService.getSwitch(nodePath.getDataPathId());
 		
+		
 		if (oldNodePaths.contains(nodePath)) {
+			//Quando não há o que modificar
+			
 			System.out.println("[ExecutorPathFlowSDN] No changes in NodePath " + nodePath.getDataPathId()
 					+ " of session " + nodePath.getIdSession());
 
@@ -56,7 +60,8 @@ public class ExecutorPathFlowSDN {
 				execute(edgMap.getNextNodePath());
 			}
 
-		} else if (nodePath.isBranch()) { // Condição para criar um grupo
+		} else if (nodePath.isBranch()) {
+			 // Condição para criar um grupo
 
 			GroupMod gmod = new GroupMod(iofs, nodePath.getIdSession());
 			
@@ -68,7 +73,7 @@ public class ExecutorPathFlowSDN {
 					gmod.createBucket(iofs, edgeMap.getOfPort(), client.getIp(), client.getPort(),
 							client.getMACadreess());
 
-					// Caso contrário, se está conectado a um host
+				// Caso contrário, se está conectado a um host
 				} else {
 					gmod.createBucket(iofs, client.getSwitchInPort(), client.getIp(), client.getPort(),
 							client.getMACadreess());
@@ -80,28 +85,25 @@ public class ExecutorPathFlowSDN {
 			UserSession client = edgeMap.getClients().get(0);
 			Rule rule = new Rule(client.getDstIp().toString(), client.getIp().toString());
 
+			//Se o grupo existir, é atualizado, caso contrário, é criado
 			if (groupHistory.contains(gmod)){
-//				gmod.modifyGroup();
-				groupHistory.getGroupMod(gmod).modifyGroup();
+//				groupHistory.getGroupMod(gmod).modifyGroup();
+				groupHistory.setGroupMod(gmod);
+				gmod.modifyGroup();
 				groupHistory.mark(gmod);
-				System.out.println(1);
 			}else{
-				
 				gmod.writeGroup();
 				groupHistory.add(gmod);
-//				System.out.println(2);
 			}
 
 			FlowMod flowm = new FlowMod(iofs, nodePath.getIdSession(), rule, gmod);
 			if(!flowModHistory.contains(flowm)){
 				flowm.createFlow();
 				flowModHistory.add(flowm);
-//				System.out.println(3);
 				
 			}else{
 				flowModHistory.getFlowMod(flowm).modifyFlow(gmod);
 				flowModHistory.mark(flowm);
-//				System.out.println(4);
 			}
 
 			for (EdgeMap edgMap : nodePath.getConections()) {
@@ -118,11 +120,9 @@ public class ExecutorPathFlowSDN {
 			if(!flowModHistory.contains(flowm)){
 				flowm.createFlow();
 				flowModHistory.add(flowm);
-//				System.out.println(5);
 			}else{
 				flowModHistory.getFlowMod(flowm).modifyFlow(edgeMap.getOfPort());
 				flowModHistory.mark(flowm);
-//				System.out.println(6);
 			}
 			
 			execute(edgeMap.getNextNodePath());
@@ -135,11 +135,9 @@ public class ExecutorPathFlowSDN {
 			if(!flowModHistory.contains(flowm)){
 				flowm.createFlow();
 				flowModHistory.add(flowm);
-//				System.out.println(7);
 			}else{
 				flowModHistory.getFlowMod(flowm).modifyFlow(edgeMap.getOfPort());
 				flowModHistory.mark(flowm);
-//				System.out.println(8);
 			}
 		}
 	}
@@ -270,7 +268,6 @@ public class ExecutorPathFlowSDN {
 			}
 		}
 
-//		System.out.println(treesMap.toString());
 		write(treesMap);
 
 		oldBestPaths.clear();

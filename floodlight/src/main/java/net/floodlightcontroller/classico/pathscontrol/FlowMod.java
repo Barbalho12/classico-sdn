@@ -5,7 +5,9 @@ import java.util.Collections;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFFlowAdd;
 import org.projectfloodlight.openflow.protocol.OFFlowDelete;
+import org.projectfloodlight.openflow.protocol.OFFlowDeleteStrict;
 import org.projectfloodlight.openflow.protocol.OFFlowModify;
+import org.projectfloodlight.openflow.protocol.OFFlowModifyStrict;
 import org.projectfloodlight.openflow.protocol.match.MatchField;
 import org.projectfloodlight.openflow.types.EthType;
 import org.projectfloodlight.openflow.types.IPv4Address;
@@ -27,6 +29,8 @@ public class FlowMod {
 	private Rule rule;
 	private GroupMod groupMod;
 	private OFPort ofPort;
+	private boolean activeLog = true;
+//	private boolean newFlow = true;
 	
 	
 	public FlowMod(IOFSwitch iofs, int sessionid, Rule rule, OFPort ofPortOut) {
@@ -60,6 +64,7 @@ public class FlowMod {
 				.build();
 		iofs.write(f);
 
+		if(activeLog)
 		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD DELETE: Switch: " + iofs.getId().toString() + ", Reference: "
 				+ rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
 	}
@@ -82,7 +87,9 @@ public class FlowMod {
 						.setExact(MatchField.IP_PROTO, IpProtocol.UDP).build())
 				.setActions(Collections.singletonList(factory.actions().buildGroup().setGroup(group).build())).build();
 		iofs.write(flowAdd);
-		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD ADD: Switch: " + iofs.getId().toString() + ", Port: "
+		
+		if(activeLog)
+		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD ADD: Switch: " + iofs.getId().toString() + ", Group: "
 				+ group.getGroupNumber() + ", Reference: " + rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
 	}
 	
@@ -98,6 +105,8 @@ public class FlowMod {
 						.singletonList(factory.actions().buildOutput().setMaxLen(0xffFFffFF).setPort(ofPort).build()))
 				.build();
 		iofs.write(flowAdd);
+		
+		if(activeLog)
 		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD ADD: Switch: " + iofs.getId().toString() + ", Port: "
 				+ ofPort.getPortNumber() + ", Reference: " + rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
 	}
@@ -121,6 +130,8 @@ public class FlowMod {
 						.singletonList(factory.actions().buildOutput().setMaxLen(0xffFFffFF).setPort(ofPort).build()))
 				.build();
 		iofs.write(flowmodify);
+		
+		if(activeLog)
 		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD MODIFY: Switch: " + iofs.getId().toString() + ", Port: "
 				+ ofPort.getPortNumber() + ", Reference: " + rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
 	}
@@ -141,7 +152,9 @@ public class FlowMod {
 				.setActions(Collections.singletonList(factory.actions().buildGroup().setGroup(groupMod.getGroup()).build()))
 				.build();
 		iofs.write(flowmodify);
-		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD MODIFY: Switch: " + iofs.getId().toString() + ", Port: "
+		
+		if(activeLog)
+		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD MODIFY: Switch: " + iofs.getId().toString() + ", Group: "
 				+ groupMod.getGroup().getGroupNumber() + ", Reference: " + rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
 	}
 

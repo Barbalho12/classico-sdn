@@ -140,6 +140,7 @@ public class Monitor extends Thread{
 	public void run() {
 		long startTime,duration;
 		while(true){
+			System.out.println("-----------------");
 
 			sleepSeconds(REFRESH_INTERVAL_SECONDS);
 			startTime = System.currentTimeMillis();
@@ -149,6 +150,7 @@ public class Monitor extends Thread{
 			}
 			duration = System.currentTimeMillis() - startTime; 
 			System.out.println("[MONITOR] Duration time: "+duration+"ms");
+			System.out.println("-----------------");
 		}
 	}
 	
