@@ -43,6 +43,15 @@ public class ExecutorPathFlowSDN {
 		
 		System.out.println(nodePath.getDataPathId());
 		
+		if(nodePath.isMarked()){
+//			for (EdgeMap edgMap : nodePath.getConections()) {
+//				execute(edgMap.ge);
+//			}
+			return;
+		}else{
+			nodePath.setMarked(true);
+		}
+		
 		IOFSwitch iofs = switchService.getSwitch(nodePath.getDataPathId());
 		
 		
@@ -139,6 +148,8 @@ public class ExecutorPathFlowSDN {
 				flowModHistory.getFlowMod(flowm).modifyFlow(edgeMap.getOfPort());
 				flowModHistory.mark(flowm);
 			}
+			
+			System.out.println(nodePath.getConections());
 		}
 	}
 
@@ -150,7 +161,11 @@ public class ExecutorPathFlowSDN {
 		for (Iterator<Integer> iterator = treesMap.keySet().iterator(); iterator.hasNext();) {
 			Integer sessionID = (Integer) iterator.next();
 			TreePath treePath = treesMap.get(sessionID);
-			execute(treePath.getNodePaths().get(0));
+			
+			for(NodePath np : treePath.getNodePaths()){
+				execute(np);
+			}
+//			execute(treePath.getNodePaths().get(0));
 			oldNodePaths.clear();
 			oldNodePaths.addAll(treePath.getNodePaths());
 		}
@@ -190,6 +205,17 @@ public class ExecutorPathFlowSDN {
 
 	public void updateFlowPaths(List<MultipathSession> multipathSessions, HashMap<String, CandidatePath> bestPaths) {
 
+		if(!bestPaths.isEmpty()){
+			System.out.println("Paths: ");
+			for (String key : bestPaths.keySet()) {
+//				System.out.println("	"+key.substring(key.length()-1)+" = "+bestPaths.get(key).getStringResumePath());
+				System.out.println("	"+bestPaths.get(key).getUserSession().getIp().toString()+" = "+bestPaths.get(key).getStringResumePath());
+				
+			}
+			
+		}
+		
+		
 		// Se não alterações nos melhores caminhos é encerrado a execução
 		if (!checkIfChange(bestPaths)) {
 			System.out.println("[ExecutorPathFlowSDN] No changes in Flows");
@@ -268,6 +294,7 @@ public class ExecutorPathFlowSDN {
 			}
 		}
 
+		System.out.println(treesMap.toString());
 		write(treesMap);
 
 		oldBestPaths.clear();

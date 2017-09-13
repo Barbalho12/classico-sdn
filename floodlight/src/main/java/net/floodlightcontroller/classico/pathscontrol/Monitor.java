@@ -9,6 +9,7 @@ import org.projectfloodlight.openflow.types.DatapathId;
 import net.floodlightcontroller.routing.Path;
 import net.floodlightcontroller.classico.CLASSICOModule;
 import net.floodlightcontroller.classico.sessionmanager.MultiuserSessionControl;
+import net.floodlightcontroller.classico.sessionmanager.UserSession;
 import net.floodlightcontroller.core.internal.IOFSwitchService;
 import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryService;
 import net.floodlightcontroller.linkdiscovery.Link;
@@ -61,7 +62,7 @@ public class Monitor extends Thread{
 //		System.out.println("===" +higherBWC);
 	}
 	
-	public synchronized List<CandidatePath> calculatePaths(DatapathId src,DatapathId dst, PATH_METRIC metric){
+	public synchronized List<CandidatePath> calculatePaths(UserSession userSession, DatapathId src,DatapathId dst, PATH_METRIC metric){
 		if(routingService != null){
 			
 			if(metric != null){
@@ -74,7 +75,7 @@ public class Monitor extends Thread{
 			
 			List<CandidatePath> candidatePaths = new ArrayList<>();
 			for (Path path : paths) {
-				candidatePaths.add(new CandidatePath(path));
+				candidatePaths.add(new CandidatePath(userSession, path));
 			}
 			insertLinksInPaths(candidatePaths);
 			updatePathsInformations(candidatePaths);
@@ -112,7 +113,7 @@ public class Monitor extends Thread{
 			MultipathSession ms = (MultipathSession) iterator.next();
 			
 			/*Recalcula os caminhos e informações adicionais do servidor até o cliente*/
-			List<CandidatePath> newPaths = calculatePaths(ms.getServerSession().getDatapathId(), ms.getUserSession().getDatapathId(), null);
+			List<CandidatePath> newPaths = calculatePaths(ms.getUserSession(), ms.getServerSession().getDatapathId(), ms.getUserSession().getDatapathId(), null);
 			ms.setPaths(newPaths);
 		}
 		

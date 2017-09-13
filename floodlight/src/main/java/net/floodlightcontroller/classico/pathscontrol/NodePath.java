@@ -15,6 +15,7 @@ public class NodePath {
 //	private boolean isBranch;
 	private List<EdgeMap> conections;
 	private Rule rule;
+	private boolean marked = false;
 	
 	public NodePath(int idSession) {
 		conections = new ArrayList<>();
@@ -152,6 +153,14 @@ public class NodePath {
 		} else if (!rule.equals(other.rule))
 			return false;
 		return true;
+	}
+
+	public boolean isMarked() {
+		return marked;
+	}
+
+	public void setMarked(boolean marked) {
+		this.marked = marked;
 	}
 	
 	
