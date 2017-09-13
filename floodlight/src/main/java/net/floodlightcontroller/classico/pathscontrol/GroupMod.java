@@ -1,7 +1,6 @@
 package net.floodlightcontroller.classico.pathscontrol;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.projectfloodlight.openflow.protocol.OFBucket;
@@ -220,8 +219,5 @@ public class GroupMod {
 			return false;
 		return true;
 	}
-	
-	
-	
 
 }

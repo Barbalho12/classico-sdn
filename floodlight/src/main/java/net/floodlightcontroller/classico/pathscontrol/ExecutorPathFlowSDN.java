@@ -1,33 +1,19 @@
 package net.floodlightcontroller.classico.pathscontrol;
 
 import java.util.ArrayList;
-import java.util.Collections;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-//import java.util.Map;
-//import java.util.Map.Entry;
 
-import org.projectfloodlight.openflow.protocol.OFFactory;
-import org.projectfloodlight.openflow.protocol.OFFlowAdd;
-import org.projectfloodlight.openflow.protocol.OFFlowDelete;
-//import org.projectfloodlight.openflow.protocol.OFFlowModify;
-import org.projectfloodlight.openflow.protocol.match.MatchField;
-import org.projectfloodlight.openflow.types.DatapathId;
-import org.projectfloodlight.openflow.types.EthType;
-import org.projectfloodlight.openflow.types.IPv4Address;
-import org.projectfloodlight.openflow.types.IpProtocol;
-import org.projectfloodlight.openflow.types.OFGroup;
 import org.projectfloodlight.openflow.types.OFPort;
 
-import jline.History;
 import net.floodlightcontroller.classico.sessionmanager.Rule;
 import net.floodlightcontroller.classico.sessionmanager.Session;
 import net.floodlightcontroller.classico.sessionmanager.UserSession;
 import net.floodlightcontroller.core.IOFSwitch;
 import net.floodlightcontroller.core.internal.IOFSwitchService;
 import net.floodlightcontroller.core.types.NodePortTuple;
-import net.floodlightcontroller.util.FlowModUtils;
 
 public class ExecutorPathFlowSDN {
 
@@ -36,16 +22,12 @@ public class ExecutorPathFlowSDN {
 	private HashMap<String, CandidatePath> oldBestPaths;
 	private List<NodePath> oldNodePaths;
 	
-	
-	//Armazena os grupos criados, para não tentar criar novamente
-//	private HashMap<Integer, IOFSwitch> oldGroupsCreated;
-	GroupHistory groupHistory;
-	FlowHistory flowModHistory;
+	private GroupHistory groupHistory;
+	private FlowHistory flowModHistory;
 
 	public ExecutorPathFlowSDN(IOFSwitchService switchService) {
 		this.oldBestPaths = new HashMap<>();
 		this.oldNodePaths = new ArrayList<>();
-//		this.oldGroupsCreated = new HashMap<>();
 		this.switchService = switchService;
 		
 		groupHistory = new GroupHistory();
@@ -103,10 +85,13 @@ public class ExecutorPathFlowSDN {
 				groupHistory.add(gmod);
 			}
 
-			FlowMod flowm = new FlowMod(iofs, nodePath.getIdSession(), rule);
+			FlowMod flowm = new FlowMod(iofs, nodePath.getIdSession(), rule, gmod);
 			if(!flowModHistory.contains(flowm)){
-				flowm.createFlow(gmod.getGroup());
+				flowm.createFlow();
 				flowModHistory.add(flowm);
+			}else{
+				flowModHistory.getFlowMod(flowm).modifyFlow(gmod);
+				flowModHistory.mark(flowm);
 			}
 
 			for (EdgeMap edgMap : nodePath.getConections()) {
@@ -119,12 +104,12 @@ public class ExecutorPathFlowSDN {
 			UserSession client = edgeMap.getClients().get(0);
 			Rule rule = new Rule(client.getDstIp().toString(), client.getIp().toString());
 			
-			FlowMod flowm = new FlowMod(iofs, nodePath.getIdSession(), rule);
+			FlowMod flowm = new FlowMod(iofs, nodePath.getIdSession(), rule, edgeMap.getOfPort());
 			if(!flowModHistory.contains(flowm)){
-				flowm.createFlow(edgeMap.getOfPort());
+				flowm.createFlow();
 				flowModHistory.add(flowm);
 			}else{
-				flowm.modifyFlow(edgeMap.getOfPort());
+				flowModHistory.getFlowMod(flowm).modifyFlow(edgeMap.getOfPort());
 				flowModHistory.mark(flowm);
 			}
 			
@@ -134,20 +119,22 @@ public class ExecutorPathFlowSDN {
 			UserSession client = edgeMap.getClients().get(0);
 			Rule rule = new Rule(client.getDstIp().toString(), client.getIp().toString());
 			
-			FlowMod flowm = new FlowMod(iofs, nodePath.getIdSession(), rule);
+			FlowMod flowm = new FlowMod(iofs, nodePath.getIdSession(), rule, client.getSwitchInPort());
 			if(!flowModHistory.contains(flowm)){
-				flowm.createFlow(client.getSwitchInPort());
+				flowm.createFlow();
 				flowModHistory.add(flowm);
 			}else{
-//				flowModHistory.mark(flowm);
+				flowModHistory.getFlowMod(flowm).modifyFlow(edgeMap.getOfPort());
+				flowModHistory.mark(flowm);
 			}
 		}
 	}
 
 	public void write(HashMap<Integer, TreePath> treesMap) {
-//		updatePreviousRecording();
+
 		flowModHistory.unmarkAll();
 		groupHistory.unmarkAll();
+		
 		for (Iterator<Integer> iterator = treesMap.keySet().iterator(); iterator.hasNext();) {
 			Integer sessionID = (Integer) iterator.next();
 			TreePath treePath = treesMap.get(sessionID);
@@ -155,6 +142,7 @@ public class ExecutorPathFlowSDN {
 			oldNodePaths.clear();
 			oldNodePaths.addAll(treePath.getNodePaths());
 		}
+		
 		groupHistory.deleteUnusedGroup();
 		flowModHistory.deleteUnusedFlows();
 	}

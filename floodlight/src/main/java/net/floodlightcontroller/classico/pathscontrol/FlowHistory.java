@@ -15,6 +15,10 @@ public class FlowHistory {
 		flowModHistory = new ArrayList<FlowMod>();
 	}
 	
+	FlowMod getFlowMod(FlowMod fm){
+		return flowModHistory.get(flowModHistory.indexOf(fm));
+	}
+	
 	public void add(FlowMod fm){
 		fm.setMarked(true);
 		flowModHistory.add(fm);
@@ -65,17 +69,5 @@ public class FlowHistory {
 		}
 	}
 
-	
-//	private void updatePreviousRecording() {
-//		for (Iterator<FlowMod> iterator = flowModHistory.iterator(); iterator.hasNext();) {
-//			FlowMod fm = (FlowMod) iterator.next();
-//			if (!fm.isMarked()) {
-//				fm.deleteFlow();
-//				iterator.remove();
-//			} else {
-//				fm.setMarked(false);
-//			}
-//		}
-//	}
 
 }

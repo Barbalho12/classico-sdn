@@ -1,16 +1,12 @@
 package net.floodlightcontroller.classico.pathscontrol;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 
-import org.projectfloodlight.openflow.protocol.OFBucket;
 import org.projectfloodlight.openflow.protocol.OFFactory;
 import org.projectfloodlight.openflow.protocol.OFFlowAdd;
 import org.projectfloodlight.openflow.protocol.OFFlowDelete;
 import org.projectfloodlight.openflow.protocol.OFFlowModify;
 import org.projectfloodlight.openflow.protocol.match.MatchField;
-import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.EthType;
 import org.projectfloodlight.openflow.types.IPv4Address;
 import org.projectfloodlight.openflow.types.IpProtocol;
@@ -19,7 +15,6 @@ import org.projectfloodlight.openflow.types.OFPort;
 
 import net.floodlightcontroller.classico.sessionmanager.Rule;
 import net.floodlightcontroller.core.IOFSwitch;
-import net.floodlightcontroller.core.internal.OFSwitch;
 import net.floodlightcontroller.util.FlowModUtils;
 
 public class FlowMod {
@@ -30,14 +25,26 @@ public class FlowMod {
 	private int sessionID;
 	private boolean marked;
 	private Rule rule;
+	private GroupMod groupMod;
+	private OFPort ofPort;
 	
 	
-	public FlowMod(IOFSwitch iofs, int sessionid, Rule rule) {
+	public FlowMod(IOFSwitch iofs, int sessionid, Rule rule, OFPort ofPortOut) {
 		this.iofs = iofs;
 		this.sessionID = sessionid;
 		this.rule = rule;
 		this.factory = iofs.getOFFactory();
 		marked = true;
+		this.ofPort = ofPortOut;
+	}
+	
+	public FlowMod(IOFSwitch iofs, int sessionid, Rule rule, GroupMod groupMod) {
+		this.iofs = iofs;
+		this.sessionID = sessionid;
+		this.rule = rule;
+		this.factory = iofs.getOFFactory();
+		marked = true;
+		this.groupMod = groupMod;
 	}
 
 	public void deleteFlow() {
@@ -57,7 +64,15 @@ public class FlowMod {
 				+ rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
 	}
 	
-	public void createFlow(OFGroup group) {
+	public void createFlow() {
+		if(groupMod != null){
+			createFlow(groupMod.getGroup());
+		}else{
+			createFlow(ofPort);
+		}
+	}
+	
+	private void createFlow(OFGroup group) {
 		OFFlowAdd flowAdd = factory.buildFlowAdd().setHardTimeout(0).setIdleTimeout(0)
 				.setPriority(FlowModUtils.PRIORITY_MAX)
 				.setMatch(factory.buildMatch()
@@ -71,7 +86,7 @@ public class FlowMod {
 				+ group.getGroupNumber() + ", Reference: " + rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
 	}
 	
-	public void createFlow(OFPort ofPort) {
+	private void createFlow(OFPort ofPort) {
 		OFFlowAdd flowAdd = factory.buildFlowAdd().setHardTimeout(0).setIdleTimeout(0)
 				.setPriority(FlowModUtils.PRIORITY_MAX)
 				.setMatch(factory.buildMatch()
@@ -87,7 +102,13 @@ public class FlowMod {
 				+ ofPort.getPortNumber() + ", Reference: " + rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
 	}
 	
+	
+	
 	public void modifyFlow(OFPort ofPort) {
+		
+		if(ofPort.equals(this.ofPort) && groupMod==null) return;
+		groupMod = null;
+		this.ofPort = ofPort;
 
 		OFFlowModify flowmodify = factory.buildFlowModify().setHardTimeout(0).setIdleTimeout(0)
 				.setPriority(FlowModUtils.PRIORITY_MAX)
@@ -102,6 +123,26 @@ public class FlowMod {
 		iofs.write(flowmodify);
 		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD MODIFY: Switch: " + iofs.getId().toString() + ", Port: "
 				+ ofPort.getPortNumber() + ", Reference: " + rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
+	}
+	
+	public void modifyFlow(GroupMod groupMod) {
+		
+		if(groupMod.equals(this.groupMod) && ofPort==null) return;
+		ofPort=null;
+		this.groupMod = groupMod;
+
+		OFFlowModify flowmodify = factory.buildFlowModify().setHardTimeout(0).setIdleTimeout(0)
+				.setPriority(FlowModUtils.PRIORITY_MAX)
+				.setMatch(factory.buildMatch()
+						.setExact(MatchField.ETH_TYPE, EthType.IPv4)
+						.setExact(MatchField.IPV4_SRC, IPv4Address.of(rule.getIpv4Src()))
+						.setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))
+						.setExact(MatchField.IP_PROTO, IpProtocol.UDP).build())
+				.setActions(Collections.singletonList(factory.actions().buildGroup().setGroup(groupMod.getGroup()).build()))
+				.build();
+		iofs.write(flowmodify);
+		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD MODIFY: Switch: " + iofs.getId().toString() + ", Port: "
+				+ groupMod.getGroup().getGroupNumber() + ", Reference: " + rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
 	}
 
 	public IOFSwitch getIofs() {
@@ -140,13 +181,12 @@ public class FlowMod {
 	public Object getDatapathId() {
 		return iofs.getId();
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((iofs == null) ? 0 : iofs.hashCode());
-		result = prime * result + (marked ? 1231 : 1237);
+		result = prime * result + ((iofs.getId() == null) ? 0 : iofs.getId().hashCode());
 		result = prime * result + ((rule == null) ? 0 : rule.hashCode());
 		result = prime * result + sessionID;
 		return result;
@@ -175,6 +215,8 @@ public class FlowMod {
 			return false;
 		return true;
 	}
+
+	
 	
 
 }

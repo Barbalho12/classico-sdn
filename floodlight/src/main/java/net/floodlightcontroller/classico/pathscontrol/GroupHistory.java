@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.projectfloodlight.openflow.protocol.OFBucket;
-import org.projectfloodlight.openflow.types.DatapathId;
-
 public class GroupHistory {
 	List<GroupMod> groupHistory;
 	
@@ -19,9 +16,9 @@ public class GroupHistory {
 		groupHistory.add(groupMod);
 	}
 	
-	void set(int i, GroupMod groupMod){
-		
-	}
+//	void set(int i, GroupMod groupMod){
+//		
+//	}
 	
 	boolean contains(GroupMod groupMod){
 		if(groupHistory.contains(groupMod)){
@@ -43,7 +40,7 @@ public class GroupHistory {
 	}
 	
 	public void deleteUnusedGroup() {
-		for (Iterator iterator = groupHistory.iterator(); iterator.hasNext();) {
+		for (Iterator<GroupMod> iterator = groupHistory.iterator(); iterator.hasNext();) {
 			GroupMod groupMod = (GroupMod) iterator.next();
 			
 			if(!groupMod.isMarked()){
