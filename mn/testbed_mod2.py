@@ -24,7 +24,7 @@ def topology():
     h1 = net.addHost( 'h1', mac="00:00:00:00:00:01", ip='192.168.2.1' )
 
     h2 = net.addHost( 'h2', mac="00:00:00:00:00:02", ip='192.168.2.2' )
-    # h3 = net.addHost( 'h3', mac="00:00:00:00:00:03", ip='192.168.2.3' )
+    h3 = net.addHost( 'h3', mac="00:00:00:00:00:03", ip='192.168.2.3' )
     # h4 = net.addHost( 'h4', mac="00:00:00:00:00:04", ip='192.168.2.4' )
 
     h5 = net.addHost( 'h5', mac="00:00:00:00:00:05", ip='192.168.2.5' )
@@ -55,7 +55,7 @@ def topology():
     net.addLink(h1, s32, bw=_bw, use_htb=_use_htb)
 
     net.addLink(h2, s38, bw=_bw, use_htb=_use_htb)
-    # net.addLink(h3, s38, bw=_bw, use_htb=_use_htb)
+    net.addLink(h3, s38, bw=_bw, use_htb=_use_htb)
     # net.addLink(h4, s38, bw=_bw, use_htb=_use_htb)
     
     net.addLink(h5, s02, bw=_bw, use_htb=_use_htb)

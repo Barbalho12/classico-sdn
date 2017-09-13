@@ -40,6 +40,8 @@ public class ExecutorPathFlowSDN {
 		// Caso base quando o nó é nulo
 		if (nodePath == null) { return; } 
 		
+		System.out.println(nodePath.getDataPathId());
+		
 		IOFSwitch iofs = switchService.getSwitch(nodePath.getDataPathId());
 		
 		if (oldNodePaths.contains(nodePath)) {
@@ -47,6 +49,7 @@ public class ExecutorPathFlowSDN {
 					+ " of session " + nodePath.getIdSession());
 
 			flowModHistory.markAsUnchanged(nodePath.getIdSession(), iofs);
+			groupHistory.markAsUnchanged(nodePath.getIdSession(), iofs);
 		
 			// Executa o procedimento para o próximo switch
 			for (EdgeMap edgMap : nodePath.getConections()) {
@@ -78,20 +81,27 @@ public class ExecutorPathFlowSDN {
 			Rule rule = new Rule(client.getDstIp().toString(), client.getIp().toString());
 
 			if (groupHistory.contains(gmod)){
-				gmod.modifyGroup();
+//				gmod.modifyGroup();
+				groupHistory.getGroupMod(gmod).modifyGroup();
 				groupHistory.mark(gmod);
+				System.out.println(1);
 			}else{
+				
 				gmod.writeGroup();
 				groupHistory.add(gmod);
+//				System.out.println(2);
 			}
 
 			FlowMod flowm = new FlowMod(iofs, nodePath.getIdSession(), rule, gmod);
 			if(!flowModHistory.contains(flowm)){
 				flowm.createFlow();
 				flowModHistory.add(flowm);
+//				System.out.println(3);
+				
 			}else{
 				flowModHistory.getFlowMod(flowm).modifyFlow(gmod);
 				flowModHistory.mark(flowm);
+//				System.out.println(4);
 			}
 
 			for (EdgeMap edgMap : nodePath.getConections()) {
@@ -108,9 +118,11 @@ public class ExecutorPathFlowSDN {
 			if(!flowModHistory.contains(flowm)){
 				flowm.createFlow();
 				flowModHistory.add(flowm);
+//				System.out.println(5);
 			}else{
 				flowModHistory.getFlowMod(flowm).modifyFlow(edgeMap.getOfPort());
 				flowModHistory.mark(flowm);
+//				System.out.println(6);
 			}
 			
 			execute(edgeMap.getNextNodePath());
@@ -123,9 +135,11 @@ public class ExecutorPathFlowSDN {
 			if(!flowModHistory.contains(flowm)){
 				flowm.createFlow();
 				flowModHistory.add(flowm);
+//				System.out.println(7);
 			}else{
 				flowModHistory.getFlowMod(flowm).modifyFlow(edgeMap.getOfPort());
 				flowModHistory.mark(flowm);
+//				System.out.println(8);
 			}
 		}
 	}

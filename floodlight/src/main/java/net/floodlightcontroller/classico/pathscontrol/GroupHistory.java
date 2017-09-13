@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import net.floodlightcontroller.core.IOFSwitch;
+
 public class GroupHistory {
 	List<GroupMod> groupHistory;
 	
@@ -19,6 +21,14 @@ public class GroupHistory {
 //	void set(int i, GroupMod groupMod){
 //		
 //	}
+	
+	public void markAsUnchanged(int sessionId, IOFSwitch iofs) {
+		for (GroupMod gm : groupHistory) {
+			if (gm.getId() == sessionId && gm.getIof_switch().getId().equals(iofs.getId())) {
+				gm.setMarked(true);
+			}
+		}
+	}
 	
 	boolean contains(GroupMod groupMod){
 		if(groupHistory.contains(groupMod)){
@@ -49,6 +59,10 @@ public class GroupHistory {
 			}
 			
 		}
+	}
+
+	public GroupMod getGroupMod(GroupMod gmod) {
+		return groupHistory.get(groupHistory.indexOf(gmod));
 	}
 
 }
