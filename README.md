@@ -25,6 +25,15 @@ O [Mininet] é uma aplicação responsável pela virtualização dos componentes
 </kbd>
 
 
+## Guia Inicial
+
+Para instalar todas as dependências, execute:
+
+    ./install.sh
+
+Será instalado todos os programas necessários, entre eles: Java8, Evalvid, mininet etc.
+
+
 Para iniciar o Mininet execute o script:
 
     sudo python mn/testbed.py
