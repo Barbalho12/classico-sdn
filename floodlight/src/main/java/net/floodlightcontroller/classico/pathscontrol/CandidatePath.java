@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.projectfloodlight.openflow.types.DatapathId;
+import org.projectfloodlight.openflow.types.U64;
 
 import net.floodlightcontroller.classico.sessionmanager.UserSession;
 import net.floodlightcontroller.core.types.NodePortTuple;
@@ -35,6 +36,15 @@ public class CandidatePath extends Path{
 		setLatency(path.getLatency());
 		initswitchesRefs();
 		this.setUserSession(userSession);
+	}
+	
+	@Override
+	public U64 getLatency() {
+		long latency = 0;
+		for(Link link : links){
+			latency+=link.getLatency().getValue();
+		}
+		return U64.of(latency);
 	}
 
 	public long getBandwidthConsumption() {

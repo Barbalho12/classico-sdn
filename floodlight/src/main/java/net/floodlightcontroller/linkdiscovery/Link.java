@@ -41,6 +41,7 @@ public class Link implements Comparable<Link> {
         this.dst = dstId;
         this.dstPort = dstPort;
         this.latency = latency;
+        System.out.println(srcId+" -- "+srcId+" = "+latency.getValue());
     }
 
     /*

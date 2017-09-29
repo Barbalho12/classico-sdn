@@ -71,7 +71,7 @@ public class Monitor extends Thread{
 				routingService.setPathMetric(PATH_METRIC.HOPCOUNT);
 			}
 			
-			List<Path> paths = routingService.getPathsSlow(src, dst, 100);
+			List<Path> paths = routingService.getPathsFast(src, dst, 100);
 			
 			List<CandidatePath> candidatePaths = new ArrayList<>();
 			for (Path path : paths) {
@@ -91,6 +91,7 @@ public class Monitor extends Thread{
 
 			for (Iterator<Link> iteratorLink = linkDiscoveryService.getLinks().keySet().iterator(); iteratorLink.hasNext();) {
 				Link link = (Link) iteratorLink.next();
+				link.setLatency(linkDiscoveryService.getLinkInfo(link).getLatencyHistory().getLast());
 
 				for(int i = 0; i < path.getPath().size()-1; i+=2){
 					DatapathId d1 = path.getPath().get(i).getNodeId();

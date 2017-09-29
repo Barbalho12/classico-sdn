@@ -76,11 +76,11 @@ public class LinkInfo {
 		return latencyUpdateThreshold;
 	}
 	
-	private ArrayDeque<U64> getLatencyHistory() {
+	public ArrayDeque<U64> getLatencyHistory() {
 		return latencyHistory;
 	}
 
-	private U64 getLatencyHistoryAverage() {
+	public U64 getLatencyHistoryAverage() {
 		if (!isLatencyHistoryFull()) {
 			return null;
 		} else { /* guaranteed to be at latencyHistoryWindow capacity */
