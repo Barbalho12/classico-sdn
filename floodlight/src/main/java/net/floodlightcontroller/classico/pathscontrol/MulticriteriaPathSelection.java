@@ -54,10 +54,10 @@ public class MulticriteriaPathSelection {
 		double factor = 0.000001;
 		
 		for (int i = 0; i < candidatePaths.size(); i++) {
-			double scoreBW = 1.0-((candidatePaths.get(i).getBandwidthConsumption()/(maxBw*1.0+factor)));
-			double scoreLatency = 1.0-((candidatePaths.get(i).getLatency().getValue()/(maxLatency*1.0+factor)));
+			double scoreBW = candidatePaths.get(i).getBandwidthConsumption()/(maxBw*1.0+factor);
+			double scoreLatency = candidatePaths.get(i).getLatency().getValue()/(maxLatency*1.0+factor);
 //			System.out.println(scoreBW+" , "+scoreLatency);
-			double score = 0.5*scoreBW + 0.5*scoreLatency;
+			double score = 0.5*(1.0 - scoreBW) + 0.5*(1.0 - scoreLatency);
 			candidatePaths.get(i).setScore(score);
 		}
 		
