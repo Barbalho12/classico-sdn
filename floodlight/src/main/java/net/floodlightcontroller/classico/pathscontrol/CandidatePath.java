@@ -17,6 +17,7 @@ public class CandidatePath extends Path{
 	private List<Link> links;
 	private List<DatapathId> switchesRefs;
 	private UserSession userSession;
+	private double score;
 	
 	public CandidatePath(DatapathId src, DatapathId dst) {
 		super(src, dst);
@@ -43,6 +44,7 @@ public class CandidatePath extends Path{
 		long latency = 0;
 		for(Link link : links){
 			latency+=link.getLatency().getValue();
+			
 		}
 		return U64.of(latency);
 	}
@@ -90,6 +92,14 @@ public class CandidatePath extends Path{
 
 	public void setUserSession(UserSession userSession) {
 		this.userSession = userSession;
+	}
+
+	public double getScore() {
+		return score;
+	}
+
+	public void setScore(double score) {
+		this.score = score;
 	}
 	
 	

@@ -92,7 +92,10 @@ public class Monitor extends Thread{
 			for (Iterator<Link> iteratorLink = linkDiscoveryService.getLinks().keySet().iterator(); iteratorLink.hasNext();) {
 				Link link = (Link) iteratorLink.next();
 				link.setLatency(linkDiscoveryService.getLinkInfo(link).getLatencyHistory().getLast());
-
+//				link.setLatency(linkDiscoveryService.getLinkInfo(link).getCurrentLatency());
+//				System.out.println(linkDiscoveryService.getLinkInfo(link).getLatencyHistory().toString());
+			
+				
 				for(int i = 0; i < path.getPath().size()-1; i+=2){
 					DatapathId d1 = path.getPath().get(i).getNodeId();
 					DatapathId d2 = path.getPath().get(i+1).getNodeId();

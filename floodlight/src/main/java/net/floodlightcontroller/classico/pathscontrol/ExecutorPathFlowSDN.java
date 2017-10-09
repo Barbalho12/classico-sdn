@@ -41,7 +41,7 @@ public class ExecutorPathFlowSDN {
 		// Caso base quando o nó é nulo
 		if (nodePath == null) { return; } 
 		
-		System.out.println(nodePath.getDataPathId());
+//		System.out.println(nodePath.getDataPathId());
 		
 		if(nodePath.isMarked()){
 //			for (EdgeMap edgMap : nodePath.getConections()) {
@@ -149,7 +149,7 @@ public class ExecutorPathFlowSDN {
 				flowModHistory.mark(flowm);
 			}
 			
-			System.out.println(nodePath.getConections());
+//			System.out.println(nodePath.getConections());
 		}
 	}
 
@@ -205,15 +205,15 @@ public class ExecutorPathFlowSDN {
 
 	public void updateFlowPaths(List<MultipathSession> multipathSessions, HashMap<String, CandidatePath> bestPaths) {
 
-		if(!bestPaths.isEmpty()){
-			System.out.println("Paths: ");
-			for (String key : bestPaths.keySet()) {
-//				System.out.println("	"+key.substring(key.length()-1)+" = "+bestPaths.get(key).getStringResumePath());
-				System.out.println("	"+bestPaths.get(key).getUserSession().getIp().toString()+" = "+bestPaths.get(key).getStringResumePath());
-				
-			}
-			
-		}
+//		if(!bestPaths.isEmpty()){
+//			System.out.println("Paths: ");
+//			for (String key : bestPaths.keySet()) {
+////				System.out.println("	"+key.substring(key.length()-1)+" = "+bestPaths.get(key).getStringResumePath());
+//				System.out.println("	"+bestPaths.get(key).getUserSession().getIp().toString()+" = "+bestPaths.get(key).getStringResumePath());
+//				
+//			}
+//			
+//		}
 		
 		
 		// Se não alterações nos melhores caminhos é encerrado a execução
@@ -294,7 +294,7 @@ public class ExecutorPathFlowSDN {
 			}
 		}
 
-		System.out.println(treesMap.toString());
+//		System.out.println(treesMap.toString());
 		write(treesMap);
 
 		oldBestPaths.clear();

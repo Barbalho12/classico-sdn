@@ -39,7 +39,9 @@ import net.floodlightcontroller.core.module.IFloodlightModule;
 import net.floodlightcontroller.core.module.IFloodlightService;
 import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryService;
 import net.floodlightcontroller.packet.Ethernet;
+import net.floodlightcontroller.packet.ICMP;
 import net.floodlightcontroller.packet.IPv4;
+import net.floodlightcontroller.packet.LLDP;
 import net.floodlightcontroller.packet.UDP;
 import net.floodlightcontroller.routing.IRoutingService;
 import net.floodlightcontroller.statistics.IStatisticsService;
@@ -187,7 +189,13 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule/*, 
 							return Command.STOP;
 						}
 					}
-				}
+					
+			
+				}/*else if (eth.getEtherType() == EthType.LLDP) {
+					LLDP lldp = (LLDP) eth.getPayload();
+					System.out.println(lldp.toString());
+			
+				}*/
 				
 				break;
 

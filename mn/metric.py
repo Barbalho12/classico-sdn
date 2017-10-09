@@ -12,7 +12,7 @@ def topology():
     net = Mininet( controller=RemoteController, link=TCLink, switch=OVSKernelSwitch )
 	
     _bw=10
-    _latency='5ms'
+    _latency='100ms'
     _max_queue_size=100
     _use_htb=True
     _ip_remote_control='127.0.0.1'
