@@ -55,7 +55,8 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule/*, 
 	
 	private static final String SERVER_IP = "192.168.2.1";
 	private static final int SERVER_PORT = 10000;
-	private static final String SERVER_EDGE_SWITCH_ID = "00:00:00:00:aa:bb:cc:01";
+//	private static final String SERVER_EDGE_SWITCH_ID = "00:00:00:00:aa:bb:cc:01";
+	private static final String SERVER_EDGE_SWITCH_ID = "00:00:00:00:aa:bb:cc:32";
 	
 	/*H3 NO MOMENTO*/
 //	private final String ADPUSB_MAC = "00:13:3B:85:05:05";
