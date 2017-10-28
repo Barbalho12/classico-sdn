@@ -36,37 +36,37 @@ replot
 
 
 ##############################################################################
-set key box width 0.5 height .05 opaque bottom right
-set xlabel 'Experimental Time (seconds)' 
-set ylabel 'SSIM' 
+#set key box width 0.5 height .05 opaque bottom right
+#set xlabel 'Experimental Time (seconds)' 
+#set ylabel 'SSIM' 
 
-set xrange [0:60]
-set yrange [0.85:1.0]
+#set xrange [0:60]
+#set yrange [0.85:1.0]
 
-plot 	'out_ssim.txt' 	using ($1/24):3 t 'Multicast SDN' with linespoints lw 1 pt 7 ps 2 lc rgb '#0060ad' 
-rep 	'out_ssim.txt' 	using ($1/24):4 t 'CLASSICO' with linespoints lw 1 pt 5 ps 1.5 lc rgb '#cd1000'
+#plot 	'out_ssim.txt' 	using ($1/24):3 t 'Multicast SDN' with linespoints lw 1 pt 7 ps 2 lc rgb '#0060ad' 
+#rep 	'out_ssim.txt' 	using ($1/24):4 t 'CLASSICO' with linespoints lw 1 pt 5 ps 1.5 lc rgb '#cd1000'
 
 
-set terminal png font arial 28 size 1600,1200 # set terminal eps 
-set output 'ssim.png'  # set output 'resultado.eps' 
+#set terminal png font arial 28 size 1600,1200 # set terminal eps 
+#set output 'ssim.png'  # set output 'resultado.eps' 
 
-replot 
+#replot 
 
 ##############################################################################
-set key box width 0.5 height .05 opaque top left
-set xlabel 'Experimental Time (seconds)' 
-set ylabel 'VQM' 
+#set key box width 0.5 height .05 opaque top left
+#set xlabel 'Experimental Time (seconds)' 
+#set ylabel 'VQM' 
 
-set xrange [0:60]
-set yrange [0:15]
+#set xrange [0:60]
+#set yrange [0:15]
 
-plot 	'out_vqm.txt' 	using ($1/24):3 t 'Multicast SDN' with linespoints lw 1 pt 7 ps 2 lc rgb '#0060ad' 
-rep 	'out_vqm.txt' 	using ($1/24):4 t 'CLASSICO' with linespoints lw 1 pt 5 ps 1.5 lc rgb '#cd1000'
+#plot 	'out_vqm.txt' 	using ($1/24):3 t 'Multicast SDN' with linespoints lw 1 pt 7 ps 2 lc rgb '#0060ad' 
+#rep 	'out_vqm.txt' 	using ($1/24):4 t 'CLASSICO' with linespoints lw 1 pt 5 ps 1.5 lc rgb '#cd1000'
+#
+#set terminal png font arial 28 size 1600,1200 # set terminal eps 
+#set output 'vqm.png'  
 
-set terminal png font arial 28 size 1600,1200 # set terminal eps 
-set output 'vqm.png'  
-
-replot 
+#replot 
 
 
 

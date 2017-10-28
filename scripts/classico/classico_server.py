@@ -16,6 +16,7 @@ try :
     s.bind((HOST, PORT))
     print 'Socket bind complete'
     newRequest = s.recvfrom(1024)
+    os.system("echo SERVER $(date +'%F %T,%3N') ")
     nameFile = newRequest[0] #nome do arquivo video
     addr = newRequest[1] #Endereco do cliente
     ipAddr = addr[0]

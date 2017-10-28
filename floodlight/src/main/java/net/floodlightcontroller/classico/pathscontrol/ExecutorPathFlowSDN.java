@@ -189,7 +189,7 @@ public class ExecutorPathFlowSDN {
 		for (String keyPath : bestPaths.keySet()) {
 			for (String keyoldPath : oldBestPaths.keySet()) {
 				if (keyPath.equals(keyoldPath)) {
-					if (bestPaths.containsKey(keyPath)
+					if (bestPaths.containsKey(keyPath) && bestPaths.get(keyPath) != null && oldBestPaths.get(keyPath) != null
 							&& bestPaths.get(keyPath).getPath().equals(oldBestPaths.get(keyPath).getPath())) {
 						keyEquals.add(keyPath);
 					}
@@ -229,6 +229,7 @@ public class ExecutorPathFlowSDN {
 			Session session = ms.getSessionMultiUser();
 
 			CandidatePath bp = bestPaths.get(ms.getPathIndex());
+			if(bp == null) continue;
 
 			TreePath treePath;
 

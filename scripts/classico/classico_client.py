@@ -24,6 +24,7 @@ try:
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.bind(('', 10000))
     s.sendto(videofile, (host, port))
+    os.system("echo "+sys.argv[1]+" $(date +'%F %T,%3N') ")
 except socket.error:
     print 'Failed to create socket'
     sys.exit()

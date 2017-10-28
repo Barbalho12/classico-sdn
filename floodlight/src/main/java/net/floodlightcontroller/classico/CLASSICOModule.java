@@ -186,6 +186,8 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule/*, 
 
 						OFPort packetInPort = OFMessageUtils.getInPort((OFPacketIn) msg);
 						boolean newUserSaved = verifySession(iof_switch, packetInPort, ipv4, eth.getSourceMACAddress());
+						
+						//Se a sessão já existe, o pacote é bloqueado, pois o cliente já foi cadastrado na sessão.
 						if(!newUserSaved){
 							return Command.STOP;
 						}
@@ -231,7 +233,7 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule/*, 
 			return true;
 		}
 
-		//Pega o conteudo da mensagem
+		//Pega o conteudo da mensagem (irá definir a sessão)
 		byte payload[] = udp.getPayload().serialize();
 		String service = "";
 		for(int i = 0; i < payload.length; i++){

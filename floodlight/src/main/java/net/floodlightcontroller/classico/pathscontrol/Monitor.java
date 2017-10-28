@@ -4,15 +4,23 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.projectfloodlight.openflow.protocol.OFPortDesc;
 import org.projectfloodlight.openflow.types.DatapathId;
+import org.projectfloodlight.openflow.types.Masked;
+import org.projectfloodlight.openflow.types.U64;
 
 import net.floodlightcontroller.routing.Path;
 import net.floodlightcontroller.classico.CLASSICOModule;
 import net.floodlightcontroller.classico.sessionmanager.MultiuserSessionControl;
 import net.floodlightcontroller.classico.sessionmanager.UserSession;
+import net.floodlightcontroller.core.IOFSwitchListener;
+import net.floodlightcontroller.core.PortChangeType;
 import net.floodlightcontroller.core.internal.IOFSwitchService;
+import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryListener;
 import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryService;
 import net.floodlightcontroller.linkdiscovery.Link;
+import net.floodlightcontroller.linkdiscovery.ILinkDiscovery.LDUpdate;
+import net.floodlightcontroller.routing.IRoutingDecisionChangedListener;
 import net.floodlightcontroller.routing.IRoutingService;
 import net.floodlightcontroller.routing.IRoutingService.PATH_METRIC;
 import net.floodlightcontroller.statistics.IStatisticsService;
@@ -28,6 +36,8 @@ public class Monitor extends Thread{
 	protected IOFSwitchService switchService;
 	CLASSICOModule classicoModuleREF;
 	
+	
+	
 	public Monitor(CLASSICOModule classicoModuleREF, MultiuserSessionControl tableSM, IRoutingService routingService, IOFSwitchService switchService, 
 			ILinkDiscoveryService linkDiscoveryService, IStatisticsService statisticsService){
 		
@@ -37,6 +47,70 @@ public class Monitor extends Thread{
 		this.statisticsService = statisticsService;
 		this.linkDiscoveryService = linkDiscoveryService;
 		this.switchService = switchService;
+		
+//		linkDiscoveryService.addListener(new ILinkDiscoveryListener() {
+//			
+//			@Override
+//			public void linkDiscoveryUpdate(List<LDUpdate> updateList) {
+//				System.out.println("AQUI1");
+//			}
+//		});
+		
+		routingService.addRoutingDecisionChangedListener(new IRoutingDecisionChangedListener() {
+			
+			@Override
+			public void routingDecisionChanged(Iterable<Masked<U64>> changedDecisions) {
+				System.out.println("AQUI2");
+				
+			}
+		});
+		switchService.addOFSwitchListener(new IOFSwitchListener() {
+			
+			@Override
+			public void switchRemoved(DatapathId switchId) {
+				System.out.println("Switch "+switchId+" Removed");
+				routingService.forceRecompute();
+				interrupt();
+				
+			}
+			
+			@Override
+			public void switchPortChanged(DatapathId switchId, OFPortDesc port, PortChangeType type) {
+				System.out.println("AQUI4");
+				routingService.forceRecompute();
+				interrupt();
+				
+			}
+			
+			@Override
+			public void switchDeactivated(DatapathId switchId) {
+				System.out.println("AQUI5");
+//				routingService.forceRecompute();
+//				interrupt();
+			}
+			
+			@Override
+			public void switchChanged(DatapathId switchId) {
+				System.out.println("AQUI6");
+//				routingService.forceRecompute();
+//				interrupt();
+			}
+			
+			@Override
+			public void switchAdded(DatapathId switchId) {
+//				System.out.println("AQUI7");
+//				routingService.forceRecompute();
+//				interrupt();
+				
+			}
+			
+			@Override
+			public void switchActivated(DatapathId switchId) {
+				System.out.println("AQUI8");
+				routingService.forceRecompute();
+//				interrupt();
+			}
+		});
 	}
 	
 	

@@ -3,7 +3,7 @@ do
 
 	##########################################333333
 
-	file="mc_automatic/rate_r_h3.txt"
+	file="mc_automatic/rate_r_h2.txt"
 	mcast=""
 	while IFS2=: read -r f1 f2 f3
 	do
@@ -20,7 +20,7 @@ do
 
 	##########################################333333
 
-	file="classico_automatic/rate_r_h3.txt"
+	file="classico_automatic/rate_r_h2.txt"
 	classico=""
     while IFS2=: read -r f1 f2 f3
 	do
@@ -36,7 +36,7 @@ do
 
 	##########################################333333
 
-	file="classico_automatic/rate_s_h3.txt"
+	file="classico_automatic/rate_s_h2.txt"
 	send=""
     while IFS2=: read -r f1 f2 f3
 	do
