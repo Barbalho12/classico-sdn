@@ -106,7 +106,8 @@ public class Path implements Comparable<Path> {
     }
 
     public void setLatency(U64 latency) { 
-        this.latency = latency; 
+        this.latency = latency;
+//        System.out.println(latency.getValue());
     }
 
     public U64 getLatency() { 

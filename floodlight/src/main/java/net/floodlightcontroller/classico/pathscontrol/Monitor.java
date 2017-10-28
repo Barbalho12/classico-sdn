@@ -4,14 +4,23 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.projectfloodlight.openflow.protocol.OFPortDesc;
 import org.projectfloodlight.openflow.types.DatapathId;
+import org.projectfloodlight.openflow.types.Masked;
+import org.projectfloodlight.openflow.types.U64;
 
 import net.floodlightcontroller.routing.Path;
 import net.floodlightcontroller.classico.CLASSICOModule;
 import net.floodlightcontroller.classico.sessionmanager.MultiuserSessionControl;
+import net.floodlightcontroller.classico.sessionmanager.UserSession;
+import net.floodlightcontroller.core.IOFSwitchListener;
+import net.floodlightcontroller.core.PortChangeType;
 import net.floodlightcontroller.core.internal.IOFSwitchService;
+import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryListener;
 import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryService;
 import net.floodlightcontroller.linkdiscovery.Link;
+import net.floodlightcontroller.linkdiscovery.ILinkDiscovery.LDUpdate;
+import net.floodlightcontroller.routing.IRoutingDecisionChangedListener;
 import net.floodlightcontroller.routing.IRoutingService;
 import net.floodlightcontroller.routing.IRoutingService.PATH_METRIC;
 import net.floodlightcontroller.statistics.IStatisticsService;
@@ -27,6 +36,8 @@ public class Monitor extends Thread{
 	protected IOFSwitchService switchService;
 	CLASSICOModule classicoModuleREF;
 	
+	
+	
 	public Monitor(CLASSICOModule classicoModuleREF, MultiuserSessionControl tableSM, IRoutingService routingService, IOFSwitchService switchService, 
 			ILinkDiscoveryService linkDiscoveryService, IStatisticsService statisticsService){
 		
@@ -36,6 +47,70 @@ public class Monitor extends Thread{
 		this.statisticsService = statisticsService;
 		this.linkDiscoveryService = linkDiscoveryService;
 		this.switchService = switchService;
+		
+//		linkDiscoveryService.addListener(new ILinkDiscoveryListener() {
+//			
+//			@Override
+//			public void linkDiscoveryUpdate(List<LDUpdate> updateList) {
+//				System.out.println("AQUI1");
+//			}
+//		});
+		
+		routingService.addRoutingDecisionChangedListener(new IRoutingDecisionChangedListener() {
+			
+			@Override
+			public void routingDecisionChanged(Iterable<Masked<U64>> changedDecisions) {
+				System.out.println("AQUI2");
+				
+			}
+		});
+		switchService.addOFSwitchListener(new IOFSwitchListener() {
+			
+			@Override
+			public void switchRemoved(DatapathId switchId) {
+				System.out.println("Switch "+switchId+" Removed");
+				routingService.forceRecompute();
+				interrupt();
+				
+			}
+			
+			@Override
+			public void switchPortChanged(DatapathId switchId, OFPortDesc port, PortChangeType type) {
+				System.out.println("AQUI4");
+				routingService.forceRecompute();
+				interrupt();
+				
+			}
+			
+			@Override
+			public void switchDeactivated(DatapathId switchId) {
+				System.out.println("AQUI5");
+//				routingService.forceRecompute();
+//				interrupt();
+			}
+			
+			@Override
+			public void switchChanged(DatapathId switchId) {
+				System.out.println("AQUI6");
+//				routingService.forceRecompute();
+//				interrupt();
+			}
+			
+			@Override
+			public void switchAdded(DatapathId switchId) {
+//				System.out.println("AQUI7");
+//				routingService.forceRecompute();
+//				interrupt();
+				
+			}
+			
+			@Override
+			public void switchActivated(DatapathId switchId) {
+				System.out.println("AQUI8");
+				routingService.forceRecompute();
+//				interrupt();
+			}
+		});
 	}
 	
 	
@@ -61,7 +136,7 @@ public class Monitor extends Thread{
 //		System.out.println("===" +higherBWC);
 	}
 	
-	public synchronized List<CandidatePath> calculatePaths(DatapathId src,DatapathId dst, PATH_METRIC metric){
+	public synchronized List<CandidatePath> calculatePaths(UserSession userSession, DatapathId src,DatapathId dst, PATH_METRIC metric){
 		if(routingService != null){
 			
 			if(metric != null){
@@ -70,11 +145,11 @@ public class Monitor extends Thread{
 				routingService.setPathMetric(PATH_METRIC.HOPCOUNT);
 			}
 			
-			List<Path> paths = routingService.getPathsSlow(src, dst, 100);
+			List<Path> paths = routingService.getPathsFast(src, dst, 100);
 			
 			List<CandidatePath> candidatePaths = new ArrayList<>();
 			for (Path path : paths) {
-				candidatePaths.add(new CandidatePath(path));
+				candidatePaths.add(new CandidatePath(userSession, path));
 			}
 			insertLinksInPaths(candidatePaths);
 			updatePathsInformations(candidatePaths);
@@ -90,7 +165,11 @@ public class Monitor extends Thread{
 
 			for (Iterator<Link> iteratorLink = linkDiscoveryService.getLinks().keySet().iterator(); iteratorLink.hasNext();) {
 				Link link = (Link) iteratorLink.next();
-
+				link.setLatency(linkDiscoveryService.getLinkInfo(link).getLatencyHistory().getLast());
+//				link.setLatency(linkDiscoveryService.getLinkInfo(link).getCurrentLatency());
+//				System.out.println(linkDiscoveryService.getLinkInfo(link).getLatencyHistory().toString());
+			
+				
 				for(int i = 0; i < path.getPath().size()-1; i+=2){
 					DatapathId d1 = path.getPath().get(i).getNodeId();
 					DatapathId d2 = path.getPath().get(i+1).getNodeId();
@@ -112,14 +191,14 @@ public class Monitor extends Thread{
 			MultipathSession ms = (MultipathSession) iterator.next();
 			
 			/*Recalcula os caminhos e informações adicionais do servidor até o cliente*/
-			List<CandidatePath> newPaths = calculatePaths(ms.getServerSession().getDatapathId(), ms.getUserSession().getDatapathId(), null);
+			List<CandidatePath> newPaths = calculatePaths(ms.getUserSession(), ms.getServerSession().getDatapathId(), ms.getUserSession().getDatapathId(), null);
 			ms.setPaths(newPaths);
 		}
 		
 		if(multipathSessions.isEmpty()){
-			System.out.println("[MONITOR] There are no candidate paths to update");
+//			System.out.println("[MONITOR] There are no candidate paths to update");
 		}else{
-			System.out.println("[MONITOR] Update Candidate Paths");
+//			System.out.println("[MONITOR] Update Candidate Paths");
 		}
 		
 	}
@@ -140,6 +219,7 @@ public class Monitor extends Thread{
 	public void run() {
 		long startTime,duration;
 		while(true){
+			System.out.println("-----------------");
 
 			sleepSeconds(REFRESH_INTERVAL_SECONDS);
 			startTime = System.currentTimeMillis();
@@ -149,6 +229,7 @@ public class Monitor extends Thread{
 			}
 			duration = System.currentTimeMillis() - startTime; 
 			System.out.println("[MONITOR] Duration time: "+duration+"ms");
+			System.out.println("-----------------");
 		}
 	}
 	

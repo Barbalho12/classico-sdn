@@ -16,6 +16,7 @@ try :
     s.bind((HOST, PORT))
     print 'Socket bind complete'
     newRequest = s.recvfrom(1024)
+    os.system("echo SERVER $(date +'%F %T,%3N') ")
     nameFile = newRequest[0] #nome do arquivo video
     addr = newRequest[1] #Endereco do cliente
     ipAddr = addr[0]
@@ -73,8 +74,8 @@ def timeAlert():
 
 raw_input("Press Enter to continue...")
 os.system("cd ../../evalvid && ./client.sh &")
-time.sleep(1)
-thread.start_new_thread(timeAlert, ())
+# time.sleep(1)
+# thread.start_new_thread(timeAlert, ())
 time.sleep(1)
 os.system("cd ../../evalvid && ./mp4trace -f -s "+ipAddr+" 10000 sample.mp4 > files/st01")
 time.sleep(1)

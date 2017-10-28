@@ -1,35 +1,19 @@
 package net.floodlightcontroller.classico.pathscontrol;
 
 import java.util.ArrayList;
-import java.util.Collections;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-//import java.util.Map;
-//import java.util.Map.Entry;
 
-import org.projectfloodlight.openflow.protocol.OFFactory;
-import org.projectfloodlight.openflow.protocol.OFFlowAdd;
-import org.projectfloodlight.openflow.protocol.OFFlowDelete;
-//import org.projectfloodlight.openflow.protocol.OFFlowModify;
-import org.projectfloodlight.openflow.protocol.match.MatchField;
-import org.projectfloodlight.openflow.types.DatapathId;
-import org.projectfloodlight.openflow.types.EthType;
-import org.projectfloodlight.openflow.types.IPv4Address;
-import org.projectfloodlight.openflow.types.IpProtocol;
-import org.projectfloodlight.openflow.types.OFGroup;
 import org.projectfloodlight.openflow.types.OFPort;
 
-//import net.floodlightcontroller.classico.pathscontrol.ExecutorPathFlowSDN.PreviousRecordingFlow;
-//import net.floodlightcontroller.classico.pathscontrol.ExecutorPathFlowSDN.PreviousRecordingGroup;
-import net.floodlightcontroller.classico.sessionmanager.GroupMod;
 import net.floodlightcontroller.classico.sessionmanager.Rule;
 import net.floodlightcontroller.classico.sessionmanager.Session;
 import net.floodlightcontroller.classico.sessionmanager.UserSession;
 import net.floodlightcontroller.core.IOFSwitch;
 import net.floodlightcontroller.core.internal.IOFSwitchService;
 import net.floodlightcontroller.core.types.NodePortTuple;
-import net.floodlightcontroller.util.FlowModUtils;
 
 public class ExecutorPathFlowSDN {
 
@@ -38,352 +22,58 @@ public class ExecutorPathFlowSDN {
 	private HashMap<String, CandidatePath> oldBestPaths;
 	private List<NodePath> oldNodePaths;
 	
-	
-	//Armazena os grupos criados, para não tentar criar novamente
-	private HashMap<Integer, IOFSwitch> oldGroupsCreated;
+	//Controla os grupos e fluxos criados
+	private GroupHistory groupHistory;
+	private FlowHistory flowModHistory;
 
 	public ExecutorPathFlowSDN(IOFSwitchService switchService) {
 		this.oldBestPaths = new HashMap<>();
 		this.oldNodePaths = new ArrayList<>();
-		this.oldGroupsCreated = new HashMap<>();
 		this.switchService = switchService;
+		
+		groupHistory = new GroupHistory();
+		flowModHistory = new FlowHistory();
 	}
 
-	// private void modifyFlow(DatapathId datapathid, Rule rule, OFPort ofPort){
-	//
-	// IOFSwitch iofs = switchService.getSwitch(datapathid);
-	// OFFactory factory = iofs.getOFFactory();
-	//
-	// OFFlowAdd flowAdd = factory.buildFlowAdd()
-	// .setHardTimeout(0)
-	// .setIdleTimeout(0)
-	// .setPriority(FlowModUtils.PRIORITY_MAX)
-	// .setMatch(factory.buildMatch()
-	// .setExact(MatchField.ETH_TYPE, EthType.IPv4)
-	// .setExact(MatchField.IPV4_SRC, IPv4Address.of(rule.getIpv4Src()))
-	// .setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))
-	// .setExact(MatchField.IP_PROTO, IpProtocol.UDP)
-	// .build())
-	// .setActions(Collections.singletonList(factory.actions().buildOutput()
-	// .setMaxLen(0xffFFffFF)
-	// .setPort(ofPort)
-	// .build()))
-	// .build();
-	//
-	// OFFlowModify flowModify = FlowModUtils.toFlowModify(flowAdd);
-	//
-	// iofs.write(flowModify);
-	//
-	// System.out.println("[ExecutorPathFlowSDN] FLOW_MOD Modify: Switch: " +
-	// datapathid.toString() +
-	// ", Port: " + ofPort.getPortNumber() +", Reference: "+rule.getIpv4Src()+"
-	// -> "+rule.getIpv4Dst());
-	// }
-
-//	private void deleteFlow2(DatapathId datapathid, Rule rule) {
-//
-//		IOFSwitch iofs = switchService.getSwitch(datapathid);
-//		OFFactory factory = iofs.getOFFactory();
-//
-//		OFFlowDelete f = factory.buildFlowDelete().setPriority(FlowModUtils.PRIORITY_MAX)
-//				.setMatch(factory.buildMatch()
-//						/*
-//						 * .setExact(MatchField.IN_PORT,
-//						 * iof_switch.getPort(rule.getInPort()).getPortNo())
-//						 */
-//						.setExact(MatchField.ETH_TYPE, EthType.IPv4)
-//						.setExact(MatchField.IPV4_SRC, IPv4Address.of(rule.getIpv4Src()))
-//						.setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))
-//						.setExact(MatchField.IP_PROTO, IpProtocol.UDP).build())
-//
-//				.build();
-//		iofs.write(f);
-//
-//		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD DELETE: Switch: " + datapathid.toString() + ", Reference: "
-//				+ rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
-//	}
-
-	private void deleteFlow(DatapathId datapathid, Rule rule) {
-
-		IOFSwitch iofs = switchService.getSwitch(datapathid);
-		OFFactory factory = iofs.getOFFactory();
-
-		OFFlowDelete f = factory.buildFlowDelete().setHardTimeout(0).setIdleTimeout(0)
-				.setPriority(FlowModUtils.PRIORITY_MAX)
-				.setMatch(factory.buildMatch()
-						/*
-						 * .setExact(MatchField.IN_PORT,
-						 * iof_switch.getPort(rule.getInPort()).getPortNo())
-						 */
-						.setExact(MatchField.ETH_TYPE, EthType.IPv4)
-						.setExact(MatchField.IPV4_SRC, IPv4Address.of(rule.getIpv4Src()))
-						.setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))
-						.setExact(MatchField.IP_PROTO, IpProtocol.UDP)
-
-						.build())
-
-				.build();
-		iofs.write(f);
-
-		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD DELETE: Switch: " + datapathid.toString() + ", Reference: "
-				+ rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
-	}
-
-	private void createFlow(DatapathId datapathid, Rule rule, OFGroup group) {
-
-		IOFSwitch iofs = switchService.getSwitch(datapathid);
-		OFFactory factory = iofs.getOFFactory();
-
-		OFFlowAdd flowAdd = factory.buildFlowAdd().setHardTimeout(0).setIdleTimeout(0)
-				.setPriority(FlowModUtils.PRIORITY_MAX)
-				.setMatch(factory.buildMatch()
-						/*
-						 * .setExact(MatchField.IN_PORT,
-						 * iof_switch.getPort(rule.getInPort()).getPortNo())
-						 */
-						.setExact(MatchField.ETH_TYPE, EthType.IPv4)
-						.setExact(MatchField.IPV4_SRC, IPv4Address.of(rule.getIpv4Src()))
-						.setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))
-						.setExact(MatchField.IP_PROTO, IpProtocol.UDP).build())
-				.setActions(Collections.singletonList(factory.actions().buildGroup().setGroup(group).build())).build();
-		iofs.write(flowAdd);
-		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD ADD: Switch: " + datapathid.toString() + ", Port: "
-				+ group.getGroupNumber() + ", Reference: " + rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
-	}
-
-//	private void modifyFlow(DatapathId datapathid, Rule rule, OFGroup group) {
-//
-//		IOFSwitch iofs = switchService.getSwitch(datapathid);
-//		OFFactory factory = iofs.getOFFactory();
-//
-//		OFFlowModify flowmodify = factory.buildFlowModify().setHardTimeout(0).setIdleTimeout(0)
-//				.setPriority(FlowModUtils.PRIORITY_MAX)
-//				.setMatch(factory.buildMatch()
-//						/*
-//						 * .setExact(MatchField.IN_PORT,
-//						 * iof_switch.getPort(rule.getInPort()).getPortNo())
-//						 */
-//						.setExact(MatchField.ETH_TYPE, EthType.IPv4)
-//						.setExact(MatchField.IPV4_SRC, IPv4Address.of(rule.getIpv4Src()))
-//						.setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))
-//						.setExact(MatchField.IP_PROTO, IpProtocol.UDP).build())
-//				.setActions(Collections.singletonList(factory.actions().buildGroup().setGroup(group).build())).build();
-//		iofs.write(flowmodify);
-//		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD MODIFY: Switch: " + datapathid.toString() + ", Port: "
-//				+ group.getGroupNumber() + ", Reference: " + rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
-//	}
-
-//	private void modifyFlow(DatapathId datapathid, Rule rule, OFPort ofPort) {
-//
-//		IOFSwitch iofs = switchService.getSwitch(datapathid);
-//		OFFactory factory = iofs.getOFFactory();
-//
-//		OFFlowModify flowmodify = factory.buildFlowModify().setHardTimeout(0).setIdleTimeout(0)
-//				.setPriority(FlowModUtils.PRIORITY_MAX)
-//				.setMatch(factory.buildMatch()
-//						/*
-//						 * .setExact(MatchField.IN_PORT,
-//						 * iof_switch.getPort(rule.getInPort()).getPortNo())
-//						 */
-//						.setExact(MatchField.ETH_TYPE, EthType.IPv4)
-//						.setExact(MatchField.IPV4_SRC, IPv4Address.of(rule.getIpv4Src()))
-//						.setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))
-//						.setExact(MatchField.IP_PROTO, IpProtocol.UDP).build())
-//				.setActions(Collections
-//						.singletonList(factory.actions().buildOutput().setMaxLen(0xffFFffFF).setPort(ofPort).build()))
-//				.build();
-//		iofs.write(flowmodify);
-//		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD MODIFY: Switch: " + datapathid.toString() + ", Port: "
-//				+ ofPort.getPortNumber() + ", Reference: " + rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
-//	}
-
-	private void createFlow(DatapathId datapathid, Rule rule, OFPort ofPort) {
-
-		IOFSwitch iofs = switchService.getSwitch(datapathid);
-		OFFactory factory = iofs.getOFFactory();
-
-		OFFlowAdd flowAdd = factory.buildFlowAdd().setHardTimeout(0).setIdleTimeout(0)
-				.setPriority(FlowModUtils.PRIORITY_MAX)
-				.setMatch(factory.buildMatch()
-						/*
-						 * .setExact(MatchField.IN_PORT,
-						 * iof_switch.getPort(rule.getInPort()).getPortNo())
-						 */
-						.setExact(MatchField.ETH_TYPE, EthType.IPv4)
-						.setExact(MatchField.IPV4_SRC, IPv4Address.of(rule.getIpv4Src()))
-						.setExact(MatchField.IPV4_DST, IPv4Address.of(rule.getIpv4Dst()))
-						.setExact(MatchField.IP_PROTO, IpProtocol.UDP).build())
-				.setActions(Collections
-						.singletonList(factory.actions().buildOutput().setMaxLen(0xffFFffFF).setPort(ofPort).build()))
-				.build();
-		iofs.write(flowAdd);
-		System.out.println("[ExecutorPathFlowSDN] FLOW_MOD ADD: Switch: " + datapathid.toString() + ", Port: "
-				+ ofPort.getPortNumber() + ", Reference: " + rule.getIpv4Src() + " -> " + rule.getIpv4Dst());
-	}
-
-	//
-	// private boolean consultIfExistsGroup(int sessionid, DatapathId did){
-	// for (PreviousRecordingGroup prg : previousRecordingGroups) {
-	// if(prg.group.getId() == sessionid &&
-	// prg.group.getIof_switch().getId().equals(did)){
-	// prg.setMarked(true);
-	// return true;
-	// }
-	// }
-	// return false;
-	// }
-	//
-	private boolean consultIfExistsFlow(int sessionid, DatapathId did, Rule rule) {
-		PreviousRecordingFlow previousRecordingFlow = new PreviousRecordingFlow(did, sessionid, rule);
-		for (PreviousRecordingFlow prf : previousRecordingFlows) {
-			if (prf.equals(previousRecordingFlow)) {
-				prf.setMarked(true);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	// List<PreviousRecordingGroup> previousRecordingGroups = new ArrayList<>();
-	List<PreviousRecordingFlow> previousRecordingFlows = new ArrayList<>();
-
-	private void updatePreviousRecording() {
-		for (Iterator<PreviousRecordingFlow> iterator = previousRecordingFlows.iterator(); iterator.hasNext();) {
-			PreviousRecordingFlow prf = (PreviousRecordingFlow) iterator.next();
-			if (!prf.isMarked()) {
-				deleteFlow(prf.getDatapathId(), prf.getRule());
-				iterator.remove();
-			} else {
-				prf.setMarked(false);
-			}
-		}
-		// for (Iterator<PreviousRecordingGroup> iterator =
-		// previousRecordingGroups.iterator(); iterator.hasNext();) {
-		// PreviousRecordingGroup prg = (PreviousRecordingGroup)
-		// iterator.next();
-		// if(!prg.isMarked()){
-		// iterator.remove();
-		// prg.getGroup().deleteGroup();
-		// }else{
-		// prg.setMarked(false);
-		// }
-		// }
-	}
-
-	private void markAsUnchanged(NodePath nodePath) {
-		for (PreviousRecordingFlow prf : previousRecordingFlows) {
-			if (prf.getSessionID() == nodePath.getIdSession() && prf.getDatapathId().equals(nodePath.getDataPathId())) {
-				prf.setMarked(true);
-				System.out.println("AQUI" + nodePath.toString());
-			}
-		}
-	}
-
-	// public class PreviousRecordingGroup{
-	//
-	// private GroupMod group;
-	// private boolean marked;
-	// private Rule rule;
-	//
-	// public PreviousRecordingGroup(GroupMod group, Rule rule){
-	// this.group = group;
-	// marked = true;
-	// this.setRule(rule);
-	// }
-	//
-	// public GroupMod getGroup() {
-	// return group;
-	// }
-	// public void setGroup(GroupMod group) {
-	// this.group = group;
-	// }
-	// public boolean isMarked() {
-	// return marked;
-	// }
-	// public void setMarked(boolean marked) {
-	// this.marked = marked;
-	// }
-	// public Rule getRule() {
-	// return rule;
-	// }
-	// public void setRule(Rule rule) {
-	// this.rule = rule;
-	// }
-	//
-	// }
-
-	public class PreviousRecordingFlow {
-
-		private DatapathId datapathId;
-		private int sessionID;
-		private boolean marked;
-		private Rule rule;
-
-		public PreviousRecordingFlow(DatapathId datapathId, int sessionID, Rule rule) {
-			this.datapathId = datapathId;
-			this.sessionID = sessionID;
-			this.rule = rule;
-			marked = true;
-		}
-
-		public DatapathId getDatapathId() {
-			return datapathId;
-		}
-
-		public void setDatapathId(DatapathId datapathId) {
-			this.datapathId = datapathId;
-		}
-
-		public int getSessionID() {
-			return sessionID;
-		}
-
-		public void setSessionID(int sessionID) {
-			this.sessionID = sessionID;
-		}
-
-		public boolean isMarked() {
-			return marked;
-		}
-
-		public void setMarked(boolean marked) {
-			this.marked = marked;
-		}
-
-		public Rule getRule() {
-			return rule;
-		}
-
-		public void setRule(Rule rule) {
-			this.rule = rule;
-		}
-
-	}
 
 	public void execute(NodePath nodePath) {
-
-		if (nodePath == null) {
-			// Caso base quando o nó é nulo
+		
+		// Caso base quando o nó é nulo
+		if (nodePath == null) { return; } 
+		
+//		System.out.println(nodePath.getDataPathId());
+		
+		if(nodePath.isMarked()){
+//			for (EdgeMap edgMap : nodePath.getConections()) {
+//				execute(edgMap.ge);
+//			}
 			return;
-		} else if (oldNodePaths.contains(nodePath)) {
+		}else{
+			nodePath.setMarked(true);
+		}
+		
+		IOFSwitch iofs = switchService.getSwitch(nodePath.getDataPathId());
+		
+		
+		if (oldNodePaths.contains(nodePath)) {
+			//Quando não há o que modificar
+			
 			System.out.println("[ExecutorPathFlowSDN] No changes in NodePath " + nodePath.getDataPathId()
 					+ " of session " + nodePath.getIdSession());
 
-			// previousRecordingFlows.s
-			markAsUnchanged(nodePath);
-
+			flowModHistory.markAsUnchanged(nodePath.getIdSession(), iofs);
+			groupHistory.markAsUnchanged(nodePath.getIdSession(), iofs);
+		
 			// Executa o procedimento para o próximo switch
 			for (EdgeMap edgMap : nodePath.getConections()) {
 				execute(edgMap.getNextNodePath());
 			}
 
-		} else if (nodePath.isBranch()) { // Condição para criar um grupo
-
-			IOFSwitch iofs = switchService.getSwitch(nodePath.getDataPathId());
+		} else if (nodePath.isBranch()) {
+			 // Condição para criar um grupo
 
 			GroupMod gmod = new GroupMod(iofs, nodePath.getIdSession());
 			
-
 			// Para cada conexão do switch
 			for (EdgeMap edgeMap : nodePath.getConections()) {
 				UserSession client = edgeMap.getClients().get(0);
@@ -392,7 +82,7 @@ public class ExecutorPathFlowSDN {
 					gmod.createBucket(iofs, edgeMap.getOfPort(), client.getIp(), client.getPort(),
 							client.getMACadreess());
 
-					// Caso contrário, se está conectado a um host
+				// Caso contrário, se está conectado a um host
 				} else {
 					gmod.createBucket(iofs, client.getSwitchInPort(), client.getIp(), client.getPort(),
 							client.getMACadreess());
@@ -401,31 +91,31 @@ public class ExecutorPathFlowSDN {
 
 			// Pega a primeira conexão do switch, e cria uma regra
 			EdgeMap edgeMap = nodePath.getFirstConnection();
-			// EdgeMap edgeMap = nodePath.getLastConnection();
 			UserSession client = edgeMap.getClients().get(0);
 			Rule rule = new Rule(client.getDstIp().toString(), client.getIp().toString());
 
-
-			//Verifica se grupo já existe
-			IOFSwitch iofswitch = oldGroupsCreated.get(nodePath.getIdSession());
-//			System.out.println(iofswitch);
-			if(iofswitch != null && iofs.getId().equals(iofswitch.getId())){
+			//Se o grupo existir, é atualizado, caso contrário, é criado
+			if (groupHistory.contains(gmod)){
+//				groupHistory.getGroupMod(gmod).modifyGroup();
+				groupHistory.setGroupMod(gmod);
 				gmod.modifyGroup();
+				groupHistory.mark(gmod);
 			}else{
 				gmod.writeGroup();
-				oldGroupsCreated.put(nodePath.getIdSession(), iofs);
-//				System.out.println(oldGroupsCreated.toString());
+				groupHistory.add(gmod);
 			}
-			
 
-			if (!consultIfExistsFlow(nodePath.getIdSession(), nodePath.getDataPathId(), rule)) {
-				createFlow(nodePath.getDataPathId(), rule, gmod.getGroup());
-				previousRecordingFlows
-						.add(new PreviousRecordingFlow(nodePath.getDataPathId(), nodePath.getIdSession(), rule));
+			FlowMod flowm = new FlowMod(iofs, nodePath.getIdSession(), rule, gmod);
+			if(!flowModHistory.contains(flowm)){
+				flowm.createFlow();
+				flowModHistory.add(flowm);
+				
+			}else{
+				flowModHistory.getFlowMod(flowm).modifyFlow(gmod);
+				flowModHistory.mark(flowm);
 			}
 
 			for (EdgeMap edgMap : nodePath.getConections()) {
-
 				// Executa o procedimento para o próximo switch
 				execute(edgMap.getNextNodePath());
 			}
@@ -434,11 +124,14 @@ public class ExecutorPathFlowSDN {
 			EdgeMap edgeMap = nodePath.getFirstConnection();
 			UserSession client = edgeMap.getClients().get(0);
 			Rule rule = new Rule(client.getDstIp().toString(), client.getIp().toString());
-
-			if (!consultIfExistsFlow(nodePath.getIdSession(), nodePath.getDataPathId(), rule)) {
-				createFlow(nodePath.getDataPathId(), rule, edgeMap.getOfPort());
-				previousRecordingFlows
-						.add(new PreviousRecordingFlow(nodePath.getDataPathId(), nodePath.getIdSession(), rule));
+			
+			FlowMod flowm = new FlowMod(iofs, nodePath.getIdSession(), rule, edgeMap.getOfPort());
+			if(!flowModHistory.contains(flowm)){
+				flowm.createFlow();
+				flowModHistory.add(flowm);
+			}else{
+				flowModHistory.getFlowMod(flowm).modifyFlow(edgeMap.getOfPort());
+				flowModHistory.mark(flowm);
 			}
 			
 			execute(edgeMap.getNextNodePath());
@@ -447,27 +140,38 @@ public class ExecutorPathFlowSDN {
 			UserSession client = edgeMap.getClients().get(0);
 			Rule rule = new Rule(client.getDstIp().toString(), client.getIp().toString());
 			
-			if (!consultIfExistsFlow(nodePath.getIdSession(), nodePath.getDataPathId(), rule)) {
-				createFlow(nodePath.getDataPathId(), rule, client.getSwitchInPort());
-				previousRecordingFlows
-						.add(new PreviousRecordingFlow(nodePath.getDataPathId(), nodePath.getIdSession(), rule));
+			FlowMod flowm = new FlowMod(iofs, nodePath.getIdSession(), rule, client.getSwitchInPort());
+			if(!flowModHistory.contains(flowm)){
+				flowm.createFlow();
+				flowModHistory.add(flowm);
+			}else{
+				flowModHistory.getFlowMod(flowm).modifyFlow(edgeMap.getOfPort());
+				flowModHistory.mark(flowm);
 			}
+			
+//			System.out.println(nodePath.getConections());
 		}
 	}
 
 	public void write(HashMap<Integer, TreePath> treesMap) {
 
-		updatePreviousRecording();
+		flowModHistory.unmarkAll();
+		groupHistory.unmarkAll();
+		
 		for (Iterator<Integer> iterator = treesMap.keySet().iterator(); iterator.hasNext();) {
 			Integer sessionID = (Integer) iterator.next();
-
 			TreePath treePath = treesMap.get(sessionID);
-
-			execute(treePath.getNodePaths().get(0));
+			
+			for(NodePath np : treePath.getNodePaths()){
+				execute(np);
+			}
+//			execute(treePath.getNodePaths().get(0));
 			oldNodePaths.clear();
 			oldNodePaths.addAll(treePath.getNodePaths());
-//			System.out.println("--- " + treesMap);
 		}
+		
+		groupHistory.deleteUnusedGroup();
+		flowModHistory.deleteUnusedFlows();
 	}
 
 
@@ -485,7 +189,7 @@ public class ExecutorPathFlowSDN {
 		for (String keyPath : bestPaths.keySet()) {
 			for (String keyoldPath : oldBestPaths.keySet()) {
 				if (keyPath.equals(keyoldPath)) {
-					if (bestPaths.containsKey(keyPath)
+					if (bestPaths.containsKey(keyPath) && bestPaths.get(keyPath) != null && oldBestPaths.get(keyPath) != null
 							&& bestPaths.get(keyPath).getPath().equals(oldBestPaths.get(keyPath).getPath())) {
 						keyEquals.add(keyPath);
 					}
@@ -501,6 +205,17 @@ public class ExecutorPathFlowSDN {
 
 	public void updateFlowPaths(List<MultipathSession> multipathSessions, HashMap<String, CandidatePath> bestPaths) {
 
+//		if(!bestPaths.isEmpty()){
+//			System.out.println("Paths: ");
+//			for (String key : bestPaths.keySet()) {
+////				System.out.println("	"+key.substring(key.length()-1)+" = "+bestPaths.get(key).getStringResumePath());
+//				System.out.println("	"+bestPaths.get(key).getUserSession().getIp().toString()+" = "+bestPaths.get(key).getStringResumePath());
+//				
+//			}
+//			
+//		}
+		
+		
 		// Se não alterações nos melhores caminhos é encerrado a execução
 		if (!checkIfChange(bestPaths)) {
 			System.out.println("[ExecutorPathFlowSDN] No changes in Flows");
@@ -514,6 +229,7 @@ public class ExecutorPathFlowSDN {
 			Session session = ms.getSessionMultiUser();
 
 			CandidatePath bp = bestPaths.get(ms.getPathIndex());
+			if(bp == null) continue;
 
 			TreePath treePath;
 
@@ -579,7 +295,7 @@ public class ExecutorPathFlowSDN {
 			}
 		}
 
-		System.out.println(treesMap.toString());
+//		System.out.println(treesMap.toString());
 		write(treesMap);
 
 		oldBestPaths.clear();

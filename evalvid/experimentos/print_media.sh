@@ -23,18 +23,18 @@ awk -F"\t" '{ \
    }  END{ print ((col2/c2)*8)/(1024*1024),'\t', ((col3/c3)*8)/(1024*1024),'\t', ((col4/c4)*8)/(1024*1024) }' out_throughput.txt
 echo ""
 ###################################################################
-echo "---------------ssim---------------"
-echo 'Multicast' 'CLASSICO'
-awk -F"\t" '{ \
-   if($3){ col3+=$3; c3++} \
-   if($4){ col4+=$4; c4++} \
-   }  END{ print  (col3/c3),'\t', (col4/c4)}' out_ssim.txt
-echo ""
-###################################################################
-echo "---------------vqm---------------"
-echo 'Multicast' 'CLASSICO'
-awk -F"\t" '{ \
-   if($3){ col3+=$3; c3++} \
-   if($4){ col4+=$4; c4++} \
-   }  END{ print  (col3/c3),'\t', (col4/c4)}' out_vqm.txt
-echo ""
+# echo "---------------ssim---------------"
+# echo 'Multicast' 'CLASSICO'
+# awk -F"\t" '{ \
+#    if($3){ col3+=$3; c3++} \
+#    if($4){ col4+=$4; c4++} \
+#    }  END{ print  (col3/c3),'\t', (col4/c4)}' out_ssim.txt
+# echo ""
+# ###################################################################
+# echo "---------------vqm---------------"
+# echo 'Multicast' 'CLASSICO'
+# awk -F"\t" '{ \
+#    if($3){ col3+=$3; c3++} \
+#    if($4){ col4+=$4; c4++} \
+#    }  END{ print  (col3/c3),'\t', (col4/c4)}' out_vqm.txt
+# echo ""

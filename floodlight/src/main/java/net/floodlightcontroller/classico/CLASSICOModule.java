@@ -39,7 +39,9 @@ import net.floodlightcontroller.core.module.IFloodlightModule;
 import net.floodlightcontroller.core.module.IFloodlightService;
 import net.floodlightcontroller.linkdiscovery.ILinkDiscoveryService;
 import net.floodlightcontroller.packet.Ethernet;
+import net.floodlightcontroller.packet.ICMP;
 import net.floodlightcontroller.packet.IPv4;
+import net.floodlightcontroller.packet.LLDP;
 import net.floodlightcontroller.packet.UDP;
 import net.floodlightcontroller.routing.IRoutingService;
 import net.floodlightcontroller.statistics.IStatisticsService;
@@ -53,6 +55,7 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule/*, 
 	
 	private static final String SERVER_IP = "192.168.2.1";
 	private static final int SERVER_PORT = 10000;
+//	private static final String SERVER_EDGE_SWITCH_ID = "00:00:00:00:aa:bb:cc:01";
 	private static final String SERVER_EDGE_SWITCH_ID = "00:00:00:00:aa:bb:cc:32";
 	
 	/*H3 NO MOMENTO*/
@@ -183,11 +186,19 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule/*, 
 
 						OFPort packetInPort = OFMessageUtils.getInPort((OFPacketIn) msg);
 						boolean newUserSaved = verifySession(iof_switch, packetInPort, ipv4, eth.getSourceMACAddress());
+						
+						//Se a sessão já existe, o pacote é bloqueado, pois o cliente já foi cadastrado na sessão.
 						if(!newUserSaved){
 							return Command.STOP;
 						}
 					}
-				}
+					
+			
+				}/*else if (eth.getEtherType() == EthType.LLDP) {
+					LLDP lldp = (LLDP) eth.getPayload();
+					System.out.println(lldp.toString());
+			
+				}*/
 				
 				break;
 
@@ -222,7 +233,7 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule/*, 
 			return true;
 		}
 
-		//Pega o conteudo da mensagem
+		//Pega o conteudo da mensagem (irá definir a sessão)
 		byte payload[] = udp.getPayload().serialize();
 		String service = "";
 		for(int i = 0; i < payload.length; i++){

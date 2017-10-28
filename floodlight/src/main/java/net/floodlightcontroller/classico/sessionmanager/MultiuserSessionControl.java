@@ -74,7 +74,7 @@ public class MultiuserSessionControl {
 					/*Add User Session in Session MultiUser*/
 					sm.addUser(userSession);
 					
-					List<CandidatePath> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId, PATH_METRIC.UTILIZATION);
+					List<CandidatePath> paths = monitor.calculatePaths(userSession, serverSession.getDatapathId(), datapathId, PATH_METRIC.UTILIZATION);
 					multipathSessions.add(new MultipathSession(paths, userSession, serverSession, sm));
 					monitor.alertUpdate();
 					//show();
@@ -95,7 +95,7 @@ public class MultiuserSessionControl {
 		System.out.println("[MultiuserSessionControl] Session Created: "
 				+smu.getId()+", "+smu.getDescription());
 		
-		List<CandidatePath> paths = monitor.calculatePaths(serverSession.getDatapathId(), datapathId,  null);
+		List<CandidatePath> paths = monitor.calculatePaths(userSession, serverSession.getDatapathId(), datapathId,  null);
 		multipathSessions.add(new MultipathSession(paths, userSession, serverSession, smu));
 //		show();
 		monitor.alertUpdate();
