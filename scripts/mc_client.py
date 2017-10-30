@@ -6,6 +6,9 @@ import os
 
 multicast_group = '224.3.29.71'
 os.system("route add -host 224.3.29.71 "+sys.argv[1]+"-eth0")
+
+os.system("cd ../evalvid && tcpdump -n -tt -i "+sys.argv[1]+"-eth0 -c 1 > files/ts"+sys.argv[1]+" &")
+
 server_address = ('', 10000)
 
 # Create the socket
