@@ -60,7 +60,7 @@ public class Monitor extends Thread{
 			
 			@Override
 			public void routingDecisionChanged(Iterable<Masked<U64>> changedDecisions) {
-				System.out.println("AQUI2");
+//				System.out.println("AQUI2");
 				
 			}
 		});
@@ -68,7 +68,7 @@ public class Monitor extends Thread{
 			
 			@Override
 			public void switchRemoved(DatapathId switchId) {
-				System.out.println("Switch "+switchId+" Removed");
+//				System.out.println("Switch "+switchId+" Removed");
 				routingService.forceRecompute();
 				interrupt();
 				
@@ -76,7 +76,7 @@ public class Monitor extends Thread{
 			
 			@Override
 			public void switchPortChanged(DatapathId switchId, OFPortDesc port, PortChangeType type) {
-				System.out.println("AQUI4");
+//				System.out.println("AQUI4");
 				routingService.forceRecompute();
 				interrupt();
 				
@@ -84,14 +84,14 @@ public class Monitor extends Thread{
 			
 			@Override
 			public void switchDeactivated(DatapathId switchId) {
-				System.out.println("AQUI5");
+//				System.out.println("AQUI5");
 //				routingService.forceRecompute();
 //				interrupt();
 			}
 			
 			@Override
 			public void switchChanged(DatapathId switchId) {
-				System.out.println("AQUI6");
+//				System.out.println("AQUI6");
 //				routingService.forceRecompute();
 //				interrupt();
 			}
@@ -106,8 +106,8 @@ public class Monitor extends Thread{
 			
 			@Override
 			public void switchActivated(DatapathId switchId) {
-				System.out.println("AQUI8");
-				routingService.forceRecompute();
+				System.out.println("Switch Activated");
+//				routingService.forceRecompute();
 //				interrupt();
 			}
 		});
