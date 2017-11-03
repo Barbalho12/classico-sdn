@@ -37,9 +37,9 @@ def topology():
     h9 = net.addHost( 'h9', mac="00:00:00:00:00:09", ip='192.168.2.9' )
     h10 = net.addHost( 'h10', mac="00:00:00:00:00:10", ip='192.168.2.10' )
 
-    # h11 = net.addHost( 'h11', mac="00:00:00:00:00:11", ip='192.168.2.11' )
-    # h12 = net.addHost( 'h12', mac="00:00:00:00:00:12", ip='192.168.2.12' )
-    # h13 = net.addHost( 'h13', mac="00:00:00:00:00:13", ip='192.168.2.13' )
+    h11 = net.addHost( 'h11', mac="00:00:00:00:00:11", ip='192.168.2.11' )
+    h12 = net.addHost( 'h12', mac="00:00:00:00:00:12", ip='192.168.2.12' )
+    h13 = net.addHost( 'h13', mac="00:00:00:00:00:13", ip='192.168.2.13' )
 
     # hc = net.addHost( 'hc', mac="00:00:00:00:00:50", ip='192.168.2.50' )
     # hs1 = net.addHost( 'hs1', mac="00:00:00:00:00:51", ip='192.168.2.51' )
@@ -72,9 +72,9 @@ def topology():
     net.addLink(h9, s17, bw=_bw, use_htb=_use_htb)
     net.addLink(h10, s17, bw=_bw, use_htb=_use_htb)
 
-    # net.addLink(h11, s35, bw=_bw, use_htb=_use_htb)
-    # net.addLink(h12, s35, bw=_bw, use_htb=_use_htb)
-    # net.addLink(h13, s35, bw=_bw, use_htb=_use_htb)
+    net.addLink(h11, s35, bw=_bw, use_htb=_use_htb)
+    net.addLink(h12, s35, bw=_bw, use_htb=_use_htb)
+    net.addLink(h13, s35, bw=_bw, use_htb=_use_htb)
 
     # net.addLink(hc, s32, bw=_bw, use_htb=_use_htb)
     # net.addLink(hs1, s14, bw=_bw, use_htb=_use_htb)
@@ -119,7 +119,7 @@ def topology():
         print "\n"
 
         #List of hots
-        hosts = [h2, h3, h4, h5, h6, h7, h8, h9, h10]
+        hosts = [h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13]
 
         #Start Server
         h1.cmd('cd scripts/classico_v1 && python classico_server.py h1 >> log.txt &')

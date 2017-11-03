@@ -5,14 +5,10 @@ import os
 import thread
 import time
 
-
-
 HOST = ''   # Symbolic name meaning all available interfaces
 PORT = 10000 # Arbitrary non-privileged port
 portAddr = 10000
 ipAddr = ''
-
-# os.system("cd ../../evalvid && ./client.sh &")
 
 try :
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -32,15 +28,11 @@ finally:
     print >> sys.stderr, 'closing socket'
     s.close()
 
-time.sleep(1)
-# raw_input("Press Enter to continue...")
-
 os.system("cd ../../evalvid && ./client.sh &")
-# time.sleep(2)
-# thread.start_new_thread(timeAlert, ())
-# time.sleep(1)
 os.system("cd ../../evalvid && ./mp4trace -f -s "+ipAddr+" 10000 sample.mp4 > files/st01")
+
 os.system("echo SERVER FINISH $(date +'%F %T,%3N') ")
+
 time.sleep(1)
 
 os.system("sudo kill -1 $(ps -C 'tcpdump' -o pid=)")
