@@ -115,20 +115,20 @@ def topology():
         # net.pingAll()
 
         #Arquivo de log dos hosts
-        os.system("cd scripts/classico && echo '' > log.txt")
+        os.system("cd scripts/classico_v1 && echo '' > log.txt")
         print "\n"
 
         #List of hots
         hosts = [h2, h3, h4, h5, h6, h7, h8, h9, h10]
 
         #Start Server
-        h1.cmd('cd scripts/classico && python classico_server.py h1 >> log.txt &')
+        h1.cmd('cd scripts/classico_v1 && python classico_server.py h1 >> log.txt &')
         print "H1 START "
         time.sleep(2)
 
         #Starts a host every 5 seconds
         for i in range(2, (len(hosts)+2)):
-             hosts[i-2].cmd('cd scripts/classico && python classico_client.py h'+str(i)+' >> log.txt &')
+             hosts[i-2].cmd('cd scripts/classico_v1 && python classico_client.py h'+str(i)+' >> log.txt &')
              print("H"+str(i)+" START")
              time.sleep(5)
     except:
