@@ -12,9 +12,9 @@ ipAddr = ''
 
 try :
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    print 'SERVER Socket created'
+    # print 'SERVER Socket created'
     s.bind((HOST, PORT))
-    print 'SERVER Socket bind complete'
+    # print 'SERVER Socket bind complete'
     newRequest = s.recvfrom(1024)
     os.system("echo SERVER INIT $(date +'%F %T,%3N') ")
     nameFile = newRequest[0] #nome do arquivo video
@@ -28,14 +28,19 @@ finally:
     print >> sys.stderr, 'closing socket'
     s.close()
 
-os.system("cd ../../evalvid && ./client.sh &")
-os.system("cd ../../evalvid && ./mp4trace -f -s "+ipAddr+" 10000 sample.mp4 > files/st01")
+try:
+    
+    os.system("cd ../../evalvid && ./client.sh &")
+    os.system("cd ../../evalvid && ./mp4trace -f -s "+ipAddr+" 10000 sample.mp4 > files/st01")
 
-os.system("echo SERVER FINISH $(date +'%F %T,%3N') ")
+    os.system("echo SERVER FINISH $(date +'%F %T,%3N') ")
 
-time.sleep(1)
+    time.sleep(1)
 
-os.system("sudo kill -1 $(ps -C 'tcpdump' -o pid=)")
+    os.system("sudo kill -1 $(ps -C 'tcpdump' -o pid=)")
 
+finally:
+    print 'error'
+   
 
 
