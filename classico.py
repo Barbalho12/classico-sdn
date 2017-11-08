@@ -105,20 +105,20 @@ def topology():
 
     try:
 
-        #Run Floodlight in another terminal
+        # Run Floodlight in another terminal
         exec_floodlight="cd floodlight && ant && java -jar target/floodlight.jar"
         os.system("gnome-terminal -x sh -c '"+exec_floodlight+" ; bash'")
 
-        #wait time for compile and run Floodlight
+        # wait time for compile and run Floodlight
         time.sleep(40)
 
         # net.pingAll()
 
-        #Arquivo de log dos hosts
+        # Arquivo de log dos hosts
         os.system("cd scripts/classico_v1 && echo '' > log.txt")
         print "\n"
 
-        #List of hots
+        # List of hots
         hosts = [h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13]
 
         #Start Server

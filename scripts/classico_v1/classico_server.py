@@ -32,11 +32,8 @@ try:
     
     os.system("cd ../../evalvid && ./client.sh &")
     os.system("cd ../../evalvid && ./mp4trace -f -s "+ipAddr+" 10000 sample.mp4 > files/st01")
-
     os.system("echo SERVER FINISH $(date +'%F %T,%3N') ")
-
     time.sleep(1)
-
     os.system("sudo kill -1 $(ps -C 'tcpdump' -o pid=)")
 
 finally:

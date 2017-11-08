@@ -33,6 +33,8 @@ my_mutex = threading.Lock()
 s_controler = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s_controler.bind(('', 10002))
 
+flag = True
+
 def send_client(ipAddr, portAddr, nameFile):
 	try :
 		
@@ -45,8 +47,9 @@ def send_client(ipAddr, portAddr, nameFile):
 		print("Client "+str(ipAddr)+":"+str(portAddr)+" > "+nameFile+" OK")
 		
 		# s_controler.close()
-		my_mutex.release()  # global my_mutex
-		print ("++++ Release")
+		if(flag):
+			my_mutex.release()  # global my_mutex
+		# print ("++++ Release")
 	except :
 		print "Ops: send_client ERRO"
 		# sys.exit()
@@ -83,8 +86,11 @@ def request_client():
 my_mutex.acquire()
 t = thread.start_new_thread( request_client, () )
 
+os.system("echo SERVER INIT $(date +'%F %T,%3N') ")
+
 # After the first request is processed the mutex is released and the content can be sent
 my_mutex.acquire()
+flag = False
 
 # Evalvid evaluation
 os.system("cd ../../evalvid && ./client.sh &")
