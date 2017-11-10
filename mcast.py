@@ -106,7 +106,7 @@ def topology():
     try:
 
         #Run Floodlight in another terminal
-        exec_floodlight="cd ../floodlight && ant && java -jar target/floodlight.jar"
+        exec_floodlight="cd ../floodlight && ant && java -jar target/floodlight.jar > mcast_log.txt"
         os.system("gnome-terminal -x sh -c '"+exec_floodlight+" ; bash'")
 
         #wait time for compile and run Floodlight
