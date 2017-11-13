@@ -14,3 +14,7 @@ evalvid/experimentos/mc_automatic/
 scripts/classico_v1/log.txt
 scripts/mcast_v1/log.txt
 scripts/mcast_v1/log_.txt
+floodlight/classico_log.txt
+test_log.txt
+evalvid/experimentos/classico
+evalvid/experimentos/mc
