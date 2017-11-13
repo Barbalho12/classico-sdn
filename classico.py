@@ -13,7 +13,8 @@ def link_down(net):
     time.sleep(31)
     print "*** Link Down"
     net.configLinkStatus('s15','s17','down')
-    os.system("echo \"$(date +'%F %T,%3N') Link s15 - s17 Down\" >> scripts/classico_v1/log.txt")
+    os.system("echo \"$(date +'%F %T,%3N') Link s15 - s17 Down\"")
+    # os.system("echo \"$(date +'%F %T,%3N') Link s15 - s17 Down\" >> scripts/classico_v1/log.txt")
 
 def topology():
 
@@ -113,7 +114,7 @@ def topology():
     try:
 
         # Run Floodlight in another terminal
-        exec_floodlight="cd floodlight && ant && java -jar target/floodlight.jar > classico_log.txt"
+        exec_floodlight="cd floodlight && ant && java -jar target/floodlight.jar > classico_log.txt && exit"
         os.system("gnome-terminal -x sh -c '"+exec_floodlight+" ; bash'")
 
         # wait time for compile and run Floodlight
@@ -122,7 +123,7 @@ def topology():
         # net.pingAll()
 
         # Arquivo de log dos hosts
-        os.system("cd scripts/classico_v1 && echo '' > log.txt")
+        os.system("rm -f scripts/classico_v1/log.txt")
         print "\n"
 
         # List of hots
@@ -146,11 +147,16 @@ def topology():
     
     
     try:
-        time.sleep(30)
+        time.sleep(15)
         os.system("sudo kill -1 $(ps -C 'java -jar target/floodlight.jar' -o pid=)")
-        os.system("mv scripts/classico_v1/log.txt . && mv floodlight/classico_log.txt . && zip evalvid/files/classico_log.zip log.txt classico_log.txt && rm log.txt classico_log.txt")
+        time.sleep(1)
+        os.system("mv scripts/classico_v1/log.txt evalvid/files && mv floodlight/classico_log.txt evalvid/files")
+        time.sleep(1)
+        os.system("cd evalvid/files && sort -n -k1 log.txt -o log.txt")
+        time.sleep(1)
+        os.system("sudo kill -1 $(ps -C 'sh -c cd ../floodlight && ant && java -jar target/floodlight.jar > classico_log.txt' -o pid=)")
         # raw_input("\nPress Enter to continue...\n")
-        os.system("cd evalvid && ./evaluation_complete.sh h2 classico_10h_5s_linkdown")
+        # os.system("cd evalvid && ./evaluation_complete.sh h2 classico_10h_5s_linkdown")
        
     finally:
         print "*** Stopping network"

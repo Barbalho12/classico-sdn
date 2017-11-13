@@ -13,7 +13,8 @@ def link_down(net):
     time.sleep(31)
     print "*** Link Down"
     net.configLinkStatus('s15','s17','down')
-    os.system("echo \"$(date +'%F %T,%3N') Link s15 - s17 Down\" >> scripts/mcast_v1/log.txt")
+    os.system("echo \"$(date +'%F %T,%3N') Link s15 - s17 Down\"")
+    # os.system("echo \"$(date +'%F %T,%3N') Link s15 - s17 Down\" >> scripts/mcast_v1/log.txt")
 
 def topology():
 
@@ -113,7 +114,7 @@ def topology():
     try:
 
         #Run Floodlight in another terminal
-        exec_floodlight="cd ../floodlight && ant && java -jar target/floodlight.jar > mcast_log.txt"
+        exec_floodlight="cd ../floodlight && ant && java -jar target/floodlight.jar > mcast_log.txt && exit"
         os.system("gnome-terminal -x sh -c '"+exec_floodlight+" ; bash'")
 
         #wait time for compile and run Floodlight
@@ -122,7 +123,8 @@ def topology():
         # net.pingAll()
 
         #Arquivo de log dos hosts
-        os.system("cd scripts/mcast_v1 && echo '' > log.txt")
+        os.system("rm -f scripts/mcast_v1/log.txt")
+        # os.system("cd scripts/mcast_v1 && echo '' > log.txt")
         print "\n"
 
         #List of hots
@@ -146,11 +148,17 @@ def topology():
 
 
     try:
-        time.sleep(30)
+        time.sleep(15)
         os.system("sudo kill -1 $(ps -C 'java -jar target/floodlight.jar' -o pid=)")
-        os.system("mv scripts/mcast_v1/log.txt . && mv ../floodlight/mcast_log.txt . && zip evalvid/files/mcast_log.zip log.txt mcast_log.txt && rm log.txt mcast_log.txt")
+        time.sleep(1)
+        os.system("mv scripts/mcast_v1/log.txt evalvid/files && mv ../floodlight/mcast_log.txt evalvid/files")
+        time.sleep(1)
+        os.system("cd evalvid/files && sort -n -k1 log.txt -o log.txt")
+        time.sleep(1)
+        os.system("sudo kill -1 $(ps -C 'sh -c cd ../floodlight && ant && java -jar target/floodlight.jar > mcast_log.txt' -o pid=)")
+        
         # raw_input("\nPress Enter to continue...\n")
-        os.system("cd evalvid && ./evaluation_complete.sh h2 mcast_10h_5s_linkdown")
+        # os.system("cd evalvid && ./evaluation_complete.sh h2 mcast_10h_5s_linkdown")
     finally:
         print "*** Stopping network"
         net.stop()

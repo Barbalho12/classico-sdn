@@ -16,7 +16,7 @@ try :
     s.bind((HOST, PORT))
     # print 'SERVER Socket bind complete'
     newRequest = s.recvfrom(1024)
-    os.system("echo SERVER INIT $(date +'%F %T,%3N') ")
+    # os.system("echo SERVER INIT $(date +'%F %T,%3N') ")
     nameFile = newRequest[0] #nome do arquivo video
     addr = newRequest[1] #Endereco do cliente
     ipAddr = addr[0]
@@ -28,16 +28,12 @@ finally:
     print >> sys.stderr, 'closing socket'
     s.close()
 
-try:
-    
-    os.system("cd ../../evalvid && ./client.sh &")
-    os.system("cd ../../evalvid && ./mp4trace -f -s "+ipAddr+" 10000 sample.mp4 > files/st01")
-    os.system("echo SERVER FINISH $(date +'%F %T,%3N') ")
-    time.sleep(1)
-    os.system("sudo kill -1 $(ps -C 'tcpdump' -o pid=)")
+os.system("cd ../../evalvid && ./client.sh &")
+os.system("cd ../../evalvid && ./mp4trace -f -s "+ipAddr+" 10000 sample.mp4 > files/st01")
+# os.system("echo SERVER FINISH $(date +'%F %T,%3N') ")
+time.sleep(1)
+os.system("sudo kill -1 $(ps -C 'tcpdump' -o pid=)")
 
-finally:
-    print 'error'
    
 
 

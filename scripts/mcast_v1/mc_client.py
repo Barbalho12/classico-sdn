@@ -23,7 +23,7 @@ os.system("cd ../../evalvid && tcpdump -i any -n -tt -v udp -c 1 > files/ts"+sys
 
 
 def multicast_request(s):
-	print("Waiting group address..")
+	# print("Waiting group address..")
 	receive = s.recvfrom(1024)
 
 	group_addr = receive[0]
@@ -47,9 +47,9 @@ try:
 	s.bind(('', 10001))
 
     # Show init time (no setup time)
-	os.system("echo CLIENT "+sys.argv[1]+" INIT $(date +'%F %T,%3N') ")
+	# os.system("echo CLIENT "+sys.argv[1]+" INIT $(date +'%F %T,%3N') ")
 	
-	print("Send video request..")
+	# print("Send video request..")
 	s.sendto(content, (ip_server, 10001))
 
 	multicast_request(s);
@@ -65,13 +65,15 @@ except socket.error:
 os.system(script_evalvid)
 
 # Show end evaluation time
-os.system("echo CLIENT "+sys.argv[1]+" END $(date +'%F %T,%3N') ")
+# os.system("echo CLIENT "+sys.argv[1]+" END $(date +'%F %T,%3N') ")
 
 # show packets number captured by tcpdump 
-os.system("awk 'END{print \"CLIENT "+sys.argv[1]+" PACKETS\", (NR-1)/2}' ../../evalvid/files/sd"+sys.argv[1])
+# os.system("awk 'END{print \"CLIENT "+sys.argv[1]+" PACKETS\", (NR-1)/2}' ../../evalvid/files/sd"+sys.argv[1])
 
 # Show setup time
-os.system("a=$(awk 'NR==1 { print $1 }' ../../evalvid/files/ts"+sys.argv[1]+") && b=$(awk 'NR==1 { print $1}' ../../evalvid/files/sd"+sys.argv[1]+") && tempo=$(echo \"scale=5 ; $b - $a\" | bc) && echo CLIENT "+sys.argv[1]+" SETUP TIME = $tempo")
-
+# os.system("a=$(awk 'NR==1 { print $1 }' ../../evalvid/files/ts"+sys.argv[1]+") && b=$(awk 'NR==1 { print $1}' ../../evalvid/files/sd"+sys.argv[1]+") && tempo=$(echo \"scale=5 ; $b - $a\" | bc) && echo CLIENT "+sys.argv[1]+" SETUP TIME = $tempo")
+text=sys.argv[1]
+text= text.replace("h", "")
+os.system("packets=$(awk 'END{print (NR-1)/2}' ../../evalvid/files/sd"+sys.argv[1]+") && a=$(awk 'NR==1 { print $1 }' ../../evalvid/files/ts"+sys.argv[1]+") && b=$(awk 'NR==1 { print $1}' ../../evalvid/files/sd"+sys.argv[1]+") && tempo=$(echo \"scale=5 ; $b - $a\" | bc) && echo "+text+" 0$tempo $packets")
 
 

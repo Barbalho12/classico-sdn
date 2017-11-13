@@ -44,14 +44,15 @@ def send_client(ipAddr, portAddr, nameFile):
 		s_controler.sendto(ip_group, (ipAddr, 10001))
 
 		okRequest = s_controler.recvfrom(1024)
-		print("Client "+str(ipAddr)+":"+str(portAddr)+" > "+nameFile+" OK")
+		# print("Client "+str(ipAddr)+":"+str(portAddr)+" > "+nameFile+" OK")
 		
 		# s_controler.close()
 		if(flag):
 			my_mutex.release()  # global my_mutex
 		# print ("++++ Release")
 	except :
-		print "Ops: send_client ERRO"
+		x = 2
+		# print "Ops: send_client ERRO"
 		# sys.exit()
 
 
@@ -86,7 +87,7 @@ def request_client():
 my_mutex.acquire()
 t = thread.start_new_thread( request_client, () )
 
-os.system("echo SERVER INIT $(date +'%F %T,%3N') ")
+# os.system("echo SERVER INIT $(date +'%F %T,%3N') ")
 
 # After the first request is processed the mutex is released and the content can be sent
 my_mutex.acquire()
@@ -95,6 +96,6 @@ flag = False
 # Evalvid evaluation
 os.system("cd ../../evalvid && ./client.sh &")
 os.system("cd ../../evalvid && ./mp4trace -f -s 224.3.29.71 10000 sample.mp4 > files/st01")
-os.system("echo SERVER FINISH $(date +'%F %T,%3N') ")
+# os.system("echo SERVER FINISH $(date +'%F %T,%3N') ")
 time.sleep(1)
 os.system("sudo kill -2 $(ps -C 'tcpdump' -o pid=)")
