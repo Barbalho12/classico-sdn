@@ -12,4 +12,5 @@ echo "Run MCAST" >> test_log.txt &&
 sudo python mcast.py &&
 cd evalvid && ./eval.sh h2 mc && cd .. &&
 date >> test_log.txt &&
-cd evalvid/experimentos && ./print.sh && zip test_$1.zip *.png mc classico
+
+cd evalvid/experimentos && ./print.sh && zip -r test_$1.zip *.png mc/* classico/*
