@@ -7,6 +7,13 @@ from mininet.log import setLogLevel
 from mininet.link import TCLink
 import time
 import os
+import thread
+
+def link_down(net):
+    time.sleep(31)
+    print "*** Link Down"
+    net.configLinkStatus('s15','s17','down')
+    os.system("echo \"$(date +'%F %T,%3N') Link s15 - s17 Down\" >> scripts/classico_v1/log.txt")
 
 def topology():
 
@@ -126,21 +133,25 @@ def topology():
         print "H1 START "
         time.sleep(2)
 
+        thread.start_new_thread( link_down, (net,) )
+
         #Starts a host every 5 seconds
         for i in range(2, (len(hosts)+2)):
              hosts[i-2].cmd('cd scripts/classico_v1 && python classico_client.py h'+str(i)+' >> log.txt &')
              print("H"+str(i)+" START")
              time.sleep(5)
 
-
     except:
         print 'Failed '
     
-
     
     try:
-        raw_input("\nPress Enter to continue...\n")
-        os.system("mv scripts/classico_v1/log.txt . && mv floodlight/classico_log.txt . && zip evalvid/files/mcast.zip log.txt mcast_log.txt && rm log.txt mcast_log.txt")
+        time.sleep(30)
+        os.system("sudo kill -1 $(ps -C 'java -jar target/floodlight.jar' -o pid=)")
+        os.system("mv scripts/classico_v1/log.txt . && mv floodlight/classico_log.txt . && zip evalvid/files/classico_log.zip log.txt classico_log.txt && rm log.txt classico_log.txt")
+        # raw_input("\nPress Enter to continue...\n")
+        os.system("cd evalvid && ./evaluation_complete.sh h2 classico_10h_5s_linkdown")
+       
     finally:
         print "*** Stopping network"
         net.stop()

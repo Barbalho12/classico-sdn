@@ -7,6 +7,8 @@ from mininet.log import setLogLevel
 from mininet.link import TCLink
 import time
 import os
+import thread
+
 
 def topology():
 
@@ -102,6 +104,7 @@ def topology():
     s32.start( [c0] )
     s02.start( [c0] )
     s38.start( [c0] )
+
 
     print "*** Running CLI"
     CLI( net )
