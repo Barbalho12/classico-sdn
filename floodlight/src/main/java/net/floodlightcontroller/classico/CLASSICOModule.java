@@ -256,7 +256,7 @@ public class CLASSICOModule implements IOFMessageListener, IFloodlightModule/*, 
 		return newUserSaved;
 	}
 	
-	public void notifyUpdates(List<MultipathSession> multipathSessions){
+	public synchronized void notifyUpdates(List<MultipathSession> multipathSessions){
 		HashMap<String, CandidatePath> bestPaths = multicriteriaPathSelection.calculateBestPaths(multipathSessions);
 		executorSDN.updateFlowPaths(tableSessionMultiuser.getMultipathSessions(), bestPaths);
 	}

@@ -76,11 +76,11 @@ set xlabel 'Experimental Time (seconds)'
 set ylabel 'Throughput (Mbps)' 
 
 set xrange [0:60]
-set yrange [0.0:3]
+set yrange [0.0:4]
 
 plot 'out_throughput.txt' using 1:(($2*8)/(1024*1024)) t 'Multicast SDN' with linespoints lw 1 pt 7 ps 2 lc rgb '#0060ad' 
 rep 'out_throughput.txt' using 1:(($3*8)/(1024*1024)) t 'CLASSICO' with linespoints lw 1 pt 5 ps 1.5 lc rgb '#cd1000'
-rep 'out_throughput.txt' using 1:(($4*8)/(1024*1024)) t 'Submitted video' with points lw 2 pt 10 ps 2 lc "green"
+#rep 'out_throughput.txt' using 1:(($4*8)/(1024*1024)) t 'Submitted video' with points lw 2 pt 10 ps 2 lc "green"
 
 # CHANGE IN FLOWS
 # set label 2 'Change in flows'         at 20,1.6   front nopoint tc lt -1
@@ -91,3 +91,21 @@ set terminal png font arial 28 size 1600,1200 # set terminal eps
 set output 'Throughput.png'  # set output 'resultado.eps' 
 
 replot 
+
+
+##############################################################################
+set xlabel 'Requisition of content in order' 
+set ylabel 'Session Setup Time (ms)' 
+
+set xrange [1:10]
+set yrange [0.0:1000]
+
+plot 	'mc/files/log.txt' 	using ($1-1):($2*1000) t 'Multicast SDN' with linespoints lw 1 pt 7 ps 2 lc rgb '#0060ad' 
+rep 	'classico/files/log.txt' 	using ($1-1):($2*1000) t 'CLASSICO' 	with linespoints lw 1 pt 5 ps 1.5 lc rgb '#cd1000'
+
+set terminal png font arial 28 size 1600,1200 # set terminal eps 
+set output 'Session Time Setup.png'  # set output 'resultado.eps' 
+
+replot 
+
+
