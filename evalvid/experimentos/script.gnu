@@ -1,8 +1,8 @@
 set encoding iso_8859_1 
 set grid 
 set key box width 0.5 height .05 opaque top right
-set xlabel 'Experimental Time (seconds)' 
-set ylabel 'Jitter (milliseconds)' 
+set xlabel 'Tempo do experimento (segundos)' 
+set ylabel 'Jitter (ms)' 
 
 set xrange [0:60]
 #set yrange [0.0:0.2] 
@@ -19,8 +19,8 @@ replot
 
 ##############################################################################
 set key box width 0.5 height .05 opaque top right
-set xlabel 'Experimental Time (seconds)' 
-set ylabel 'End-to-End Delay (milliseconds)' 
+set xlabel 'Tempo do experimento (segundos)' 
+set ylabel 'Latência (ms)' 
 
 set xrange [0:60]
 # set yrange [0.0:0.2]
@@ -38,7 +38,7 @@ replot
 
 ##############################################################################
 #set key box width 0.5 height .05 opaque bottom right
-#set xlabel 'Experimental Time (seconds)' 
+#set xlabel 'Tempo do experimento (segundos)' 
 #set ylabel 'SSIM' 
 
 #set xrange [0:60]
@@ -55,7 +55,7 @@ replot
 
 ##############################################################################
 #set key box width 0.5 height .05 opaque top left
-#set xlabel 'Experimental Time (seconds)' 
+#set xlabel 'Tempo do experimento (segundos)' 
 #set ylabel 'VQM' 
 
 #set xrange [0:60]
@@ -73,8 +73,8 @@ replot
 
 ##############################################################################
 set key box width 0.5 height .05 opaque top right
-set xlabel 'Experimental Time (seconds)' 
-set ylabel 'Throughput (Mbps)' 
+set xlabel 'Tempo do experimento (segundos)' 
+set ylabel 'Vasão de dados (Mbps)' 
 
 set xrange [0:60]
 set yrange [0.0:4]
@@ -95,8 +95,8 @@ replot
 
 
 ##############################################################################
-set xlabel 'Requisition of content in order' 
-set ylabel 'Session Setup Time (ms)' 
+set xlabel 'Requisição por cliente de conteúdo' 
+set ylabel 'Tempo de ativação da sessão (ms)' 
 
 set xrange [1:10]
 set yrange [0.0:1000]

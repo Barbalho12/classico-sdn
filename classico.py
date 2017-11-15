@@ -16,6 +16,11 @@ def link_down(net):
     os.system("echo \"$(date +'%F %T,%3N') Link s15 - s17 Down\"")
     # os.system("echo \"$(date +'%F %T,%3N') Link s15 - s17 Down\" >> scripts/classico_v1/log.txt")
 
+def link_iperf(net, hc, hs1, hs2):
+    for x in range(0, 5):
+        net.iperf( [ hc, hs1 ], seconds=5, l4Type='UDP', udpBw='8M')
+        net.iperf( [ hc, hs2 ], seconds=5, l4Type='UDP', udpBw='8M')
+
 def topology():
 
     # "Create a network."
@@ -49,9 +54,9 @@ def topology():
     # h12 = net.addHost( 'h12', mac="00:00:00:00:00:12", ip='192.168.2.12' )
     # h13 = net.addHost( 'h13', mac="00:00:00:00:00:13", ip='192.168.2.13' )
 
-    # hc = net.addHost( 'hc', mac="00:00:00:00:00:50", ip='192.168.2.50' )
-    # hs1 = net.addHost( 'hs1', mac="00:00:00:00:00:51", ip='192.168.2.51' )
-    # hs2 = net.addHost( 'hs2', mac="00:00:00:00:00:52", ip='192.168.2.52' )
+    hc = net.addHost( 'hc', mac="00:00:00:00:00:50", ip='192.168.2.50' )
+    hs1 = net.addHost( 'hs1', mac="00:00:00:00:00:51", ip='192.168.2.51' )
+    hs2 = net.addHost( 'hs2', mac="00:00:00:00:00:52", ip='192.168.2.52' )
     
     print "*** Creating Switchs"
     s35 = net.addSwitch( 's35', dpid='00:00:00:00:aa:bb:cc:35' )
@@ -84,9 +89,9 @@ def topology():
     # net.addLink(h12, s35, bw=_bw, use_htb=_use_htb)
     # net.addLink(h13, s35, bw=_bw, use_htb=_use_htb)
 
-    # net.addLink(hc, s32, bw=_bw, use_htb=_use_htb)
-    # net.addLink(hs1, s14, bw=_bw, use_htb=_use_htb)
-    # net.addLink(hs2, s15, bw=_bw, use_htb=_use_htb)
+    net.addLink(hc, s32, bw=_bw, use_htb=_use_htb)
+    net.addLink(hs1, s14, bw=_bw, use_htb=_use_htb)
+    net.addLink(hs2, s15, bw=_bw, use_htb=_use_htb)
 
     print "*** Creating connection between switches"
     net.addLink(s35, s15, bw=_bw,latency=_latency,max_queue_size=_max_queue_size,use_htb=_use_htb)
@@ -135,6 +140,7 @@ def topology():
         time.sleep(2)
 
         thread.start_new_thread( link_down, (net,) )
+        thread.start_new_thread( link_iperf, (net, hc, hs1, hs2) )
 
         #Starts a host every 5 seconds
         for i in range(2, (len(hosts)+2)):
@@ -145,8 +151,9 @@ def topology():
             print("H"+str(i)+" START")
             time.sleep(5)
 
-    except:
-        print 'Failed '
+    except Exception as e:
+        net.stop()
+        print("Failed "+str(e))
     
     
     try:
