@@ -1,12 +1,12 @@
 set encoding iso_8859_1 
 set grid 
-set key box width 0.5 height .05 opaque top left 
+set key box width 0.5 height .05 opaque top right
 set xlabel 'Experimental Time (seconds)' 
 set ylabel 'Jitter (milliseconds)' 
 
 set xrange [0:60]
 #set yrange [0.0:0.2] 
-set yrange [0.0:200]
+set yrange [0.0:50]
 
 plot 	'out_jitter.txt' using ($1/24):(abs($2)*1000) t 'Multicast SDN' with linespoints lw 2 pt 7 ps 2 lc rgb '#0060ad' 
 rep 	'out_jitter.txt' using ($1/24):(abs($3)*1000) t 'CLASSICO'  with linespoints lw 1 pt 5 ps 1.5 lc rgb '#cd1000'
@@ -18,12 +18,13 @@ set output 'Jitter.png'
 replot 
 
 ##############################################################################
+set key box width 0.5 height .05 opaque top right
 set xlabel 'Experimental Time (seconds)' 
 set ylabel 'End-to-End Delay (milliseconds)' 
 
 set xrange [0:60]
 # set yrange [0.0:0.2]
-set yrange [0.0:200]
+set yrange [0.0:50]
 
 plot 	'out_delay.txt' 	using ($1/24):($2*1000) t 'Multicast SDN' with linespoints lw 1 pt 7 ps 2 lc rgb '#0060ad' 
 rep 	'out_delay.txt' 	using ($1/24):($3*1000) t 'CLASSICO' 	with linespoints lw 1 pt 5 ps 1.5 lc rgb '#cd1000'
