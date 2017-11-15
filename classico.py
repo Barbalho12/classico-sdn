@@ -138,9 +138,12 @@ def topology():
 
         #Starts a host every 5 seconds
         for i in range(2, (len(hosts)+2)):
-             hosts[i-2].cmd('cd scripts/classico_v1 && python classico_client.py h'+str(i)+' >> log.txt &')
-             print("H"+str(i)+" START")
-             time.sleep(5)
+            if(i==2):
+                os.system("sudo tcpdump -i any -n -tt -v tcp port 6653 > evalvid/files/open_flow_classico.txt &")
+            hosts[i-2].cmd('cd scripts/classico_v1 && python classico_client.py h'+str(i)+' >> log.txt &')
+            
+            print("H"+str(i)+" START")
+            time.sleep(5)
 
     except:
         print 'Failed '

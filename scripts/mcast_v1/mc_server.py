@@ -95,7 +95,14 @@ flag = False
 
 # Evalvid evaluation
 os.system("cd ../../evalvid && ./client.sh &")
+
+# os.system("sudo tcpdump -i any -n -tt -v tcp port 6653 > open_flow_mcast.txt &")
+
 os.system("cd ../../evalvid && ./mp4trace -f -s 224.3.29.71 10000 sample.mp4 > files/st01")
 # os.system("echo SERVER FINISH $(date +'%F %T,%3N') ")
+
+# os.system("sudo kill -1 $(ps -C 'sudo tcpdump -i any -n -tt -v igmp > igmp_mcast.txt' -o pid=)")
+# os.system("sudo kill -1 $(ps -C 'tcpdump -i any -n -tt -v tcp port 6653 > evalvid/files/open_flow_mcast.txt' -o pid=)")
+
 time.sleep(1)
 os.system("sudo kill -2 $(ps -C 'tcpdump' -o pid=)")
