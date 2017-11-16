@@ -108,5 +108,24 @@ set terminal png font arial 28 size 1600,1200 # set terminal eps
 set output 'Session Time Setup.png'  # set output 'resultado.eps' 
 
 replot 
+##############################################################################
+set key box width 0.5 height .05 opaque top right
+set xlabel 'Tempo do experimento (segundos)' 
+set ylabel 'Tráfego de pacotes Openflow ' 
+
+set yrange [0:1.5]
+set xrange [0:60]
+set style fill solid 1.00 border 0
 
 
+plot 'open_flow_time.txt' 	using ($2/$3) t 'CLASSICO' 	with lines lw 4 pt 5 ps 1.5 lc rgb '#cd1000'
+rep 1 t 'Multicast SDN' with lines lw 4 pt 7 ps 2 lc rgb '#0060ad' 
+
+#plot 'open_flow_time.txt' using 3 t 'Multicast SDN' with histograms  linecolor rgb "#00FF00"
+#plot 'open_flow_time.txt' using ($2/$3) t 'CLASSICO'  with histograms linecolor rgb "#FF0000"
+#plot '< sort open_flow_mcast_time.txt | uniq -c' using 1 t 'Multicast SDN' with histograms  linecolor rgb "#00FF00"
+#rep '< sort open_flow_classico_time.txt | uniq -c' using 1 t 'CLASSICO'  with histograms linecolor rgb "#FF0000"
+
+set terminal png font arial 28 size 1600,1200
+set output 'openlfow_number.png' 
+replot 
