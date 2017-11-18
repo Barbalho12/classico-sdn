@@ -52,7 +52,7 @@ Será instalado todos os programas necessários, entre eles: Java8, Evalvid, min
    
          ./run.sh avaliação_0
 
-5. Espere até o fim da execução, ao final os dados estarão disponíveis no diretório `classico-sdn/evalvid/experiemntos/` e também compactado no mesmo diretório com o texto passado por parâmetro `avaliação_0.zip`.
+5. Espere até o fim da execução, ao final os dados estarão disponíveis no diretório `evalvid/experiemntos/` e também compactado no mesmo diretório com o texto passado por parâmetro `avaliação_0.zip`.
 
    [Floodlight]: <https://github.com/floodlight/floodlight>
    [Mininet]: <http://mininet.org/>
