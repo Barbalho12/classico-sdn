@@ -33,99 +33,32 @@ Para instalar todas as dependências, execute:
 
 Será instalado todos os programas necessários, entre eles: Java8, Evalvid, mininet etc.
 
-
-Para iniciar o Mininet execute o script:
-
-    sudo python mn/testbed.py
-
-
 ## Aplicação
 
-Para testar o módulo, foi criado dois programas em 'scripts':
+Para testar o módulo, foi criado um script:
 
-* server.py: Espera por requisição de um Cliente especificando um arquivo de vídeo como por exemplo "sample.mp4" no conteúdo da mensagem, após a requisição, o vídeo referido é enviado para o endereço solicitado.
-
-* client.py: Solicita um arquivo de vídeo ao Servidor
+* classico.py: Cria a topologia, inicia os iperfs, executa as aplicações clientes e servidor.
 
 
-### Exemplo
+### Experimento CLASSICO X Multicast-SDN
 
-1. Inicie o módulo CLASSICO:
+1. Em seu workspace, clone este projeto, que corresponde a um módulo do floodlight:
       
-         ant && java -jar target/floodlight.jar
+         git clone https://github.com/Barbalho12/classico-sdn.git
 
-2. Inicie o Mininet:
+2. Clone também o projeto original do floodlight no mesmo diretório (onde será executado o Multicast):
 
-         sudo python mn/testbed.py
+         git clone https://github.com/floodlight/floodlight.git
 
-3. No mininet, teste se os Hosts criados estão se comunicando:
+3. Entre no diretório do módulo CLASSICO:
     
-         mininet> pingall
+         cd classico-sdn
 
-4. Abra dois terminais externos para h3 e h2 no mininet:
+4. Não feche outras aplicações (como navegadores) e de preferência desative a conexão com a internet, e então execute o script de avaliação passando como parâmetro o nome do arquivo de saída, onde conterá todos os resutlados da avaliação:
    
-         mininet> xterm h3 h2
+         ./run.sh avaliação_0
 
-5. Execute o Server em h3:
-
-         python server.py
-
-6. Execute o Client em h2:
-
-         python client.py 192.168.2.110 8888 sample.mp4
-
-7. LOG **simplificado** da execução do exemplo:
-
-         [MONITOR] There are no candidate paths to update
-         [ExecutorPathFlowSDN] No changes in Flows
-         (...)
-         [MONITOR] There are no candidate paths to update
-         [ExecutorPathFlowSDN] No changes in Flows
-         (...)
-         [MONITOR] There are no candidate paths to update
-         [ExecutorPathFlowSDN] No changes in Flows
-         (...)
-         ------------ Table Sessions ----------
-
-         [ID = 0, Description=sample.mp4, 
-             List User=[UserSession [ID = 1, Address = 192.168.2.100:55099, Edge switch = aa:bb:cc:35]]]
-
-         ------------ Candidate Paths Table ----------
-
-         [Candidate Paths=10, Server=192.168.2.110:8888, User=192.168.2.100:55099, Session=sample2.mp4 ]
-
-             Candidate Path: 32 -> 14 -> 35
-                 Bw Consumption: 60bps
-                 Latency: 17
-                 Hop Count: 2
-             Candidate Path: 32 -> 15 -> 35
-                 Bandwidth Consumption: 60bps
-                 Latency: 0
-                 Hop Count: 2
-             Candidate Path: 32 -> 14 -> 02 -> 15 -> 35
-                 Bandwidth Consumption: 60bps
-                 Latency: 5
-                 Hop Count: 4
-
-                 (...)
-
-         ----------------------------------------------
-         (...)
-         [MONITOR] Update Candidate Paths
-         [ExecutorPathFlowSDN] FLOW_MOD ADD: Switch: aa:bb:cc:32, Port:3, Reference: 192.168.2.110 -> 192.168.2.100
-         [ExecutorPathFlowSDN] FLOW_MOD ADD: Switch: aa:bb:cc:14, Port:1, Reference: 192.168.2.110 -> 192.168.2.100
-         [ExecutorPathFlowSDN] Update Flows
-         (...)
-         [MONITOR] Update Candidate Paths
-         [ExecutorPathFlowSDN] No changes in Flows
-
-
-#### Explicação 
-
-[MONITOR] é uma thread que busca estatísticas da rede, e a cada unidade de tempo invoca [ExecutorPathFlowSDN], que como ainda não tem sessões na Tabela de sessões, exibe uma mensagem de que não há alterações. Em seguida, um cliente se registra em uma nova sessão e é impresso "Candidate Paths Table", com suas informações. Depois os caminhos candidatos entre o Switch de borda do servidor e do cliente são calculados e é exibido "Candidate Paths Table". Por fim [ExecutorPathFlowSDN] modifica a rede, adicionando fluxos em cada switch dos melhores caminhos.
-
-
-
+5. Espere até o fim da execução, ao final os dados estarão disponíveis no diretório `classico-sdn/evalvid/experiemntos/` e também compactado no mesmo diretório com o texto passado por parâmetro `avaliação_0.zip`.
 
    [Floodlight]: <https://github.com/floodlight/floodlight>
    [Mininet]: <http://mininet.org/>
