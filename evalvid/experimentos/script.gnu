@@ -43,7 +43,7 @@ set xrange [0:60]
 set yrange [0.85:1.0]
 set ytics 0.02
 
-plot 	'out_ssim.txt' 	using ($1/24):3 t 'Multicast SDN' with linespoints lw 1 pt 2 ps 1.5 lc rgb '#0060ad' 
+plot 	'out_ssim.txt' 	using ($1/24):3 t 'Multicast SDN' with linespoints lw 1 pt 2 ps 3 lc rgb '#0060ad' 
 rep 	'out_ssim.txt' 	using ($1/24):4 t 'CLASSICO' with linespoints lw 1 pt 2 ps 1.5 lc rgb '#cd1000'
 
 
@@ -61,7 +61,7 @@ set xrange [0:60]
 set yrange [0:15]
 set ytics 2
 
-plot 	'out_vqm.txt' 	using ($1/24):3 t 'Multicast SDN' with linespoints lw 1 pt 2 ps 1.5 lc rgb '#0060ad' 
+plot 	'out_vqm.txt' 	using ($1/24):3 t 'Multicast SDN' with linespoints lw 1 pt 2 ps 3 lc rgb '#0060ad' 
 rep 	'out_vqm.txt' 	using ($1/24):4 t 'CLASSICO' with linespoints lw 1 pt 2 ps 1.5 lc rgb '#cd1000'
 
 set terminal png font arial 28 size 1600,1200 # set terminal eps 
@@ -126,8 +126,8 @@ set xrange [1:10]
 set yrange [0.0:1000]
 set ytics 200
 
-plot 	'mc/files/log.txt' 	using ($1-1):($2*1000) t 'Multicast SDN' with linespoints lw 1 pt 2 ps 1.5 lc rgb '#0060ad' 
-rep 	'classico/files/log.txt' 	using ($1-1):($2*1000) t 'CLASSICO' 	with linespoints lw 1 pt 2 ps 1.5 lc rgb '#cd1000'
+plot 	'mc/files/log.txt' 	using ($1-1):($2*1000) t 'Multicast SDN' with linespoints lw 3 pt 2 ps 1.5 lc rgb '#0060ad' 
+rep 	'classico/files/log.txt' 	using ($1-1):($2*1000) t 'CLASSICO' 	with linespoints lw 3 pt 2 ps 1.5 lc rgb '#cd1000'
 
 set terminal png font arial 28 size 1600,1200 # set terminal eps 
 set output 'Tempo de ativação da sessão.png'  # set output 'resultado.eps' 
@@ -150,25 +150,21 @@ set output 'Vazão de Controle.png'
 replot 
 
 ##############################################################################
-#set key box width 0.5 height .05 opaque top right
-#set xlabel 'Tempo do experimento (segundos)' 
-#set ylabel 'Sobrecarga de Controle' 
+set encoding iso_8859_1 
+set grid 
+set key box width 0.5 height .05 opaque top right
+set xlabel 'Tempo do experimento (segundos)' 
+set ylabel 'Sobrecarga de Controle (qtd pacotes)' 
 
-#set yrange [0:*]
-#set xrange [0:60]
-#set style fill solid 1.00 border 0
-#set ytics 1
-
-
-#plot 'open_flow_time.txt' 	using ($2/$3) t 'CLASSICO' 	with lines lw 4 lc rgb '#cd1000'
-#rep 1 t 'Multicast SDN' with lines lw 4 lc rgb '#0060ad' 
+set xrange [0:60]
+set yrange [0.0:*]
+set ytics 1000
+set style fill solid 1.00 border 0
 
 
-#plot 'open_flow_time.txt' using 3 t 'Multicast SDN' with histograms  linecolor rgb "#00FF00"
-#plot 'open_flow_time.txt' using ($2/$3) t 'CLASSICO'  with histograms linecolor rgb "#FF0000"
-#plot '< sort open_flow_mcast_time.txt | uniq -c' using 1 t 'Multicast SDN' with histograms  linecolor rgb "#00FF00"
-#rep '< sort open_flow_classico_time.txt | uniq -c' using 1 t 'CLASSICO'  with histograms linecolor rgb "#FF0000"
+plot '< sort open_flow_mcast_time.txt | uniq -c' using 1 t 'Multicast SDN' with histograms  linecolor rgb "#cccccc"
+rep '< sort open_flow_classico_time.txt | uniq -c' using 1 t 'CLASSICO'  with histograms linecolor rgb "#000000"
 
-#set terminal png font arial 28 size 1600,1200
-#set output 'Sobrecarga de Controle.png' 
-#replot 
+set terminal png font arial 28 size 1600,1200
+set output 'histograma_controle.png' 
+replot 

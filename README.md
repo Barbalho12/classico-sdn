@@ -21,7 +21,7 @@ O [Mininet] é uma aplicação responsável pela virtualização dos componentes
 
 
 <kbd>
-    <p align="center"><img src ="prints/testbed.png" width="100%" /></p>
+    <p align="center"><img src ="prints/topologia.png" width="100%" /></p>
 </kbd>
 
 
