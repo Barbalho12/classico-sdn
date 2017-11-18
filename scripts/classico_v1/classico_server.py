@@ -29,10 +29,12 @@ finally:
     s.close()
 
 os.system("cd ../../evalvid && ./client.sh &")
+time.sleep(1)
 os.system("cd ../../evalvid && ./mp4trace -f -s "+ipAddr+" 10000 sample.mp4 > files/st01")
+
 # os.system("echo SERVER FINISH $(date +'%F %T,%3N') ")
 # os.system("sudo kill -1 $(ps -C 'tcpdump -i any -n -tt -v tcp port 6653 > evalvid/files/open_flow_classico.txt' -o pid=)")
-time.sleep(1)
+time.sleep(2)
 os.system("sudo kill -1 $(ps -C 'tcpdump' -o pid=)")
 
    

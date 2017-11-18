@@ -17,9 +17,9 @@ def link_down(net):
     # os.system("echo \"$(date +'%F %T,%3N') Link s15 - s17 Down\" >> scripts/mcast_v1/log.txt")
 
 def link_iperf(net, hc, hs1, hs2):
-    for x in range(0, 5):
-        net.iperf( [ hc, hs1 ], seconds=5, l4Type='UDP', udpBw='8M')
-        net.iperf( [ hc, hs2 ], seconds=5, l4Type='UDP', udpBw='8M')
+    # for x in range(0, 5):
+    net.iperf( [ hc, hs1], seconds=25, l4Type='UDP', udpBw='9M')
+    net.iperf( [ hc, hs2], seconds=25, l4Type='UDP', udpBw='9M')
 
 def topology():
 
@@ -119,11 +119,12 @@ def topology():
     try:
 
         #Run Floodlight in another terminal
-        exec_floodlight="cd ../floodlight && ant && java -jar target/floodlight.jar > mcast_log.txt && exit"
+        exec_floodlight="cd ../floodlight && java -jar target/floodlight.jar > mcast_log.txt && exit"
+        # exec_floodlight="cd ../floodlight && ant && java -jar target/floodlight.jar > mcast_log.txt && exit"
         os.system("gnome-terminal -x sh -c '"+exec_floodlight+" ; bash'")
 
         #wait time for compile and run Floodlight
-        time.sleep(40)
+        time.sleep(15)
 
         # net.pingAll()
 
@@ -149,7 +150,7 @@ def topology():
             hosts[i-2].cmd('cd scripts/mcast_v1 && python mc_client.py h'+str(i)+' >> log.txt &')
             if(i==2):
                 os.system("sudo tcpdump -i any -n -tt -v tcp port 6653 > evalvid/files/open_flow_mcast.txt &")
-                os.system("sudo tcpdump -i any -n -tt -v igmp > evalvid/files/igmp_mcast.txt &")
+                # os.system("sudo tcpdump -i any -n -tt -v igmp > evalvid/files/igmp_mcast.txt &")
             print("H"+str(i)+" START")
             time.sleep(5)
 
