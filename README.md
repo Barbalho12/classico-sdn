@@ -29,29 +29,35 @@ O [Mininet] é uma aplicação responsável pela virtualização dos componentes
 
 Para instalar todas as dependências, execute:
 
-    ./install.sh
-
+```bash
+./install.sh
+```
 Será instalado todos os programas necessários, entre eles: Java8, Evalvid, mininet etc.
 
 
 ### Experimento CLASSICO X Multicast-SDN
 
 1. Em seu workspace, clone este projeto, que corresponde a um módulo do floodlight:
-      
-         git clone https://github.com/Barbalho12/classico-sdn.git
 
+```bash
+git clone https://github.com/Barbalho12/classico-sdn.git
+```
 2. Clone também o projeto original do floodlight no mesmo diretório (onde será executado o Multicast):
 
-         git clone https://github.com/floodlight/floodlight.git
+```bash
+git clone https://github.com/floodlight/floodlight.git
+```
 
 3. Entre no diretório do módulo CLASSICO:
-    
-         cd classico-sdn
 
+```bash
+cd classico-sdn
+```
 4. Não feche outras aplicações (como navegadores) e de preferência desative a conexão com a internet, e então execute o script de avaliação passando como parâmetro o nome do arquivo de saída, onde conterá todos os resutlados da avaliação:
-   
-         ./run.sh avaliação_0
 
+```bash
+./run.sh avaliação_0
+```
 5. Espere até o fim da execução, ao final os dados estarão disponíveis no diretório `evalvid/experiemntos/` e também compactado no mesmo diretório com o texto passado por parâmetro `avaliação_0.zip`.
 
    [Floodlight]: <https://github.com/floodlight/floodlight>
