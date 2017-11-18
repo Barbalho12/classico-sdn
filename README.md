@@ -33,12 +33,6 @@ Para instalar todas as dependências, execute:
 
 Será instalado todos os programas necessários, entre eles: Java8, Evalvid, mininet etc.
 
-## Aplicação
-
-Para testar o módulo, foi criado um script:
-
-* classico.py: Cria a topologia, inicia os iperfs, executa as aplicações clientes e servidor.
-
 
 ### Experimento CLASSICO X Multicast-SDN
 
